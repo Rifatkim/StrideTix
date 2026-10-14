@@ -15,7 +15,7 @@ Pemilihan teknologi pada **StrideTix** dirancang agar pengembangan fitur *core t
 | :--- | :--- | :--- |
 | **Fullstack Framework** | **Next.js (App Router)** | Menangani antarmuka pengguna (SSR/CSR), *routing* halaman multi-role, serta *Backend API Routes* / *Server Actions*. |
 | **Bahasa Pemrograman** | **TypeScript** | Menjaga *type-safety* pada pengolahan data metrik Strava, respons API Groq, dan transaksi tiket. |
-| **Styling & UI Components** | **Tailwind CSS + shadcn/ui** | Membangun antarmuka responsif untuk katalog event, *badge* rekomendasi, modal *safety warning*, dan dashboard. |
+| **Styling & UI Components** | **Tailwind CSS + shadcn/ui + GSAP Animation** | Membangun antarmuka responsif untuk katalog event, *badge* rekomendasi, modal *safety warning*, dan dashboard. |
 | **Database & Backend-as-a-Service** | **Supabase (PostgreSQL)** | Menyimpan data relasional, autentikasi pengguna (*Supabase Auth*), proteksi akses (*Row Level Security*), dan penyimpanan gambar banner event (*Supabase Storage*). |
 | **External Fitness API** | **Strava API v3 (OAuth 2.0)** | Mengambil riwayat aktivitas lari pengguna (*distance, moving time, pace, frequency*) secara aman. |
 | **AI & LLM Inference Engine** | **Groq Cloud API** | Menghasilkan penjelasan naratif dari hasil *Rule-Based Scoring Engine* serta menjalankan fitur *AI Running Assistant (Chatbot)* dengan kecepatan tinggi (*ultra-low latency*). |
@@ -126,27 +126,24 @@ Berikut adalah daftar *package* pendukung yang akan dipasang pada proyek Next.js
 Untuk memenuhi kebutuhan **NFR Security (Bagian 11.2)** dan **Maintainability (Bagian 11.7)**, seluruh kunci rahasia wajib disimpan di dalam `.env.local`:
 
 ```env
-# 1. Konfigurasi Aplikasi
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-# 2. Konfigurasi Supabase (Database, Auth, Storage)
+# 1. Konfigurasi Supabase (Database, Auth, Storage)
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 
-# 3. Konfigurasi Strava API v3 (Hanya diakses di Server/Backend)
+# 2. Konfigurasi Strava API v3 (Hanya diakses di Server/Backend)
 STRAVA_CLIENT_ID=your_strava_client_id
 STRAVA_CLIENT_SECRET=your_strava_client_secret
 NEXT_PUBLIC_STRAVA_REDIRECT_URI=http://localhost:3000/api/strava/callback
 
-# 4. Konfigurasi Groq Console API (Hanya diakses di Server/Backend)
+# 3. Konfigurasi Groq Console API (Hanya diakses di Server/Backend)
 GROQ_API_KEY=gsk_your_groq_api_key_here
 GROQ_MODEL_NAME=llama-3.3-70b-versatile
 ```
 
 ---
 
-## 6. Keunggulan Kombinasi Tech Stack Ini untuk Sidang Tugas Akhir
+## 6. Keunggulan Kombinasi Tech Stack
 
 1. **Kecepatan Eksekusi AI (Groq):** Memenuhi KPI waktu pembuatan rekomendasi di bawah 10 detik dengan sangat mudah karena inferensi Groq rata-rata selesai dalam 0,5–1,5 detik.
 2. **Keamanan Token Terjamin (Next.js Server + Supabase):** Token Strava dan API Key Groq diproses sepenuhnya di *Server Route* Next.js sehingga aman dari kebocoran di sisi klien (*browser*).

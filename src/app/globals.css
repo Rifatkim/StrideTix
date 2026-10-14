@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary-50: #fff7ed;
+  --color-primary-100: #ffedd5;
+  --color-primary-200: #fed7aa;
+  --color-primary-300: #fdba74;
+  --color-primary-400: #fb923c;
+  --color-primary-500: #f97316;
+  --color-primary-600: #ea580c;
+  --color-primary-700: #c2410c;
+  --color-primary-800: #9a3412;
+  --color-primary-900: #7c2d12;
+
+  --color-background-main: #fffcf8;
+  --color-background-soft: #fff8ee;
+  --color-background-muted: #f7efe3;
+  --color-surface: #ffffff;
+
+  --color-text-primary: #241c17;
+  --color-text-secondary: #665c54;
+  --color-text-muted: #8c8178;
+
+  --color-border: #e8ddd0;
+  --color-border-strong: #cdbeae;
+
+  --color-success: #18864b;
+  --color-warning: #b76a00;
+  --color-error: #c83232;
+  --color-info: #5b4db7;
+  --color-ai: #7c3aed;
+  --color-strava: #fc4c02;
+
+  --radius-button: 12px;
+  --radius-input: 12px;
+  --radius-card: 18px;
+  --radius-modal: 24px;
+
+  --shadow-card: 0 6px 24px rgba(58, 39, 24, 0.08);
+  --shadow-card-hover: 0 14px 36px rgba(58, 39, 24, 0.14);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background-main);
+    color: var(--color-text-primary);
+    font-family: var(--font-plus-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 4.5rem; /* Safe clearance for fixed bottom simulator bar */
+  }
+}
+
+/* Warm gradient for hero sections per DESIGN.md */
+.bg-warm-hero {
+  background: linear-gradient(135deg, #FFFCF8 0%, #FFF8EE 55%, #FFE8CF 100%);
+}
+
+/* Custom scrollbar matching warm theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FFF8EE;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E8DDD0;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #CDBEAE;
+}
