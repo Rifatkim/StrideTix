@@ -19,7 +19,6 @@ SET
   phone_change = COALESCE(phone_change, ''),
   phone_change_token = COALESCE(phone_change_token, ''),
   reauthentication_token = COALESCE(reauthentication_token, ''),
-  confirmed_at = COALESCE(confirmed_at, email_confirmed_at, now()),
   email_confirmed_at = COALESCE(email_confirmed_at, now())
 WHERE confirmation_token IS NULL
    OR recovery_token IS NULL
@@ -31,7 +30,6 @@ WHERE confirmation_token IS NULL
 UPDATE auth.users
 SET encrypted_password = crypt('Porsea123', gen_salt('bf')),
     email_confirmed_at = now(),
-    confirmed_at = now(),
     raw_user_meta_data = '{"full_name":"Yosephin","role":"organizer","organizer_name":"Yosephin"}'
 WHERE lower(email) = 'yosep@gmail.com';
 
@@ -39,7 +37,6 @@ WHERE lower(email) = 'yosep@gmail.com';
 UPDATE auth.users
 SET encrypted_password = crypt('Admin123', gen_salt('bf')),
     email_confirmed_at = now(),
-    confirmed_at = now(),
     raw_user_meta_data = '{"full_name":"Admin","role":"admin"}'
 WHERE lower(email) = 'admin@gmail.com';
 

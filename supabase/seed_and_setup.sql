@@ -411,5 +411,5 @@ BEGIN
       phone_change = COALESCE(phone_change, ''),
       phone_change_token = COALESCE(phone_change_token, ''),
       reauthentication_token = COALESCE(reauthentication_token, ''),
-      confirmed_at = COALESCE(confirmed_at, email_confirmed_at, now());
+      email_confirmed_at = COALESCE(email_confirmed_at, now());
 END $$;
