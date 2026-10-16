@@ -43,7 +43,7 @@ export function LoginForm() {
     } else if (role === "organizer") {
       router.push("/organizer/dashboard");
     } else {
-      router.push("/dashboard");
+      router.push("/");
     }
   };
 

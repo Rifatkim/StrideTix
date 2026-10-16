@@ -46,6 +46,11 @@ function MobileBottomNavInner() {
           <>
             <Link
               href="/"
+              onClick={() => {
+                if (pathname === "/") {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
               className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 ${
                 isExactActive("/") ? "text-brand font-bold" : "text-espresso-muted hover:text-espresso"
               }`}

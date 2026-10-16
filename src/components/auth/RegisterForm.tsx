@@ -40,7 +40,7 @@ export function RegisterForm() {
       } else if (user.role === "organizer") {
         router.push("/organizer/dashboard");
       } else {
-        router.push("/dashboard");
+        router.push("/");
       }
     } catch (err: any) {
       setErrorMessage(err.message || "Gagal mendaftarkan akun. Silakan coba kembali.");

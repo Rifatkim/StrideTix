@@ -180,23 +180,23 @@ export function Navbar() {
             {currentUser && role === "runner" && (
               <>
                 <Link
-                  href="/#jelajahi-event"
+                  href="/"
                   onClick={(e) => {
                     if (pathname === "/") {
                       e.preventDefault();
-                      scrollToSection("jelajahi-event");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
                     }
                   }}
-                  aria-current={pathname === "/" && activeSection === "jelajahi-event" ? "page" : undefined}
+                  aria-current={pathname === "/" ? "page" : undefined}
                   className={`px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${
-                    pathname === "/" && activeSection === "jelajahi-event"
+                    pathname === "/"
                       ? "bg-[#FFF7ED] text-brand font-bold shadow-xs border border-brand/20"
                       : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
                   }`}
                 >
                   <Compass
                     className={`w-4 h-4 ${
-                      pathname === "/" && activeSection === "jelajahi-event" ? "text-brand" : "text-espresso-muted"
+                      pathname === "/" ? "text-brand" : "text-espresso-muted"
                     }`}
                   />
                   <span>Cari Event</span>
