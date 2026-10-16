@@ -24,12 +24,22 @@ export function CategoryCard({
 
   return (
     <div
+      role="button"
+      tabIndex={isSoldOut ? -1 : 0}
+      aria-pressed={isSelected}
+      aria-label={`Kategori ${category.name}, jarak ${category.distanceKm} km, harga ${formatRupiah(category.price)}`}
       onClick={() => !isSoldOut && onSelect(category)}
-      className={`relative rounded-card p-5 border transition-all duration-200 cursor-pointer ${
+      onKeyDown={(e) => {
+        if ((e.key === "Enter" || e.key === " ") && !isSoldOut) {
+          e.preventDefault();
+          onSelect(category);
+        }
+      }}
+      className={`relative rounded-card p-5 border transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C2410C] ${
         isSoldOut
           ? "bg-surface-muted/50 border-sand-border opacity-60 cursor-not-allowed"
           : isSelected
-          ? "bg-brand-50 border-brand-700 ring-2 ring-brand-700/20 shadow-warm"
+          ? "bg-[#FFF7ED] border-[#C2410C] ring-2 ring-[#C2410C]/25 shadow-warm-hover"
           : "bg-white border-sand-border hover:border-brand-300 hover:shadow-warm"
       }`}
     >
@@ -41,18 +51,26 @@ export function CategoryCard({
             {category.name}
           </span>
 
+          {/* Selected Badge */}
+          {isSelected && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#C2410C] text-white shadow-sm">
+              <Check className="w-3 h-3 stroke-[3]" />
+              <span>Dipilih</span>
+            </span>
+          )}
+
           {/* Recommended Badge per DESIGN.md */}
           {isRecommended && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-brand text-white shadow-sm animate-pulse">
-              <Sparkles className="w-3 h-3 text-accent-ai" />
-              <span>Recommended for You</span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-white shadow-sm">
+              <Sparkles className="w-3 h-3" />
+              <span>Direkomendasikan untuk Anda</span>
             </span>
           )}
 
           {/* Above Recommendation Warning Badge */}
           {isAboveRecommendation && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-accent-warning-bg text-accent-warning border border-accent-warning-border">
-              <AlertTriangle className="w-3 h-3" />
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-300">
+              <AlertTriangle className="w-3 h-3 text-amber-600" />
               <span>Di Atas Rekomendasi</span>
             </span>
           )}
@@ -62,7 +80,7 @@ export function CategoryCard({
         <div
           className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
             isSelected
-              ? "bg-brand border-brand text-white"
+              ? "bg-[#C2410C] border-[#C2410C] text-white"
               : "border-sand-border-strong bg-white"
           }`}
         >

@@ -400,4 +400,16 @@ BEGIN
     (v_evt6, '5K Heritage Fun', 5.0, 220000, 400, 290),
     (v_evt6, '10K Kraton Pace', 10.0, 340000, 500, 375);
 
+  -- Sanitize auth.users string columns to avoid GoTrue 500 error: "converting NULL to string is unsupported"
+  UPDATE auth.users
+  SET confirmation_token = COALESCE(confirmation_token, ''),
+      recovery_token = COALESCE(recovery_token, ''),
+      email_change_token_new = COALESCE(email_change_token_new, ''),
+      email_change_token_current = COALESCE(email_change_token_current, ''),
+      email_change = COALESCE(email_change, ''),
+      phone = COALESCE(phone, ''),
+      phone_change = COALESCE(phone_change, ''),
+      phone_change_token = COALESCE(phone_change_token, ''),
+      reauthentication_token = COALESCE(reauthentication_token, ''),
+      confirmed_at = COALESCE(confirmed_at, email_confirmed_at, now());
 END $$;

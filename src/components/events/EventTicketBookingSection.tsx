@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
-import { TicketCategory, DistanceCategory } from "@/types";
+import { useRouter } from "next/navigation";
+import { TicketCategory } from "@/types";
 import { CategoryCard } from "@/components/events/CategoryCard";
 import { RecommendationCard } from "@/components/recommendation/RecommendationCard";
 import { SafetyWarningModal } from "@/components/recommendation/SafetyWarningModal";
+import { StickyBookingBar } from "@/components/events/StickyBookingBar";
 import { useRunner } from "@/context/RunnerContext";
-import { formatRupiah } from "@/lib/utils";
-import { ArrowRight, Ticket, ShieldCheck } from "lucide-react";
+import { Info, Sparkles } from "lucide-react";
 
 interface EventTicketBookingSectionProps {
   eventId: string;
@@ -19,44 +19,47 @@ export function EventTicketBookingSection({
   eventId,
   categories,
 }: EventTicketBookingSectionProps) {
+  const router = useRouter();
   const { recommendation, currentProfile } = useRunner();
 
-  // Find initially recommended category or default to first
-  const defaultCategory = React.useMemo(() => {
-    if (recommendation?.recommendedCategory) {
-      const match = categories.find((c) => c.name === recommendation.recommendedCategory);
-      if (match) return match;
-    }
-    return categories[0];
-  }, [recommendation, categories]);
-
-  const [selectedCategory, setSelectedCategory] = useState<TicketCategory>(defaultCategory);
+  // Initial state: no category selected yet until user actively chooses
+  const [selectedCategory, setSelectedCategory] = useState<TicketCategory | null>(null);
   const [warningModalOpen, setWarningModalOpen] = useState(false);
-  const [pendingCategory, setPendingCategory] = useState<TicketCategory | null>(null);
 
-  // Synchronize when recommendation changes
-  React.useEffect(() => {
-    if (recommendation?.recommendedCategory) {
-      const match = categories.find((c) => c.name === recommendation.recommendedCategory);
-      if (match) {
-        setSelectedCategory(match);
-      }
-    }
-  }, [recommendation, categories]);
+  // Check if selected category is above recommendation
+  const isSelectedAboveRecommendation = React.useMemo(() => {
+    if (!selectedCategory || !recommendation?.recommendedCategory) return false;
+    return recommendation.isEligibleForCategory(selectedCategory.name).isAboveRecommendation;
+  }, [selectedCategory, recommendation]);
 
-  // Handle user clicking a category
+  // Handle user clicking a category card
   const handleSelectCategory = (category: TicketCategory) => {
-    if (recommendation?.recommendedCategory) {
-      const check = recommendation.isEligibleForCategory(category.name);
-      if (check.isAboveRecommendation) {
-        setPendingCategory(category);
-        setWarningModalOpen(true);
-        return;
-      }
-    }
     setSelectedCategory(category);
   };
 
+  // Scroll back to categories list smoothly
+  const handleScrollToCategories = () => {
+    const el = document.getElementById("event-categories-list");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  // When user clicks "Lanjutkan Pemesanan" in the sticky booking bar
+  const handleProceed = () => {
+    if (!selectedCategory) return;
+
+    // If above recommendation, show full Safety Warning Modal first
+    if (isSelectedAboveRecommendation && recommendation?.recommendedCategory) {
+      setWarningModalOpen(true);
+      return;
+    }
+
+    // Otherwise proceed directly to checkout
+    router.push(`/checkout?eventId=${eventId}&categoryId=${selectedCategory.id}`);
+  };
+
+  // Modal actions
   const handleSwitchToRecommended = () => {
     if (recommendation?.recommendedCategory) {
       const match = categories.find((c) => c.name === recommendation.recommendedCategory);
@@ -65,15 +68,13 @@ export function EventTicketBookingSection({
       }
     }
     setWarningModalOpen(false);
-    setPendingCategory(null);
   };
 
   const handleProceedAnyway = () => {
-    if (pendingCategory) {
-      setSelectedCategory(pendingCategory);
+    if (selectedCategory) {
+      setWarningModalOpen(false);
+      router.push(`/checkout?eventId=${eventId}&categoryId=${selectedCategory.id}`);
     }
-    setWarningModalOpen(false);
-    setPendingCategory(null);
   };
 
   return (
@@ -93,8 +94,32 @@ export function EventTicketBookingSection({
         </div>
       </div>
 
-      {/* 3. Category Cards List */}
-      <div className="space-y-3.5">
+      {/* 3. Helper Note Before Selection */}
+      {!selectedCategory ? (
+        <div className="p-3.5 rounded-xl bg-surface-soft border border-sand-border/80 text-espresso-secondary text-xs flex items-center gap-2.5 animate-in fade-in">
+          <Info className="w-4 h-4 text-brand shrink-0" />
+          <span>Pilih salah satu kategori lomba di bawah untuk melanjutkan pemesanan.</span>
+        </div>
+      ) : (
+        <div className="p-3 rounded-xl bg-orange-50/70 border border-orange-200/80 text-xs text-espresso flex items-center justify-between gap-2 animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-brand" />
+            <span>
+              Kategori terpilih: <strong>{selectedCategory.name}</strong> ({selectedCategory.distanceKm} KM)
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={handleScrollToCategories}
+            className="text-[11px] font-bold text-brand hover:underline"
+          >
+            Pilih Lainnya
+          </button>
+        </div>
+      )}
+
+      {/* 4. Category Cards List */}
+      <div id="event-categories-list" className="space-y-3.5 scroll-mt-28">
         {categories.map((category) => {
           const isRec = recommendation?.recommendedCategory === category.name;
           const isAbove = recommendation?.isEligibleForCategory(category.name).isAboveRecommendation;
@@ -112,57 +137,24 @@ export function EventTicketBookingSection({
         })}
       </div>
 
-      {/* 4. Sticky Order Summary Bar */}
-      <div className="sticky bottom-16 z-20 bg-white rounded-card p-5 border border-brand-300 shadow-warm-hover space-y-4">
-        <div className="flex items-center justify-between gap-2 border-b border-sand-border pb-3">
-          <div className="space-y-0.5">
-            <span className="text-[10px] uppercase font-bold tracking-wider text-espresso-muted block">
-              Kategori Terpilih
-            </span>
-            <span className="text-sm font-extrabold text-espresso">
-              {selectedCategory.name} ({selectedCategory.distanceKm} KM)
-            </span>
-          </div>
+      {/* 5. Sticky Booking Bar (Fixed to bottom viewport) */}
+      <StickyBookingBar
+        selectedCategory={selectedCategory}
+        isAboveRecommendation={isSelectedAboveRecommendation}
+        onProceed={handleProceed}
+        onScrollToCategories={handleScrollToCategories}
+      />
 
-          <div className="text-right">
-            <span className="text-[10px] uppercase font-bold tracking-wider text-espresso-muted block">
-              Total Pembayaran
-            </span>
-            <span className="text-xl font-extrabold text-brand">
-              {formatRupiah(selectedCategory.price)}
-            </span>
-          </div>
-        </div>
-
-        {/* Checkout CTA */}
-        <Link
-          href={`/checkout?eventId=${eventId}&categoryId=${selectedCategory.id}`}
-          className="w-full py-3.5 px-6 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm transition-all flex items-center justify-center gap-2 group"
-        >
-          <Ticket className="w-4 h-4" />
-          <span>Lanjutkan Pemesanan Tiket</span>
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </Link>
-
-        <div className="flex items-center justify-center gap-2 text-[11px] text-espresso-muted">
-          <ShieldCheck className="w-3.5 h-3.5 text-accent-success" />
-          <span>E-Ticket Resmi QR Code instan setelah pembayaran</span>
-        </div>
-      </div>
-
-      {/* 5. Safety Warning Modal Dialog */}
-      {pendingCategory && recommendation?.recommendedCategory && (
+      {/* 6. Safety Warning Modal Dialog (Opens when proceeding with above-recommendation category) */}
+      {selectedCategory && recommendation?.recommendedCategory && (
         <SafetyWarningModal
           isOpen={warningModalOpen}
-          selectedCategoryName={pendingCategory.name}
+          selectedCategoryName={selectedCategory.name}
           recommendedCategoryName={recommendation.recommendedCategory}
           longestRunKm={currentProfile?.summary.longestRunKm || 0}
           onSwitchToRecommended={handleSwitchToRecommended}
           onProceedAnyway={handleProceedAnyway}
-          onClose={() => {
-            setWarningModalOpen(false);
-            setPendingCategory(null);
-          }}
+          onClose={() => setWarningModalOpen(false)}
         />
       )}
     </div>

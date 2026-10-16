@@ -24,6 +24,25 @@ export function ChatbotWidget() {
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const [isBookingBarActive, setIsBookingBarActive] = useState(false);
+
+  useEffect(() => {
+    const handleToggle = (e: Event) => {
+      const customEvent = e as CustomEvent<{ active?: boolean }>;
+      setIsBookingBarActive(Boolean(customEvent.detail?.active));
+    };
+
+    window.addEventListener("stridetix:booking-bar", handleToggle);
+
+    if (typeof document !== "undefined" && document.querySelector("[data-sticky-booking-bar]")) {
+      setIsBookingBarActive(true);
+    }
+
+    return () => {
+      window.removeEventListener("stridetix:booking-bar", handleToggle);
+    };
+  }, []);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -61,7 +80,13 @@ export function ChatbotWidget() {
   };
 
   return (
-    <div className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-40">
+    <div
+      className={`fixed right-4 sm:right-6 z-40 transition-all duration-300 ${
+        isBookingBarActive
+          ? "bottom-48 sm:bottom-24"
+          : "bottom-20 md:bottom-6"
+      }`}
+    >
       {/* Floating Action Button (FAB) */}
       {!isOpen && (
         <button

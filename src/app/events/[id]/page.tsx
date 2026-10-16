@@ -30,7 +30,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     <div className="min-h-screen flex flex-col bg-surface-main">
       <Navbar />
 
-      <Container as="main" className="flex-1 pt-6 pb-28 sm:pt-8 sm:pb-12 space-y-10">
+      <Container as="main" className="flex-1 pt-6 pb-36 sm:pt-8 sm:pb-40 space-y-10">
         {/* Header Section */}
         <EventDetailHeader event={event} />
 
