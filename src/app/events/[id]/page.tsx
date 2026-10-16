@@ -29,7 +29,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     <div className="min-h-screen flex flex-col bg-surface-main">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28 sm:pt-8 sm:pb-12 space-y-10">
         {/* Header Section */}
         <EventDetailHeader event={event} />
 

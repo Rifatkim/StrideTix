@@ -6,7 +6,6 @@ import { useParams } from "next/navigation";
 import { getTicketByCode } from "@/services/ticketService";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { StravaSimulatorBar } from "@/components/strava/StravaSimulatorBar";
 import { ETicketCard } from "@/components/tickets/ETicketCard";
 import { ETicket } from "@/types";
 import { TicketX, ArrowLeft, Loader2 } from "lucide-react";
@@ -30,10 +29,9 @@ export default function TicketDetailPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-sand-warm text-espresso font-sans">
-      <StravaSimulatorBar />
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28 sm:pt-8 sm:pb-12">
         {isLoading ? (
           <div className="py-20 text-center flex flex-col items-center justify-center gap-2 text-xs text-espresso-muted">
             <Loader2 className="w-6 h-6 animate-spin text-brand" />

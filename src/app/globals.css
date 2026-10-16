@@ -48,7 +48,6 @@
     color: var(--color-text-primary);
     font-family: var(--font-plus-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
-    padding-bottom: 4.5rem; /* Safe clearance for fixed bottom simulator bar */
   }
 }
 

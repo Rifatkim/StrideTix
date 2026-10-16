@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { UserRole } from "@/types";
 import {
@@ -18,11 +19,12 @@ import {
   FileText,
   DollarSign,
   PlusCircle,
-  Repeat,
+  LogIn,
 } from "lucide-react";
 
 export function UserNavDropdown() {
-  const { currentUser, role, logout, switchRole } = useAuth();
+  const router = useRouter();
+  const { currentUser, role, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -42,13 +44,14 @@ export function UserNavDropdown() {
       <div className="flex items-center gap-2">
         <Link
           href="/auth/login"
-          className="px-3.5 py-2 rounded-btn text-xs font-bold text-espresso hover:text-brand transition-colors"
+          className="px-3.5 py-1.5 rounded-full text-xs font-bold border border-sand-border bg-white text-espresso hover:text-brand hover:border-brand shadow-xs transition-all flex items-center gap-1.5 active:scale-95"
         >
-          Masuk
+          <LogIn className="w-3.5 h-3.5 text-brand" />
+          <span>Masuk</span>
         </Link>
         <Link
           href="/auth/register"
-          className="px-4 py-2 rounded-btn bg-brand text-white text-xs font-bold shadow-warm hover:bg-brand-800 transition-colors"
+          className="hidden sm:inline-flex px-3.5 py-1.5 rounded-full bg-brand text-white text-xs font-bold shadow-warm hover:bg-brand-800 transition-all active:scale-95"
         >
           Daftar
         </Link>
@@ -160,7 +163,7 @@ export function UserNavDropdown() {
                   className="flex items-center gap-2 px-3 py-2 rounded-btn hover:bg-brand-50 text-espresso font-semibold transition-colors"
                 >
                   <PlusCircle className="w-4 h-4 text-brand" />
-                  <span>+ Buat Event Lomba</span>
+                  <span>Buat Event Lomba</span>
                 </Link>
                 <Link
                   href="/organizer/check-in"
@@ -211,63 +214,13 @@ export function UserNavDropdown() {
             )}
           </div>
 
-          {/* Quick Switch Role Demo Selector */}
-          <div className="pt-2 border-t border-sand-border space-y-1">
-            <span className="text-[9px] uppercase font-bold text-espresso-muted px-3 block">
-              Ganti Peran Demo (1-Click Switch):
-            </span>
-            <div className="grid grid-cols-3 gap-1 px-1">
-              <button
-                type="button"
-                onClick={() => {
-                  switchRole("runner");
-                  setIsOpen(false);
-                }}
-                className={`py-1 px-1.5 rounded text-[10px] font-bold text-center border ${
-                  role === "runner"
-                    ? "bg-brand text-white border-brand"
-                    : "bg-surface-main text-espresso border-sand-border hover:bg-brand-50"
-                }`}
-              >
-                Runner
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  switchRole("organizer");
-                  setIsOpen(false);
-                }}
-                className={`py-1 px-1.5 rounded text-[10px] font-bold text-center border ${
-                  role === "organizer"
-                    ? "bg-accent-strava text-white border-accent-strava"
-                    : "bg-surface-main text-espresso border-sand-border hover:bg-brand-50"
-                }`}
-              >
-                Organizer
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  switchRole("admin");
-                  setIsOpen(false);
-                }}
-                className={`py-1 px-1.5 rounded text-[10px] font-bold text-center border ${
-                  role === "admin"
-                    ? "bg-accent-info text-white border-accent-info"
-                    : "bg-surface-main text-espresso border-sand-border hover:bg-brand-50"
-                }`}
-              >
-                Admin
-              </button>
-            </div>
-          </div>
-
           {/* Logout */}
           <div className="pt-2 border-t border-sand-border">
             <button
               onClick={() => {
                 logout();
                 setIsOpen(false);
+                router.push("/auth/login");
               }}
               className="w-full flex items-center gap-2 px-3 py-2 rounded-btn text-accent-error hover:bg-accent-error/10 text-xs font-bold transition-colors"
             >

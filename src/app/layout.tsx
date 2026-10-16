@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={plusJakartaSans.variable}>
-      <body className="min-h-screen flex flex-col bg-surface-main text-espresso antialiased pb-14">
+      <body className="min-h-screen flex flex-col bg-surface-main text-espresso antialiased">
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

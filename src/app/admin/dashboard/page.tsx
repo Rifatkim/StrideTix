@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { StravaSimulatorBar } from "@/components/strava/StravaSimulatorBar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { AdminStatCards } from "@/components/admin/AdminStatCards";
 import { AuthGuard } from "@/components/auth/AuthGuard";
@@ -61,10 +60,9 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-sand-warm text-espresso font-sans">
-      <StravaSimulatorBar />
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28 sm:pt-8 sm:pb-12 space-y-8">
         <AuthGuard allowedRole="admin">
         <AdminHeader
           title="Platform Governance & Control"

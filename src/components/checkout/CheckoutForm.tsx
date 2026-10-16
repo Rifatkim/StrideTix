@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ParticipantData, RunningEvent, TicketCategory } from "@/types";
 import { createTicketOrder } from "@/services/ticketService";
+import { useAuth } from "@/context/AuthContext";
 import { CreditCard, Lock, Sparkles, UserCheck } from "lucide-react";
 
 interface CheckoutFormProps {
@@ -13,20 +14,32 @@ interface CheckoutFormProps {
 
 export function CheckoutForm({ event, category }: CheckoutFormProps) {
   const router = useRouter();
+  const { currentUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form State with sensible defaults for quick testing
   const [formData, setFormData] = useState<ParticipantData>({
-    fullName: "Budi Pratama",
-    email: "budi.pratama@example.com",
+    fullName: currentUser?.name || "Budi Pratama",
+    email: currentUser?.email || "budi.pratama@example.com",
     phoneNumber: "081234567890",
     gender: "male",
     dateOfBirth: "1995-08-17",
-    bibName: "BUDI P.",
+    bibName: currentUser?.name ? currentUser.name.split(" ")[0].toUpperCase() : "BUDI P.",
     emergencyContactName: "Dewi Pratama",
     emergencyContactPhone: "081298765432",
     bloodType: "O",
   });
+
+  useEffect(() => {
+    if (currentUser) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: currentUser.name || prev.fullName,
+        email: currentUser.email || prev.email,
+        bibName: currentUser.name ? currentUser.name.split(" ")[0].toUpperCase() : prev.bibName,
+      }));
+    }
+  }, [currentUser]);
 
   const [agreedToTerms, setAgreedToTerms] = useState(true);
 

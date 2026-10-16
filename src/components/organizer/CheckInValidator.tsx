@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { checkInTicket, getTicketByCode } from "@/services/ticketService";
 import { ETicket } from "@/types";
+import { QRScannerModal, extractTicketCode } from "./QRScannerModal";
 import {
   ShieldCheck,
   Search,
@@ -13,6 +14,7 @@ import {
   Calendar,
   Users,
   RefreshCw,
+  Camera,
 } from "lucide-react";
 
 interface CheckInValidatorProps {
@@ -22,6 +24,7 @@ interface CheckInValidatorProps {
 export function CheckInValidator({ initialCode = "" }: CheckInValidatorProps) {
   const [ticketCodeInput, setTicketCodeInput] = useState(initialCode);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [verificationResult, setVerificationResult] = useState<{
     success: boolean;
     message: string;
@@ -35,15 +38,21 @@ export function CheckInValidator({ initialCode = "" }: CheckInValidatorProps) {
   }, [initialCode]);
 
   const handleVerify = async (codeToVerify?: string) => {
-    const code = (codeToVerify || ticketCodeInput).trim();
-    if (!code) return;
+    const raw = (codeToVerify || ticketCodeInput).trim();
+    if (!raw) return;
 
+    const code = extractTicketCode(raw);
     setIsProcessing(true);
     // Simulate brief scan verification delay
     await new Promise((resolve) => setTimeout(resolve, 300));
     const result = await checkInTicket(code);
     setVerificationResult(result);
     setIsProcessing(false);
+  };
+
+  const handleScanSuccess = (scannedCode: string) => {
+    setTicketCodeInput(scannedCode);
+    handleVerify(scannedCode);
   };
 
   return (
@@ -61,6 +70,30 @@ export function CheckInValidator({ initialCode = "" }: CheckInValidatorProps) {
         </p>
       </div>
 
+      {/* Primary Action: QR Scanner Camera Launch Card */}
+      <div className="bg-brand-50/70 p-4 rounded-card border border-brand-200/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-brand text-white flex items-center justify-center shrink-0 shadow-sm">
+            <Camera className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-xs font-bold text-espresso">Live Camera QR Scanner</h3>
+            <p className="text-[11px] text-espresso-secondary">
+              Arahkan kamera ke QR Code e-ticket peserta atau gunakan simulasi scan cepat
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsScannerOpen(true)}
+          className="px-4 py-2.5 rounded-btn bg-espresso hover:bg-black text-white font-bold text-xs shadow-warm flex items-center justify-center gap-2 transition-all shrink-0"
+        >
+          <QrCode className="w-4 h-4 text-brand" />
+          <span>Buka Scanner Kamera</span>
+        </button>
+      </div>
+
       {/* Input Verification Box */}
       <div className="bg-white rounded-card p-6 border border-sand-border shadow-warm space-y-4">
         <form
@@ -70,9 +103,13 @@ export function CheckInValidator({ initialCode = "" }: CheckInValidatorProps) {
           }}
           className="space-y-3"
         >
-          <label className="text-xs font-bold text-espresso block">
-            Kode E-Ticket Peserta
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-espresso block">
+              Kode E-Ticket Peserta (Manual / Hasil Scan)
+            </label>
+            <span className="text-[10px] text-espresso-muted">Format: STX-2026-XXXX-XXXX</span>
+          </div>
+
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
             <input
@@ -80,8 +117,17 @@ export function CheckInValidator({ initialCode = "" }: CheckInValidatorProps) {
               placeholder="Contoh: STX-2026-JKT-8492"
               value={ticketCodeInput}
               onChange={(e) => setTicketCodeInput(e.target.value.toUpperCase())}
-              className="w-full pl-10 pr-4 py-3 rounded-input bg-surface-main border border-sand-border text-sm font-mono font-bold text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+              className="w-full pl-10 pr-24 py-3 rounded-input bg-surface-main border border-sand-border text-sm font-mono font-bold text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
             />
+            <button
+              type="button"
+              onClick={() => setIsScannerOpen(true)}
+              title="Pindai QR dengan Kamera"
+              className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1.5 rounded-btn bg-brand-50 hover:bg-brand text-brand hover:text-white border border-brand-200 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm"
+            >
+              <Camera className="w-3.5 h-3.5" />
+              <span>Scan QR</span>
+            </button>
           </div>
 
           <button
@@ -201,6 +247,13 @@ export function CheckInValidator({ initialCode = "" }: CheckInValidatorProps) {
           )}
         </div>
       )}
+
+      {/* Live QR Scanner Modal */}
+      <QRScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onScanSuccess={handleScanSuccess}
+      />
     </div>
   );
 }

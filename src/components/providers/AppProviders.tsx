@@ -3,8 +3,8 @@
 import React from "react";
 import { AuthProvider } from "@/context/AuthContext";
 import { RunnerProvider } from "@/context/RunnerContext";
-import { StravaSimulatorBar } from "@/components/strava/StravaSimulatorBar";
 import { ChatbotWidget } from "@/components/chat/ChatbotWidget";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -12,7 +12,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <RunnerProvider>
         {children}
         <ChatbotWidget />
-        <StravaSimulatorBar />
+        <MobileBottomNav />
       </RunnerProvider>
     </AuthProvider>
   );

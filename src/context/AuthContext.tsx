@@ -14,6 +14,7 @@ interface AuthContextValue {
   currentUser: AuthUser | null;
   role: UserRole | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<AuthUser>;
   register: (payload: RegisterPayload) => Promise<AuthUser>;
   logout: () => void;
@@ -24,23 +25,35 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     // Load persisted or default user
     const user = getStoredUser();
     setCurrentUser(user);
+    setIsLoading(false);
   }, []);
 
   const login = async (credentials: LoginCredentials): Promise<AuthUser> => {
-    const user = await authServiceLogin(credentials);
-    setCurrentUser(user);
-    return user;
+    setIsLoading(true);
+    try {
+      const user = await authServiceLogin(credentials);
+      setCurrentUser(user);
+      return user;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const register = async (payload: RegisterPayload): Promise<AuthUser> => {
-    const user = await authServiceRegister(payload);
-    setCurrentUser(user);
-    return user;
+    setIsLoading(true);
+    try {
+      const user = await authServiceRegister(payload);
+      setCurrentUser(user);
+      return user;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = () => {
@@ -59,6 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         currentUser,
         role: currentUser?.role || null,
         isAuthenticated: !!currentUser,
+        isLoading,
         login,
         register,
         logout,

@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { MessageSquare, X, Send, Sparkles, ShieldAlert, Bot, User } from "lucide-react";
 import { PREDEFINED_PROMPTS, getSmartAssistantReply } from "@/lib/mock-data/chatResponses";
+import { useAuth } from "@/context/AuthContext";
 
 interface ChatMessage {
   id: string;
@@ -11,6 +12,7 @@ interface ChatMessage {
 }
 
 export function ChatbotWidget() {
+  const { currentUser, role } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -31,6 +33,11 @@ export function ChatbotWidget() {
       scrollToBottom();
     }
   }, [messages, isOpen]);
+
+  // AI Assistant HANYA khusus untuk pelari yang sudah login
+  if (!currentUser || role !== "runner") {
+    return null;
+  }
 
   const handleSendMessage = (textToSend?: string) => {
     const text = (textToSend || inputValue).trim();
@@ -54,7 +61,7 @@ export function ChatbotWidget() {
   };
 
   return (
-    <div className="fixed bottom-14 sm:bottom-16 right-4 sm:right-6 z-40">
+    <div className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-40">
       {/* Floating Action Button (FAB) */}
       {!isOpen && (
         <button

@@ -4,6 +4,7 @@ import React from "react";
 import { useRunner } from "@/context/RunnerContext";
 import { WeeklyMileageChart } from "./WeeklyMileageChart";
 import { RecommendationCard } from "@/components/recommendation/RecommendationCard";
+import { StravaPersonaSelector } from "@/components/strava/StravaPersonaSelector";
 import { formatPace } from "@/lib/utils";
 import {
   Activity,
@@ -21,26 +22,37 @@ export function StravaAnalyticsTab() {
 
   if (!isConnectedToStrava || !currentProfile) {
     return (
-      <div className="bg-white rounded-card p-10 text-center border border-sand-border shadow-warm space-y-4 max-w-md mx-auto my-8">
-        <div className="w-12 h-12 rounded-full bg-accent-strava/10 text-accent-strava flex items-center justify-center mx-auto">
-          <Activity className="w-6 h-6" />
+      <div className="space-y-6 max-w-4xl mx-auto my-6">
+        <div className="bg-white rounded-card p-8 sm:p-10 text-center border border-sand-border shadow-warm space-y-4 max-w-lg mx-auto">
+          <div className="w-14 h-14 rounded-full bg-accent-strava/10 text-accent-strava flex items-center justify-center mx-auto">
+            <Activity className="w-7 h-7" />
+          </div>
+          <h3 className="text-xl font-bold text-espresso">Akun Strava Belum Terhubung</h3>
+          <p className="text-xs text-espresso-secondary leading-relaxed">
+            Hubungkan akun Strava Anda untuk melihat riwayat aktivitas lari, grafik jarak mingguan, dan rekomendasi kategori jarak lomba otomatis yang aman.
+          </p>
+          <div className="pt-2">
+            <button
+              onClick={() => setProfileById("beginner")}
+              className="px-6 py-3 rounded-btn bg-accent-strava text-white font-bold text-xs shadow-warm hover:bg-orange-600 transition-all inline-flex items-center gap-2"
+            >
+              <Activity className="w-4 h-4" />
+              <span>Hubungkan Strava (Simulasi Budi - 5K)</span>
+            </button>
+          </div>
         </div>
-        <h3 className="text-lg font-bold text-espresso">Akun Strava Belum Terhubung</h3>
-        <p className="text-xs text-espresso-secondary">
-          Hubungkan akun Strava Anda untuk melihat riwayat aktivitas lari, grafik jarak mingguan, dan rekomendasi kategori jarak otomatis.
-        </p>
-        <button
-          onClick={() => setProfileById("beginner")}
-          className="px-5 py-2.5 rounded-btn bg-accent-strava text-white font-bold text-xs shadow-warm hover:bg-orange-600 transition-colors"
-        >
-          Hubungkan Strava (Simulasi Demo)
-        </button>
+
+        {/* Persona options when disconnected */}
+        <StravaPersonaSelector variant="full" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      {/* Interactive Persona Selector */}
+      <StravaPersonaSelector variant="full" />
+
       {/* Strava Sync Status Card */}
       <div className="bg-white rounded-card p-5 border border-sand-border shadow-warm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">

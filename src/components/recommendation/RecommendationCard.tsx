@@ -1,7 +1,10 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { useRunner } from "@/context/RunnerContext";
+import { useAuth } from "@/context/AuthContext";
+import { StravaPersonaSelector } from "@/components/strava/StravaPersonaSelector";
 import { formatPace } from "@/lib/utils";
 import {
   Sparkles,
@@ -14,7 +17,33 @@ import {
 } from "lucide-react";
 
 export function RecommendationCard() {
+  const { currentUser, role } = useAuth();
   const { currentProfile, recommendation, isConnectedToStrava, setProfileById } = useRunner();
+
+  // 1. Jika belum login, tampilkan banner ajakan login sebagai pelari
+  if (!currentUser) {
+    return (
+      <div className="bg-brand-50/80 rounded-card p-4 border border-brand-200/70 shadow-sm flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <Sparkles className="w-4 h-4 text-brand shrink-0" />
+          <span className="text-xs text-espresso font-medium leading-relaxed">
+            Masuk sebagai <strong>Pelari</strong> untuk mengaktifkan fitur Smart Distance AI berbasis data Strava.
+          </span>
+        </div>
+        <Link
+          href="/auth/login"
+          className="px-3.5 py-1.5 rounded-btn bg-brand text-white text-xs font-bold shrink-0 hover:bg-brand-800 transition-colors shadow-sm"
+        >
+          Masuk
+        </Link>
+      </div>
+    );
+  }
+
+  // 2. Fitur AI hanya khusus untuk pelari (bukan organizer atau admin)
+  if (role !== "runner") {
+    return null;
+  }
 
   if (!isConnectedToStrava || !currentProfile) {
     return (
@@ -28,13 +57,16 @@ export function RecommendationCard() {
         <p className="text-xs text-espresso-secondary leading-relaxed">
           Hubungkan akun Strava Anda untuk melihat analisis kesiapan fisik dan kategori jarak lomba yang paling ideal (5K, 10K, Half Marathon, atau Full Marathon).
         </p>
-        <button
-          onClick={() => setProfileById("beginner")}
-          className="px-4 py-2 rounded-btn bg-accent-strava hover:bg-orange-600 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-colors"
-        >
-          <Activity className="w-3.5 h-3.5" />
-          <span>Simulasikan Connect Strava Sekarang</span>
-        </button>
+        <div className="flex items-center gap-3 pt-1 flex-wrap">
+          <button
+            onClick={() => setProfileById("beginner")}
+            className="px-4 py-2 rounded-btn bg-accent-strava hover:bg-orange-600 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-colors"
+          >
+            <Activity className="w-3.5 h-3.5" />
+            <span>Hubungkan Strava (Budi - 5K)</span>
+          </button>
+          <StravaPersonaSelector variant="compact" />
+        </div>
       </div>
     );
   }
@@ -76,9 +108,8 @@ export function RecommendationCard() {
           <span>Recommended for You</span>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-espresso-secondary">
-          <Activity className="w-3.5 h-3.5 text-accent-strava" />
-          <span>Sinkronisasi Strava: {currentProfile.athlete.firstname} {currentProfile.athlete.lastname}</span>
+        <div className="flex items-center gap-2">
+          <StravaPersonaSelector variant="compact" />
         </div>
       </div>
 
