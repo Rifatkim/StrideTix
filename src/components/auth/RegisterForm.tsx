@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowRight, Building, Lock, Mail, User, UserPlus } from "lucide-react";
+import { ArrowRight, Building, Lock, Mail, User, AlertCircle, Loader2 } from "lucide-react";
 import { StrideTixSymbol } from "@/components/brand/StrideTixLogo";
 
 export function RegisterForm() {
@@ -16,10 +16,12 @@ export function RegisterForm() {
   const [email, setEmail] = useState("");
   const [organizerName, setOrganizerName] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
     setIsSubmitting(true);
     try {
       const user = await register({
@@ -35,6 +37,8 @@ export function RegisterForm() {
       } else {
         router.push("/dashboard");
       }
+    } catch (err: any) {
+      setErrorMessage(err.message || "Gagal mendaftarkan akun. Silakan coba kembali.");
     } finally {
       setIsSubmitting(false);
     }
@@ -44,9 +48,11 @@ export function RegisterForm() {
     <div className="w-full max-w-md mx-auto bg-white rounded-modal p-6 sm:p-8 border border-sand-border shadow-warm-modal space-y-6">
       {/* Header */}
       <div className="text-center space-y-1.5">
-        <div className="w-12 h-12 rounded-btn bg-brand-50 text-brand flex items-center justify-center mx-auto mb-2 shadow-xs">
-          <StrideTixSymbol size={28} />
-        </div>
+        <Link href="/" className="inline-block">
+          <div className="w-12 h-12 rounded-btn bg-brand-50 text-brand flex items-center justify-center mx-auto mb-2 shadow-xs hover:scale-105 transition-transform">
+            <StrideTixSymbol size={28} />
+          </div>
+        </Link>
         <h2 className="text-2xl font-extrabold text-espresso">Daftar Akun StrideTix</h2>
         <p className="text-xs text-espresso-secondary">
           Mulai langkah Anda untuk mengikuti atau mempublikasikan event lari resmi.
@@ -84,6 +90,14 @@ export function RegisterForm() {
           </button>
         </div>
       </div>
+
+      {/* Error Alert */}
+      {errorMessage && (
+        <div className="p-3.5 rounded-xl bg-accent-error/10 border border-accent-error/20 flex items-start gap-2.5 text-xs text-accent-error">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -155,15 +169,24 @@ export function RegisterForm() {
           disabled={isSubmitting}
           className="w-full py-3 px-6 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
         >
-          <span>{isSubmitting ? "Mendaftarkan..." : "Buat Akun Sekarang"}</span>
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Mendaftarkan Akun...</span>
+            </>
+          ) : (
+            <>
+              <span>Buat Akun Sekarang</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </>
+          )}
         </button>
       </form>
 
       {/* Footer Link */}
-      <div className="text-center text-xs text-espresso-secondary">
+      <div className="text-center text-xs text-espresso-secondary pt-2 border-t border-sand-border/60">
         Sudah memiliki akun?{" "}
-        <Link href="/auth/login" className="font-bold text-brand hover:underline">
+        <Link href="/login" className="font-bold text-brand hover:underline">
           Masuk di Sini
         </Link>
       </div>

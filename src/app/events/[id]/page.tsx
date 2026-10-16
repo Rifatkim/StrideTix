@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { EventDetailHeader } from "@/components/events/EventDetailHeader";
 import { EventTicketBookingSection } from "@/components/events/EventTicketBookingSection";
 import { MapPin, Route, ShieldAlert, Award, CheckCircle2 } from "lucide-react";
+import { Container } from "@/components/layout/Container";
 
 interface EventDetailPageProps {
   params: {
@@ -29,7 +30,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     <div className="min-h-screen flex flex-col bg-surface-main">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28 sm:pt-8 sm:pb-12 space-y-10">
+      <Container as="main" className="flex-1 pt-6 pb-28 sm:pt-8 sm:pb-12 space-y-10">
         {/* Header Section */}
         <EventDetailHeader event={event} />
 
@@ -93,7 +94,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             />
           </div>
         </div>
-      </main>
+      </Container>
 
       <Footer />
     </div>

@@ -1,121 +1,139 @@
+import { createClient } from "@/utils/supabase/client";
 import { AuthUser, LoginCredentials, RegisterPayload, UserRole } from "@/types";
 
-export const DEMO_USERS: Record<UserRole, AuthUser> = {
-  runner: {
-    id: "usr-runner-01",
-    email: "budi@stridetix.com",
-    name: "Budi Pratama",
-    role: "runner",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
-    createdAt: "2026-08-01T00:00:00.000Z",
-  },
-  organizer: {
-    id: "usr-org-01",
-    email: "organizer@stridejkt.com",
-    name: "Hendra Wijaya",
-    role: "organizer",
-    organizerName: "Stride Jakarta Athletics",
-    organizerStatus: "verified",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
-    createdAt: "2026-07-15T00:00:00.000Z",
-  },
-  admin: {
-    id: "usr-admin-01",
-    email: "admin@stridetix.com",
-    name: "Super Admin StrideTix",
-    role: "admin",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
-    createdAt: "2026-01-01T00:00:00.000Z",
-  },
-};
+/**
+ * AuthService integrates Supabase Authentication with the StrideTix User Profile table.
+ * All dummy demo roles have been removed to prepare for real user/eo/admin credentials.
+ */
 
-const AUTH_STORAGE_KEY = "stridetix_auth_session";
-
-export function getStoredUser(): AuthUser | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
+export async function getCurrentUser(): Promise<AuthUser | null> {
+  const supabase = createClient();
   try {
-    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!raw) {
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
+
+    if (sessionError || !session?.user) {
       return null;
     }
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
 
-export function saveStoredUser(user: AuthUser | null): void {
-  if (typeof window === "undefined") return;
-  try {
-    if (!user) {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-    } else {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
-    }
+    const { data: profile } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", session.user.id)
+      .single();
+
+    const role = (profile?.role || session.user.user_metadata?.role || "runner") as UserRole;
+    const name = profile?.full_name || session.user.user_metadata?.full_name || session.user.email?.split("@")[0] || "User";
+
+    return {
+      id: session.user.id,
+      email: session.user.email || "",
+      name,
+      role,
+      organizerName: role === "organizer" ? session.user.user_metadata?.organizer_name || name : undefined,
+      organizerStatus: role === "organizer" ? "verified" : undefined,
+      createdAt: profile?.created_at || session.user.created_at,
+    };
   } catch (err) {
-    console.error("Failed to persist auth session", err);
+    console.error("Error fetching current user session:", err);
+    return null;
   }
 }
 
 export async function login(credentials: LoginCredentials): Promise<AuthUser> {
-  await new Promise((resolve) => setTimeout(resolve, 200));
+  const supabase = createClient();
 
-  if (credentials.demoRole && DEMO_USERS[credentials.demoRole]) {
-    const user = DEMO_USERS[credentials.demoRole];
-    saveStoredUser(user);
-    return user;
+  if (!credentials.email || !credentials.password) {
+    throw new Error("Email dan password wajib diisi.");
   }
 
-  // Fallback to checking email
-  const email = credentials.email.toLowerCase();
-  let user: AuthUser;
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: credentials.email.trim(),
+    password: credentials.password,
+  });
 
-  if (email.includes("admin")) {
-    user = DEMO_USERS.admin;
-  } else if (email.includes("organizer")) {
-    user = DEMO_USERS.organizer;
-  } else {
-    user = {
-      id: `usr-${Date.now()}`,
-      email: credentials.email,
-      name: credentials.email.split("@")[0].replace(".", " "),
-      role: "runner",
-      createdAt: new Date().toISOString(),
-    };
+  if (error) {
+    throw new Error(error.message || "Gagal masuk. Periksa kembali email dan password Anda.");
   }
 
-  saveStoredUser(user);
-  return user;
+  if (!data.user) {
+    throw new Error("Pengguna tidak ditemukan.");
+  }
+
+  // Fetch full profile from public.users
+  const { data: profile } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", data.user.id)
+    .single();
+
+  const role = (profile?.role || data.user.user_metadata?.role || "runner") as UserRole;
+  const name = profile?.full_name || data.user.user_metadata?.full_name || data.user.email?.split("@")[0] || "User";
+
+  return {
+    id: data.user.id,
+    email: data.user.email || credentials.email,
+    name,
+    role,
+    organizerName: role === "organizer" ? data.user.user_metadata?.organizer_name || name : undefined,
+    organizerStatus: role === "organizer" ? "verified" : undefined,
+    createdAt: profile?.created_at || data.user.created_at,
+  };
 }
 
 export async function register(payload: RegisterPayload): Promise<AuthUser> {
-  await new Promise((resolve) => setTimeout(resolve, 250));
+  const supabase = createClient();
 
-  const newUser: AuthUser = {
-    id: `usr-${Date.now()}`,
-    email: payload.email,
-    name: payload.name,
+  if (!payload.email || !payload.password) {
+    throw new Error("Email dan password wajib diisi.");
+  }
+
+  const { data, error } = await supabase.auth.signUp({
+    email: payload.email.trim(),
+    password: payload.password,
+    options: {
+      data: {
+        full_name: payload.name.trim(),
+        role: payload.role,
+        organizer_name: payload.role === "organizer" ? payload.organizerName || payload.name : undefined,
+      },
+    },
+  });
+
+  if (error) {
+    throw new Error(error.message || "Gagal mendaftarkan akun. Silakan coba lagi.");
+  }
+
+  if (!data.user) {
+    throw new Error("Pendaftaran gagal dibuat.");
+  }
+
+  // Ensure public.users entry exists (as redundancy in case trigger has delay)
+  try {
+    await supabase.from("users").upsert({
+      id: data.user.id,
+      email: data.user.email || payload.email,
+      full_name: payload.name.trim(),
+      role: payload.role,
+    });
+  } catch (upsertErr) {
+    console.warn("Could not direct-upsert public.users (trigger handles this):", upsertErr);
+  }
+
+  return {
+    id: data.user.id,
+    email: data.user.email || payload.email,
+    name: payload.name.trim(),
     role: payload.role,
     organizerName: payload.role === "organizer" ? payload.organizerName || payload.name : undefined,
     organizerStatus: payload.role === "organizer" ? "pending" : undefined,
-    createdAt: new Date().toISOString(),
+    createdAt: data.user.created_at,
   };
-
-  saveStoredUser(newUser);
-  return newUser;
 }
 
 export async function logout(): Promise<void> {
-  saveStoredUser(null);
-}
-
-export function switchDemoRole(role: UserRole): AuthUser {
-  const user = DEMO_USERS[role];
-  saveStoredUser(user);
-  return user;
+  const supabase = createClient();
+  await supabase.auth.signOut();
 }

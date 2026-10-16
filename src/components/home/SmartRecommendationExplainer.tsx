@@ -1,10 +1,14 @@
 import React from "react";
 import { Activity, ShieldAlert, Cpu, Sparkles, CheckCircle2 } from "lucide-react";
+import { Container } from "@/components/layout/Container";
 
 export function SmartRecommendationExplainer() {
   return (
-    <section id="recommendation-info" className="py-16 sm:py-20 bg-surface-soft border-y border-sand-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+    <section id="smart-distance-ai" className="py-16 sm:py-20 bg-surface-soft border-y border-sand-border scroll-mt-20 md:scroll-mt-24 relative">
+      {/* Anchor aliases for backwards compatibility */}
+      <span id="recommendation-explainer" className="absolute -top-24" aria-hidden="true" />
+      <span id="recommendation-info" className="absolute -top-24" aria-hidden="true" />
+      <Container className="space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-accent-ai/10 text-accent-ai border border-accent-ai/20">
             <Sparkles className="w-3.5 h-3.5" />
@@ -72,7 +76,7 @@ export function SmartRecommendationExplainer() {
             </p>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

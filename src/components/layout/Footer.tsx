@@ -1,12 +1,13 @@
 import React from "react";
 import Link from "next/link";
-import { Heart, ShieldAlert } from "lucide-react";
+import { Heart } from "lucide-react";
 import { StrideTixSymbol } from "@/components/brand/StrideTixLogo";
+import { Container } from "./Container";
 
 export function Footer() {
   return (
     <footer className="bg-espresso text-surface-main pt-14 pb-24 md:pb-10 border-t border-sand-border-strong/20 mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Container>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-white/10">
           {/* Brand Info */}
           <div className="md:col-span-2 space-y-4">
@@ -21,12 +22,6 @@ export function Footer() {
             <p className="text-espresso-muted text-sm max-w-sm leading-relaxed">
               Platform e-ticket lomba lari dengan fitur Smart Distance Recommendation yang menganalisis latihan Strava Anda untuk pemilihan kategori jarak lomba yang tepat dan aman.
             </p>
-            <div className="flex items-center gap-2 text-xs text-brand-300 bg-brand-900/40 border border-brand-800/60 rounded-btn p-3 max-w-md">
-              <ShieldAlert className="w-4 h-4 shrink-0 text-brand-400" />
-              <span>
-                <strong>Catatan Keselamatan:</strong> Rekomendasi sistem bersifat edukasi latihan non-medis. Selalu dengarkan sinyal tubuh Anda.
-              </span>
-            </div>
           </div>
 
           {/* Quick Links */}
@@ -70,13 +65,8 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-espresso-muted gap-4">
           <p>© {new Date().getFullYear()} StrideTix. Every Stride Leads to a Race.</p>
-          <div className="flex items-center gap-1">
-            <span>Dibuat dengan</span>
-            <Heart className="w-3.5 h-3.5 text-brand fill-brand" />
-            <span>untuk Komunitas Pelari Indonesia</span>
-          </div>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }

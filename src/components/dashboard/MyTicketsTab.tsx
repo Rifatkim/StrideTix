@@ -80,7 +80,7 @@ export function MyTicketsTab() {
       </div>
 
       {/* Grid of Ticket Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {tickets.map((ticket) => {
           const formattedDate = new Date(ticket.eventDate).toLocaleDateString("id-ID", {
             day: "numeric",

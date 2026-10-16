@@ -22,36 +22,50 @@ import {
   LogIn,
 } from "lucide-react";
 
-export function UserNavDropdown() {
+interface UserNavDropdownProps {
+  compact?: boolean;
+}
+
+export function UserNavDropdown({ compact = false }: UserNavDropdownProps) {
   const router = useRouter();
   const { currentUser, role, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close when clicking outside
+  // Close when clicking outside or pressing Escape
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   if (!currentUser) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <Link
-          href="/auth/login"
-          className="px-3.5 py-1.5 rounded-full text-xs font-bold border border-sand-border bg-white text-espresso hover:text-brand hover:border-brand shadow-xs transition-all flex items-center gap-1.5 active:scale-95"
+          href="/login"
+          className="px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold border border-sand-border bg-white text-espresso hover:text-brand hover:border-brand shadow-xs transition-all flex items-center gap-1.5 active:scale-95"
+          title="Masuk ke Akun"
         >
           <LogIn className="w-3.5 h-3.5 text-brand" />
           <span>Masuk</span>
         </Link>
         <Link
-          href="/auth/register"
-          className="hidden sm:inline-flex px-3.5 py-1.5 rounded-full bg-brand text-white text-xs font-bold shadow-warm hover:bg-brand-800 transition-all active:scale-95"
+          href="/register"
+          className="px-3 sm:px-3.5 py-1.5 rounded-full bg-brand text-white text-xs font-bold shadow-warm hover:bg-brand-800 transition-all active:scale-95 shrink-0"
         >
           Daftar
         </Link>
@@ -64,7 +78,13 @@ export function UserNavDropdown() {
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 p-1.5 rounded-btn hover:bg-surface-soft border border-sand-border transition-colors group"
+        className={`flex items-center transition-all group ${
+          compact
+            ? "gap-1 p-1 rounded-full hover:ring-2 hover:ring-brand/30 border border-sand-border bg-white"
+            : "gap-2 p-1.5 rounded-btn hover:bg-surface-soft border border-sand-border"
+        }`}
+        aria-label="Menu akun pengguna"
+        aria-expanded={isOpen}
       >
         {currentUser.avatarUrl ? (
           <div className="relative w-8 h-8 rounded-full overflow-hidden bg-sand-border shrink-0">
@@ -81,16 +101,18 @@ export function UserNavDropdown() {
           </div>
         )}
 
-        <div className="hidden lg:flex flex-col text-left">
-          <span className="text-xs font-bold text-espresso group-hover:text-brand transition-colors max-w-[120px] truncate leading-tight">
-            {currentUser.name}
-          </span>
-          <span className="text-[10px] uppercase font-bold text-brand">
-            {role}
-          </span>
-        </div>
+        {!compact && (
+          <div className="hidden lg:flex flex-col text-left">
+            <span className="text-xs font-bold text-espresso group-hover:text-brand transition-colors max-w-[120px] truncate leading-tight">
+              {currentUser.name}
+            </span>
+            <span className="text-[10px] uppercase font-bold text-brand">
+              {role}
+            </span>
+          </div>
+        )}
 
-        <ChevronDown className="w-3.5 h-3.5 text-espresso-muted ml-0.5" />
+        <ChevronDown className={`${compact ? "w-3 h-3 text-espresso-muted mr-1" : "w-3.5 h-3.5 text-espresso-muted ml-0.5"}`} />
       </button>
 
       {/* Dropdown Menu */}
@@ -217,10 +239,10 @@ export function UserNavDropdown() {
           {/* Logout */}
           <div className="pt-2 border-t border-sand-border">
             <button
-              onClick={() => {
-                logout();
+              onClick={async () => {
+                await logout();
                 setIsOpen(false);
-                router.push("/auth/login");
+                router.push("/login");
               }}
               className="w-full flex items-center gap-2 px-3 py-2 rounded-btn text-accent-error hover:bg-accent-error/10 text-xs font-bold transition-colors"
             >

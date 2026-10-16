@@ -8,7 +8,6 @@ import { UserRole } from "@/types";
 import {
   Lock,
   ShieldAlert,
-  ArrowRight,
   LogIn,
   User,
   Users,
@@ -24,36 +23,32 @@ interface AuthGuardProps {
 
 const ROLE_INFO: Record<
   UserRole,
-  { label: string; icon: any; title: string; desc: string; demoBtnText: string }
+  { label: string; icon: any; title: string; desc: string }
 > = {
   runner: {
     label: "Pelari (Runner)",
     icon: User,
     title: "Portal Peserta Lomba Lari",
     desc: "Akses tiket aktif, riwayat latihan Strava, dan profil kontak darurat Anda.",
-    demoBtnText: "Masuk Cepat sebagai Runner (Budi)",
   },
   organizer: {
     label: "Penyelenggara (Organizer)",
     icon: Users,
     title: "Portal Manajemen Penyelenggara Lomba",
     desc: "Kelola kuota pendaftaran event, buat lomba baru, dan operasikan gate check-in.",
-    demoBtnText: "Masuk Cepat sebagai Organizer (Danamon Ops)",
   },
   admin: {
     label: "Administrator",
     icon: Shield,
     title: "Panel Kontrol Tata Kelola Platform",
     desc: "Akses terbatas untuk moderasi event, verifikasi kelayakan EO, dan audit transaksi.",
-    demoBtnText: "Masuk Cepat sebagai Super Admin",
   },
 };
 
 export function AuthGuard({ allowedRole, children }: AuthGuardProps) {
   const router = useRouter();
-  const { currentUser, role, login, switchRole } = useAuth();
+  const { currentUser, role, logout } = useAuth();
   const [isMounting, setIsMounting] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setIsMounting(false);
@@ -68,7 +63,6 @@ export function AuthGuard({ allowedRole, children }: AuthGuardProps) {
   }
 
   const roleInfo = ROLE_INFO[allowedRole];
-  const Icon = roleInfo.icon;
 
   // Case 1: Belum login sama sekali (Guest)
   if (!currentUser) {
@@ -86,31 +80,24 @@ export function AuthGuard({ allowedRole, children }: AuthGuardProps) {
             {roleInfo.title}
           </h2>
           <p className="text-xs text-espresso-secondary">
-            {roleInfo.desc} Silakan masuk terlebih dahulu untuk melanjutkan.
+            {roleInfo.desc} Silakan masuk terlebih dahulu menggunakan akun terdaftar.
           </p>
         </div>
 
         <div className="space-y-2.5 pt-2">
-          <button
-            type="button"
-            disabled={isSubmitting}
-            onClick={async () => {
-              setIsSubmitting(true);
-              await login({ email: "", demoRole: allowedRole });
-              setIsSubmitting(false);
-            }}
-            className="w-full py-2.5 px-4 rounded-btn bg-brand text-white font-bold text-xs shadow-warm hover:bg-brand-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+          <Link
+            href="/login"
+            className="w-full py-2.5 px-4 rounded-btn bg-brand text-white font-bold text-xs shadow-warm hover:bg-brand-800 transition-colors flex items-center justify-center gap-2"
           >
-            <Icon className="w-4 h-4" />
-            <span>{isSubmitting ? "Memproses..." : roleInfo.demoBtnText}</span>
-          </button>
+            <LogIn className="w-4 h-4" />
+            <span>Masuk ke Akun ({roleInfo.label})</span>
+          </Link>
 
           <Link
-            href="/auth/login"
+            href="/register"
             className="w-full py-2.5 px-4 rounded-btn bg-sand-warm border border-sand-border text-espresso font-semibold text-xs hover:border-brand transition-colors flex items-center justify-center gap-2"
           >
-            <LogIn className="w-4 h-4 text-espresso-muted" />
-            <span>Halaman Masuk (Email & Password)</span>
+            <span>Belum Punya Akun? Daftar Baru</span>
           </Link>
         </div>
 
@@ -146,21 +133,12 @@ export function AuthGuard({ allowedRole, children }: AuthGuardProps) {
           </h2>
           <p className="text-xs text-espresso-secondary">
             Anda sedang masuk sebagai <strong>{currentUser.name}</strong> dengan peran{" "}
-            <strong>{currentRoleInfo.label}</strong>. Halaman ini memerlukan hak akses{" "}
+            <strong>{currentRoleInfo.label}</strong>. Halaman ini hanya dapat diakses oleh akun{" "}
             <strong>{roleInfo.label}</strong>.
           </p>
         </div>
 
         <div className="space-y-2.5 pt-2">
-          <button
-            type="button"
-            onClick={() => switchRole(allowedRole)}
-            className="w-full py-2.5 px-4 rounded-btn bg-brand text-white font-bold text-xs shadow-warm hover:bg-brand-800 transition-colors flex items-center justify-center gap-2"
-          >
-            <Icon className="w-4 h-4" />
-            <span>Beralih ke Peran {roleInfo.label}</span>
-          </button>
-
           <button
             type="button"
             onClick={() => {
@@ -169,9 +147,20 @@ export function AuthGuard({ allowedRole, children }: AuthGuardProps) {
               else if (role === "admin") router.push("/admin/dashboard");
               else router.push("/");
             }}
-            className="w-full py-2.5 px-4 rounded-btn bg-sand-warm border border-sand-border text-espresso font-semibold text-xs hover:border-brand transition-colors"
+            className="w-full py-2.5 px-4 rounded-btn bg-brand text-white font-bold text-xs shadow-warm hover:bg-brand-800 transition-colors"
           >
             Menuju Dashboard Saya ({currentRoleInfo.label})
+          </button>
+
+          <button
+            type="button"
+            onClick={async () => {
+              await logout();
+              router.push("/login");
+            }}
+            className="w-full py-2.5 px-4 rounded-btn bg-sand-warm border border-sand-border text-espresso font-semibold text-xs hover:border-brand transition-colors"
+          >
+            Keluar & Masuk dengan Akun Lain
           </button>
         </div>
       </div>

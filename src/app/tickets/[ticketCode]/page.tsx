@@ -9,6 +9,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ETicketCard } from "@/components/tickets/ETicketCard";
 import { ETicket } from "@/types";
 import { TicketX, ArrowLeft, Loader2 } from "lucide-react";
+import { Container } from "@/components/layout/Container";
 
 export default function TicketDetailPage() {
   const params = useParams();
@@ -31,7 +32,7 @@ export default function TicketDetailPage() {
     <div className="min-h-screen flex flex-col bg-sand-warm text-espresso font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28 sm:pt-8 sm:pb-12">
+      <Container as="main" className="flex-1 pt-6 pb-28 sm:pt-8 sm:pb-12">
         {isLoading ? (
           <div className="py-20 text-center flex flex-col items-center justify-center gap-2 text-xs text-espresso-muted">
             <Loader2 className="w-6 h-6 animate-spin text-brand" />
@@ -59,7 +60,7 @@ export default function TicketDetailPage() {
             </Link>
           </div>
         )}
-      </main>
+      </Container>
 
       <Footer />
     </div>

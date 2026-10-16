@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { createEvent } from "@/services/eventService";
 import { CategoryFormBuilder } from "./CategoryFormBuilder";
+import { EventCreateSummarySidebar } from "./EventCreateSummarySidebar";
 import { RunningEvent, TicketCategory } from "@/types";
 import {
   Calendar,
@@ -117,8 +118,10 @@ export function EventCreateForm() {
   };
 
   return (
-    <div className="bg-white rounded-card border border-sand-border p-6 sm:p-8 shadow-warm space-y-8">
-      {/* 1. Informasi Umum Event */}
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      {/* Kolom Kiri: Form Inputs (lg:col-span-8) */}
+      <div className="lg:col-span-8 bg-white rounded-card border border-sand-border p-6 sm:p-8 shadow-warm space-y-8">
+        {/* 1. Informasi Umum Event */}
       <div className="space-y-4">
         <div className="border-b border-sand-border pb-3">
           <h2 className="text-sm font-black text-espresso uppercase tracking-wider flex items-center gap-2">
@@ -310,6 +313,24 @@ export function EventCreateForm() {
           <Send className="w-4 h-4" />
           <span>{isSubmitting ? "Mempublikasikan..." : "Publikasikan Event"}</span>
         </button>
+      </div>
+      </div>
+
+      {/* Kolom Kanan: Summary Progress Sidebar (lg:col-span-4) */}
+      <div className="lg:col-span-4">
+        <EventCreateSummarySidebar
+          title={title}
+          organizerName={organizerName}
+          locationCity={locationCity}
+          locationVenue={locationVenue}
+          eventDate={eventDate}
+          startTime={startTime}
+          bannerImage={bannerImage}
+          categories={categories}
+          rules={rules}
+          isSubmitting={isSubmitting}
+          onSubmit={handleSubmit}
+        />
       </div>
     </div>
   );

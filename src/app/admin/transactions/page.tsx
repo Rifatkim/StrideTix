@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { TransactionsAuditTable } from "@/components/admin/TransactionsAuditTable";
 import { AuthGuard } from "@/components/auth/AuthGuard";
+import { Container } from "@/components/layout/Container";
 import { getAllUserTickets } from "@/services/ticketService";
 import { getStoredAuditLogs } from "@/services/adminService";
 import { ETicket, AuditLogEntry } from "@/types";
@@ -30,7 +31,7 @@ export default function AdminTransactionsPage() {
     <div className="min-h-screen flex flex-col bg-sand-warm text-espresso font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28 sm:pt-8 sm:pb-12 space-y-6">
+      <Container as="main" className="flex-1 pt-6 pb-28 sm:pt-8 sm:pb-12 space-y-6">
         <AuthGuard allowedRole="admin">
           <AdminHeader
             title="Pengawasan Transaksi & Log Audit Sistem"
@@ -45,7 +46,7 @@ export default function AdminTransactionsPage() {
             <TransactionsAuditTable tickets={tickets} auditLogs={auditLogs} />
           )}
         </AuthGuard>
-      </main>
+      </Container>
 
       <Footer />
     </div>

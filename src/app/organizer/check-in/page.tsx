@@ -5,6 +5,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CheckInValidator } from "@/components/organizer/CheckInValidator";
 import { AuthGuard } from "@/components/auth/AuthGuard";
+import { Container } from "@/components/layout/Container";
 
 interface CheckInPageProps {
   searchParams: {
@@ -17,11 +18,11 @@ export default function CheckInPage({ searchParams }: CheckInPageProps) {
     <div className="min-h-screen flex flex-col bg-sand-warm text-espresso font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28 sm:pt-8 sm:pb-12">
+      <Container as="main" className="flex-1 pt-6 pb-28 sm:pt-8 sm:pb-12">
         <AuthGuard allowedRole="organizer">
           <CheckInValidator initialCode={searchParams?.code} />
         </AuthGuard>
-      </main>
+      </Container>
 
       <Footer />
     </div>

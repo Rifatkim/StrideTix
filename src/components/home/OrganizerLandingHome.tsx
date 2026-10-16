@@ -20,6 +20,7 @@ import {
   MapPin,
   Clock,
 } from "lucide-react";
+import { Container } from "@/components/layout/Container";
 
 interface OrganizerLandingHomeProps {
   events: RunningEvent[];
@@ -56,7 +57,7 @@ export function OrganizerLandingHome({ events: initialEvents }: OrganizerLanding
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <Container className="py-8 space-y-8">
       {/* 1. Organizer Welcome Banner */}
       <div className="bg-white rounded-card border border-sand-border p-6 shadow-warm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-start gap-4">
@@ -300,6 +301,6 @@ export function OrganizerLandingHome({ events: initialEvents }: OrganizerLanding
           })}
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

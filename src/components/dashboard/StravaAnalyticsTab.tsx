@@ -4,7 +4,6 @@ import React from "react";
 import { useRunner } from "@/context/RunnerContext";
 import { WeeklyMileageChart } from "./WeeklyMileageChart";
 import { RecommendationCard } from "@/components/recommendation/RecommendationCard";
-import { StravaPersonaSelector } from "@/components/strava/StravaPersonaSelector";
 import { formatPace } from "@/lib/utils";
 import {
   Activity,
@@ -22,7 +21,7 @@ export function StravaAnalyticsTab() {
 
   if (!isConnectedToStrava || !currentProfile) {
     return (
-      <div className="space-y-6 max-w-4xl mx-auto my-6">
+      <div className="space-y-6 w-full my-6">
         <div className="bg-white rounded-card p-8 sm:p-10 text-center border border-sand-border shadow-warm space-y-4 max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-full bg-accent-strava/10 text-accent-strava flex items-center justify-center mx-auto">
             <Activity className="w-7 h-7" />
@@ -33,25 +32,20 @@ export function StravaAnalyticsTab() {
           </p>
           <div className="pt-2">
             <button
-              onClick={() => setProfileById("beginner")}
+              onClick={() => alert("Menghubungkan ke Strava API v3 OAuth... (Siapkan Client ID di .env.local)")}
               className="px-6 py-3 rounded-btn bg-accent-strava text-white font-bold text-xs shadow-warm hover:bg-orange-600 transition-all inline-flex items-center gap-2"
             >
               <Activity className="w-4 h-4" />
-              <span>Hubungkan Strava (Simulasi Budi - 5K)</span>
+              <span>Hubungkan Akun Strava Sekarang</span>
             </button>
           </div>
         </div>
-
-        {/* Persona options when disconnected */}
-        <StravaPersonaSelector variant="full" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Interactive Persona Selector */}
-      <StravaPersonaSelector variant="full" />
 
       {/* Strava Sync Status Card */}
       <div className="bg-white rounded-card p-5 border border-sand-border shadow-warm flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
 import { OrderSummary } from "@/components/checkout/OrderSummary";
 import { ArrowLeft, CheckCircle2, ChevronRight, ShieldCheck } from "lucide-react";
+import { Container } from "@/components/layout/Container";
 
 interface CheckoutPageProps {
   searchParams: {
@@ -31,7 +32,7 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     <div className="min-h-screen flex flex-col bg-surface-main">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28 sm:pt-8 sm:pb-12 space-y-8">
+      <Container as="main" className="flex-1 pt-6 pb-28 sm:pt-8 sm:pb-12 space-y-8">
         {/* Step Progress Indicator per DESIGN.md Section 14.3 */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sand-border pb-6">
           <Link
@@ -77,7 +78,7 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
             <OrderSummary event={event} category={category} />
           </div>
         </div>
-      </main>
+      </Container>
 
       <Footer />
     </div>

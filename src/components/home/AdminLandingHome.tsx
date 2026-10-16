@@ -20,6 +20,7 @@ import {
   TrendingUp,
   LayoutDashboard,
 } from "lucide-react";
+import { Container } from "@/components/layout/Container";
 
 interface AdminLandingHomeProps {
   events: RunningEvent[];
@@ -60,7 +61,7 @@ export function AdminLandingHome({ events: initialEvents }: AdminLandingHomeProp
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <Container className="py-8 space-y-8">
       {/* 1. Super Admin Welcome Banner */}
       <div className="bg-white rounded-card border border-sand-border p-6 shadow-warm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-start gap-4">
@@ -255,6 +256,6 @@ export function AdminLandingHome({ events: initialEvents }: AdminLandingHomeProp
           </div>
         </div>
       )}
-    </div>
+    </Container>
   );
 }

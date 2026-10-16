@@ -12,6 +12,7 @@ import { AuthGuard } from "@/components/auth/AuthGuard";
 import { getAllUserTickets } from "@/services/ticketService";
 import { ETicket } from "@/types";
 import { Ticket, Activity, User, Loader2 } from "lucide-react";
+import { Container } from "@/components/layout/Container";
 
 type ActiveTab = "tickets" | "strava" | "profile";
 
@@ -44,7 +45,7 @@ function DashboardContent() {
   };
 
   return (
-    <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 pb-32 md:pb-12">
+    <Container as="main" className="flex-1 py-6 sm:py-8 space-y-6 sm:space-y-8 pb-32 md:pb-12">
       <AuthGuard allowedRole="runner">
         {/* Header Section */}
         <DashboardHeader ticketCount={tickets.length} />
@@ -95,7 +96,7 @@ function DashboardContent() {
           {activeTab === "profile" && <RunnerProfileTab />}
         </div>
       </AuthGuard>
-    </main>
+    </Container>
   );
 }
 

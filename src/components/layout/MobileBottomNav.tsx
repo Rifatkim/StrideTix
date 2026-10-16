@@ -30,6 +30,11 @@ function MobileBottomNavInner() {
 
   const isExactActive = (path: string) => pathname === path;
 
+  // Do not render bottom nav on dedicated auth pages
+  if (pathname === "/login" || pathname === "/register") {
+    return null;
+  }
+
   return (
     <nav
       className="fixed bottom-0 inset-x-0 z-40 md:hidden bg-white/95 backdrop-blur-md border-t border-sand-border/80 shadow-[0_-4px_16px_rgba(43,30,22,0.06)] px-2 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-1.5"
@@ -281,12 +286,12 @@ function MobileBottomNavInner() {
             </Link>
 
             <Link
-              href="/auth/login"
+              href="/login"
               className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 ${
-                isExactActive("/auth/login") ? "text-brand font-bold" : "text-espresso-muted hover:text-espresso"
+                isExactActive("/login") ? "text-brand font-bold" : "text-espresso-muted hover:text-espresso"
               }`}
             >
-              <User className={`w-5 h-5 ${isExactActive("/auth/login") ? "stroke-[2.5]" : "stroke-[1.75]"}`} />
+              <User className={`w-5 h-5 ${isExactActive("/login") ? "stroke-[2.5]" : "stroke-[1.75]"}`} />
               <span className="text-[10px] mt-0.5 tracking-tight font-medium">Masuk</span>
             </Link>
           </>

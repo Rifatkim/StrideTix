@@ -3,12 +3,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { AuthUser, LoginCredentials, RegisterPayload, UserRole } from "@/types";
 import {
-  getStoredUser,
+  getCurrentUser,
   login as authServiceLogin,
   logout as authServiceLogout,
   register as authServiceRegister,
-  switchDemoRole,
 } from "@/services/authService";
+import { createClient } from "@/utils/supabase/client";
 
 interface AuthContextValue {
   currentUser: AuthUser | null;
@@ -17,8 +17,8 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<AuthUser>;
   register: (payload: RegisterPayload) => Promise<AuthUser>;
-  logout: () => void;
-  switchRole: (role: UserRole) => void;
+  logout: () => Promise<void>;
+  switchRole?: (role: UserRole) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -28,10 +28,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Load persisted or default user
-    const user = getStoredUser();
-    setCurrentUser(user);
-    setIsLoading(false);
+    const supabase = createClient();
+
+    // 1. Initial user session check
+    getCurrentUser().then((user) => {
+      setCurrentUser(user);
+      setIsLoading(false);
+    });
+
+    // 2. Real-time auth state listener
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        const user = await getCurrentUser();
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null);
+      }
+      setIsLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (credentials: LoginCredentials): Promise<AuthUser> => {
@@ -56,14 +76,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
-    authServiceLogout();
-    setCurrentUser(null);
-  };
-
-  const switchRole = (role: UserRole) => {
-    const user = switchDemoRole(role);
-    setCurrentUser(user);
+  const logout = async () => {
+    setIsLoading(true);
+    try {
+      await authServiceLogout();
+      setCurrentUser(null);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -76,7 +96,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
-        switchRole,
       }}
     >
       {children}

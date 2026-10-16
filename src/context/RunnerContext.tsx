@@ -20,10 +20,10 @@ interface RunnerContextValue {
 const RunnerContext = createContext<RunnerContextValue | undefined>(undefined);
 
 export function RunnerProvider({ children }: { children: React.ReactNode }) {
-  // Default to Beginner profile so tester immediately sees smart recommendation in action
+  // Default to disconnected (no dummy profile loaded)
   const [selectedProfileId, setSelectedProfileId] = useState<
     SimulatedProfileId | "disconnected"
-  >("beginner");
+  >("disconnected");
 
   const currentProfile = useMemo(() => {
     if (selectedProfileId === "disconnected") return null;

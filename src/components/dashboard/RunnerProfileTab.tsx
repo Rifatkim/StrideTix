@@ -81,7 +81,7 @@ export function RunnerProfileTab() {
   };
 
   return (
-    <div className="bg-white rounded-card border border-sand-border p-6 shadow-warm max-w-3xl">
+    <div className="bg-white rounded-card border border-sand-border p-6 shadow-warm w-full">
       <div className="border-b border-sand-border pb-4 mb-6">
         <h2 className="text-base font-bold text-espresso">Data Diri & Kontak Darurat</h2>
         <p className="text-xs text-espresso-secondary mt-1">

@@ -22,6 +22,7 @@ import {
   MapPin,
   RefreshCw,
 } from "lucide-react";
+import { Container } from "@/components/layout/Container";
 
 export default function EventParticipantsPage() {
   const params = useParams();
@@ -89,7 +90,7 @@ export default function EventParticipantsPage() {
     <div className="min-h-screen flex flex-col bg-sand-warm text-espresso font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28 sm:pt-8 sm:pb-12 space-y-6">
+      <Container as="main" className="flex-1 pt-6 pb-28 sm:pt-8 sm:pb-12 space-y-6">
         <AuthGuard allowedRole="organizer">
         {/* Back navigation */}
         <div>
@@ -190,7 +191,7 @@ export default function EventParticipantsPage() {
           />
         )}
         </AuthGuard>
-      </main>
+      </Container>
 
       <Footer />
     </div>

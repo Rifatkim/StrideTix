@@ -4,7 +4,6 @@ import React from "react";
 import Link from "next/link";
 import { useRunner } from "@/context/RunnerContext";
 import { useAuth } from "@/context/AuthContext";
-import { StravaPersonaSelector } from "@/components/strava/StravaPersonaSelector";
 import { formatPace } from "@/lib/utils";
 import {
   Sparkles,
@@ -31,7 +30,7 @@ export function RecommendationCard() {
           </span>
         </div>
         <Link
-          href="/auth/login"
+          href="/login"
           className="px-3.5 py-1.5 rounded-btn bg-brand text-white text-xs font-bold shrink-0 hover:bg-brand-800 transition-colors shadow-sm"
         >
           Masuk
@@ -58,14 +57,13 @@ export function RecommendationCard() {
           Hubungkan akun Strava Anda untuk melihat analisis kesiapan fisik dan kategori jarak lomba yang paling ideal (5K, 10K, Half Marathon, atau Full Marathon).
         </p>
         <div className="flex items-center gap-3 pt-1 flex-wrap">
-          <button
-            onClick={() => setProfileById("beginner")}
+          <Link
+            href="/dashboard?tab=strava"
             className="px-4 py-2 rounded-btn bg-accent-strava hover:bg-orange-600 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-colors"
           >
             <Activity className="w-3.5 h-3.5" />
-            <span>Hubungkan Strava (Budi - 5K)</span>
-          </button>
-          <StravaPersonaSelector variant="compact" />
+            <span>Hubungkan Akun Strava</span>
+          </Link>
         </div>
       </div>
     );
@@ -108,8 +106,8 @@ export function RecommendationCard() {
           <span>Recommended for You</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <StravaPersonaSelector variant="compact" />
+        <div className="flex items-center gap-2 text-xs font-semibold text-espresso-muted">
+          <span>Smart AI Scoring</span>
         </div>
       </div>
 
