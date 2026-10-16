@@ -201,12 +201,18 @@ BEGIN
     v_runner_id := gen_random_uuid();
     INSERT INTO auth.users (
       instance_id, id, aud, role, email, encrypted_password,
-      email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+      email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+      confirmation_token, recovery_token, email_change_token_new,
+      email_change_token_current, email_change, phone_change,
+      phone_change_token, reauthentication_token,
+      created_at, updated_at
     ) VALUES (
       '00000000-0000-0000-0000-000000000000', v_runner_id, 'authenticated', 'authenticated',
       'bambang123@gmail.com', crypt('buBambang123', gen_salt('bf')),
       now(), '{"provider":"email","providers":["email"]}',
-      '{"full_name":"Bams","role":"runner"}', now(), now()
+      '{"full_name":"Bams","role":"runner"}',
+      '', '', '', '', '', '', '', '',
+      now(), now()
     );
     INSERT INTO auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
     VALUES (
@@ -218,6 +224,14 @@ BEGIN
     UPDATE auth.users
     SET encrypted_password = crypt('buBambang123', gen_salt('bf')),
         email_confirmed_at = now(),
+        confirmation_token = COALESCE(confirmation_token, ''),
+        recovery_token = COALESCE(recovery_token, ''),
+        email_change_token_new = COALESCE(email_change_token_new, ''),
+        email_change_token_current = COALESCE(email_change_token_current, ''),
+        email_change = COALESCE(email_change, ''),
+        phone_change = COALESCE(phone_change, ''),
+        phone_change_token = COALESCE(phone_change_token, ''),
+        reauthentication_token = COALESCE(reauthentication_token, ''),
         raw_user_meta_data = '{"full_name":"Bams","role":"runner"}'
     WHERE id = v_runner_id;
   END IF;
@@ -231,66 +245,94 @@ BEGIN
   ON CONFLICT (user_id) DO UPDATE SET avg_weekly_distance_km = 24.5, longest_run_km = 12.0;
 
   -- 2. SEED USER: EO (Yosephin)
-  SELECT id INTO v_eo_id FROM auth.users WHERE lower(email) = 'yosep@gmail.com';
+  SELECT id INTO v_eo_id FROM auth.users WHERE lower(email) IN ('yosep.organizer@gmail.com', 'yosep@gmail.com') ORDER BY created_at DESC LIMIT 1;
   IF v_eo_id IS NULL THEN
     v_eo_id := gen_random_uuid();
     INSERT INTO auth.users (
       instance_id, id, aud, role, email, encrypted_password,
-      email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+      email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+      confirmation_token, recovery_token, email_change_token_new,
+      email_change_token_current, email_change, phone_change,
+      phone_change_token, reauthentication_token,
+      created_at, updated_at
     ) VALUES (
       '00000000-0000-0000-0000-000000000000', v_eo_id, 'authenticated', 'authenticated',
-      'Yosep@gmail.com', crypt('Porsea123', gen_salt('bf')),
+      'yosep.organizer@gmail.com', crypt('Porsea123', gen_salt('bf')),
       now(), '{"provider":"email","providers":["email"]}',
-      '{"full_name":"Yosephin","role":"organizer"}', now(), now()
+      '{"full_name":"Yosephin","role":"organizer"}',
+      '', '', '', '', '', '', '', '',
+      now(), now()
     );
     INSERT INTO auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
     VALUES (
       v_eo_id::text, v_eo_id,
-      format('{"sub":"%s","email":"Yosep@gmail.com"}', v_eo_id)::jsonb,
+      format('{"sub":"%s","email":"yosep.organizer@gmail.com"}', v_eo_id)::jsonb,
       'email', now(), now(), now()
     ) ON CONFLICT DO NOTHING;
   ELSE
     UPDATE auth.users
     SET encrypted_password = crypt('Porsea123', gen_salt('bf')),
         email_confirmed_at = now(),
+        confirmation_token = COALESCE(confirmation_token, ''),
+        recovery_token = COALESCE(recovery_token, ''),
+        email_change_token_new = COALESCE(email_change_token_new, ''),
+        email_change_token_current = COALESCE(email_change_token_current, ''),
+        email_change = COALESCE(email_change, ''),
+        phone_change = COALESCE(phone_change, ''),
+        phone_change_token = COALESCE(phone_change_token, ''),
+        reauthentication_token = COALESCE(reauthentication_token, ''),
         raw_user_meta_data = '{"full_name":"Yosephin","role":"organizer"}'
     WHERE id = v_eo_id;
   END IF;
 
   INSERT INTO public.users (id, email, full_name, role)
-  VALUES (v_eo_id, 'Yosep@gmail.com', 'Yosephin', 'organizer')
+  VALUES (v_eo_id, 'yosep.organizer@gmail.com', 'Yosephin', 'organizer')
   ON CONFLICT (id) DO UPDATE SET full_name = 'Yosephin', role = 'organizer';
 
-  -- 3. SEED USER: Admin (Admin)
-  SELECT id INTO v_admin_id FROM auth.users WHERE lower(email) = 'admin@gmail.com';
+  -- 3. SEED USER: Admin (Admin StrideTix)
+  SELECT id INTO v_admin_id FROM auth.users WHERE lower(email) IN ('admin.stridetix@gmail.com', 'admin@gmail.com') ORDER BY created_at DESC LIMIT 1;
   IF v_admin_id IS NULL THEN
     v_admin_id := gen_random_uuid();
     INSERT INTO auth.users (
       instance_id, id, aud, role, email, encrypted_password,
-      email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+      email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+      confirmation_token, recovery_token, email_change_token_new,
+      email_change_token_current, email_change, phone_change,
+      phone_change_token, reauthentication_token,
+      created_at, updated_at
     ) VALUES (
       '00000000-0000-0000-0000-000000000000', v_admin_id, 'authenticated', 'authenticated',
-      'admin@gmail.com', crypt('Admin123', gen_salt('bf')),
+      'admin.stridetix@gmail.com', crypt('Admin123', gen_salt('bf')),
       now(), '{"provider":"email","providers":["email"]}',
-      '{"full_name":"Admin","role":"admin"}', now(), now()
+      '{"full_name":"Admin StrideTix","role":"admin"}',
+      '', '', '', '', '', '', '', '',
+      now(), now()
     );
     INSERT INTO auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
     VALUES (
       v_admin_id::text, v_admin_id,
-      format('{"sub":"%s","email":"admin@gmail.com"}', v_admin_id)::jsonb,
+      format('{"sub":"%s","email":"admin.stridetix@gmail.com"}', v_admin_id)::jsonb,
       'email', now(), now(), now()
     ) ON CONFLICT DO NOTHING;
   ELSE
     UPDATE auth.users
     SET encrypted_password = crypt('Admin123', gen_salt('bf')),
         email_confirmed_at = now(),
-        raw_user_meta_data = '{"full_name":"Admin","role":"admin"}'
+        confirmation_token = COALESCE(confirmation_token, ''),
+        recovery_token = COALESCE(recovery_token, ''),
+        email_change_token_new = COALESCE(email_change_token_new, ''),
+        email_change_token_current = COALESCE(email_change_token_current, ''),
+        email_change = COALESCE(email_change, ''),
+        phone_change = COALESCE(phone_change, ''),
+        phone_change_token = COALESCE(phone_change_token, ''),
+        reauthentication_token = COALESCE(reauthentication_token, ''),
+        raw_user_meta_data = '{"full_name":"Admin StrideTix","role":"admin"}'
     WHERE id = v_admin_id;
   END IF;
 
   INSERT INTO public.users (id, email, full_name, role)
-  VALUES (v_admin_id, 'admin@gmail.com', 'Admin', 'admin')
-  ON CONFLICT (id) DO UPDATE SET full_name = 'Admin', role = 'admin';
+  VALUES (v_admin_id, 'admin.stridetix@gmail.com', 'Admin StrideTix', 'admin')
+  ON CONFLICT (id) DO UPDATE SET full_name = 'Admin StrideTix', role = 'admin';
 
   -- 4. INSERT REALISTIC RUNNING EVENTS (Created by Yosephin / EO)
   -- Event 1: Jakarta City Marathon 2026
