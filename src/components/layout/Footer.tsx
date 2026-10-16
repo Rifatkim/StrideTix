@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
-import { Ticket, Heart, ShieldAlert } from "lucide-react";
+import { Heart, ShieldAlert } from "lucide-react";
+import { StrideTixSymbol } from "@/components/brand/StrideTixLogo";
 
 export function Footer() {
   return (
@@ -9,9 +10,9 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-white/10">
           {/* Brand Info */}
           <div className="md:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-btn bg-brand flex items-center justify-center text-white">
-                <Ticket className="w-5 h-5 -rotate-12 transform" />
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-9 h-9 rounded-btn bg-brand flex items-center justify-center text-white shadow-warm group-hover:bg-brand-800 transition-colors">
+                <StrideTixSymbol size={22} color="#FFFFFF" />
               </div>
               <span className="text-2xl font-extrabold tracking-tight text-white">
                 Stride<span className="text-brand-400">Tix</span>

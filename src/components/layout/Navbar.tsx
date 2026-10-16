@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { UserNavDropdown } from "./UserNavDropdown";
 import { useAuth } from "@/context/AuthContext";
+import { StrideTixSymbol } from "@/components/brand/StrideTixLogo";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -37,7 +38,7 @@ export function Navbar() {
           {/* Logo StrideTix */}
           <Link href={homeHref} className="flex items-center gap-2.5 group">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-btn bg-brand flex items-center justify-center text-white shadow-warm group-hover:bg-brand-800 transition-transform active:scale-95">
-              <Ticket className="w-5 h-5 -rotate-12 transform" />
+              <StrideTixSymbol size={22} color="#FFFFFF" className="group-hover:scale-105 transition-transform" />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">

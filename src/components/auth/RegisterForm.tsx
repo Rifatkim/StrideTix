@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { ArrowRight, Building, Lock, Mail, User, UserPlus } from "lucide-react";
+import { StrideTixSymbol } from "@/components/brand/StrideTixLogo";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -43,8 +44,8 @@ export function RegisterForm() {
     <div className="w-full max-w-md mx-auto bg-white rounded-modal p-6 sm:p-8 border border-sand-border shadow-warm-modal space-y-6">
       {/* Header */}
       <div className="text-center space-y-1.5">
-        <div className="w-12 h-12 rounded-btn bg-brand-50 text-brand flex items-center justify-center mx-auto mb-2">
-          <UserPlus className="w-6 h-6" />
+        <div className="w-12 h-12 rounded-btn bg-brand-50 text-brand flex items-center justify-center mx-auto mb-2 shadow-xs">
+          <StrideTixSymbol size={28} />
         </div>
         <h2 className="text-2xl font-extrabold text-espresso">Daftar Akun StrideTix</h2>
         <p className="text-xs text-espresso-secondary">

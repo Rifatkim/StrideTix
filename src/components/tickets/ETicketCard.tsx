@@ -20,6 +20,7 @@ import {
   ArrowRight,
   ExternalLink,
 } from "lucide-react";
+import { StrideTixSymbol } from "@/components/brand/StrideTixLogo";
 
 interface ETicketCardProps {
   ticket: ETicket;
@@ -58,8 +59,8 @@ export function ETicketCard({ ticket }: ETicketCardProps) {
       <div className="relative bg-white rounded-ticket border border-sand-border shadow-warm-modal overflow-hidden">
         {/* Decorative Top Accent Header */}
         <div className="bg-brand px-6 py-4 text-white flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Ticket className="w-5 h-5 -rotate-12" />
+          <div className="flex items-center gap-2.5">
+            <StrideTixSymbol size={22} color="#FFFFFF" className="-rotate-6 shrink-0" />
             <span className="font-extrabold tracking-tight text-lg">
               Stride<span className="text-brand-200">Tix</span> Pass
             </span>

@@ -13,6 +13,11 @@ export const metadata: Metadata = {
   title: "StrideTix — Platform E-Ticket Event Lari & Smart Distance Recommendation",
   description:
     "Temukan event lari impian, beli tiket dengan aman, dan dapatkan rekomendasi kategori jarak lari (5K, 10K, Half Marathon, Full Marathon) berdasarkan analisis aktivitas Strava Anda.",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/brand/stridetix-symbol.svg",
+  },
 };
 
 import { AppProviders } from "@/components/providers/AppProviders";
