@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { UserRole } from "@/types";
 import { ArrowRight, Lock, LogIn, Mail, AlertCircle, Loader2 } from "lucide-react";
@@ -10,6 +10,9 @@ import { StrideTixSymbol } from "@/components/brand/StrideTixLogo";
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get("redirect");
+
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,7 +25,11 @@ export function LoginForm() {
     setIsSubmitting(true);
     try {
       const user = await login({ email, password });
-      redirectByRole(user.role);
+      if (redirectParam && redirectParam.startsWith("/")) {
+        router.push(redirectParam);
+      } else {
+        redirectByRole(user.role);
+      }
     } catch (err: any) {
       setErrorMessage(err.message || "Email atau password yang Anda masukkan salah.");
     } finally {
@@ -42,6 +49,12 @@ export function LoginForm() {
 
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-modal p-6 sm:p-8 border border-sand-border shadow-warm-modal space-y-6">
+      {/* Informational banner when redirected from checkout */}
+      {redirectParam && (
+        <div className="p-3 rounded-xl bg-amber-50 border border-amber-200/80 text-xs text-amber-900 leading-relaxed animate-in fade-in">
+          Silakan masuk terlebih dahulu untuk melanjutkan pembelian tiket lomba.
+        </div>
+      )}
       {/* Header */}
       <div className="text-center space-y-1.5">
         <Link href="/" className="inline-block">
@@ -119,7 +132,10 @@ export function LoginForm() {
       {/* Footer Link */}
       <div className="text-center text-xs text-espresso-secondary pt-2 border-t border-sand-border/60">
         Belum memiliki akun?{" "}
-        <Link href="/register" className="font-bold text-brand hover:underline">
+        <Link
+          href={`/register${redirectParam ? `?redirect=${encodeURIComponent(redirectParam)}` : ""}`}
+          className="font-bold text-brand hover:underline"
+        >
           Daftar Akun Baru
         </Link>
       </div>

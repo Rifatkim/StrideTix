@@ -8,6 +8,7 @@ import { RecommendationCard } from "@/components/recommendation/RecommendationCa
 import { SafetyWarningModal } from "@/components/recommendation/SafetyWarningModal";
 import { StickyBookingBar } from "@/components/events/StickyBookingBar";
 import { useRunner } from "@/context/RunnerContext";
+import { useAuth } from "@/context/AuthContext";
 import { Info, Sparkles } from "lucide-react";
 
 interface EventTicketBookingSectionProps {
@@ -20,6 +21,7 @@ export function EventTicketBookingSection({
   categories,
 }: EventTicketBookingSectionProps) {
   const router = useRouter();
+  const { currentUser } = useAuth();
   const { recommendation, currentProfile } = useRunner();
 
   // Initial state: no category selected yet until user actively chooses
@@ -49,6 +51,13 @@ export function EventTicketBookingSection({
   const handleProceed = () => {
     if (!selectedCategory) return;
 
+    // Tamu tanpa login hanya bisa melihat detail & harga, wajib diarahkan ke login untuk membeli
+    if (!currentUser) {
+      const targetUrl = `/checkout?eventId=${eventId}&categoryId=${selectedCategory.id}`;
+      router.push(`/login?redirect=${encodeURIComponent(targetUrl)}`);
+      return;
+    }
+
     // If above recommendation, show full Safety Warning Modal first
     if (isSelectedAboveRecommendation && recommendation?.recommendedCategory) {
       setWarningModalOpen(true);
@@ -73,6 +82,11 @@ export function EventTicketBookingSection({
   const handleProceedAnyway = () => {
     if (selectedCategory) {
       setWarningModalOpen(false);
+      if (!currentUser) {
+        const targetUrl = `/checkout?eventId=${eventId}&categoryId=${selectedCategory.id}`;
+        router.push(`/login?redirect=${encodeURIComponent(targetUrl)}`);
+        return;
+      }
       router.push(`/checkout?eventId=${eventId}&categoryId=${selectedCategory.id}`);
     }
   };

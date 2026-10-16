@@ -39,7 +39,9 @@ export default function RegisterPage() {
 
       {/* Main Content Form */}
       <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-10 sm:py-16 relative z-10">
-        <RegisterForm />
+        <React.Suspense fallback={<div className="text-center text-xs text-espresso-muted">Memuat formulir...</div>}>
+          <RegisterForm />
+        </React.Suspense>
       </main>
 
       {/* Auth Footer */}

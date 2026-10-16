@@ -2,13 +2,16 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { ArrowRight, Building, Lock, Mail, User, AlertCircle, Loader2 } from "lucide-react";
 import { StrideTixSymbol } from "@/components/brand/StrideTixLogo";
 
 export function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get("redirect");
+
   const { register } = useAuth();
 
   const [role, setRole] = useState<"runner" | "organizer">("runner");
@@ -32,7 +35,9 @@ export function RegisterForm() {
         organizerName: role === "organizer" ? organizerName : undefined,
       });
 
-      if (user.role === "organizer") {
+      if (redirectParam && redirectParam.startsWith("/")) {
+        router.push(redirectParam);
+      } else if (user.role === "organizer") {
         router.push("/organizer/dashboard");
       } else {
         router.push("/dashboard");
@@ -186,7 +191,10 @@ export function RegisterForm() {
       {/* Footer Link */}
       <div className="text-center text-xs text-espresso-secondary pt-2 border-t border-sand-border/60">
         Sudah memiliki akun?{" "}
-        <Link href="/login" className="font-bold text-brand hover:underline">
+        <Link
+          href={`/login${redirectParam ? `?redirect=${encodeURIComponent(redirectParam)}` : ""}`}
+          className="font-bold text-brand hover:underline"
+        >
           Masuk di Sini
         </Link>
       </div>
