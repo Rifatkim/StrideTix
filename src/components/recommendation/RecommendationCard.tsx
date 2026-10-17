@@ -18,6 +18,56 @@ import {
 export function RecommendationCard() {
   const { currentUser, role } = useAuth();
   const { currentProfile, recommendation, isConnectedToStrava, setProfileById } = useRunner();
+  const [aiExplanation, setAiExplanation] = React.useState<{
+    explanation: string;
+    safetyNotes: string;
+    modelUsed?: string;
+  } | null>(null);
+  const [isAiLoading, setIsAiLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!currentProfile || !recommendation || recommendation.status === "insufficient_data") {
+      setAiExplanation(null);
+      return;
+    }
+
+    let isMounted = true;
+    async function fetchAiExplanation() {
+      setIsAiLoading(true);
+      try {
+        const res = await fetch("/api/recommendation/explain", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            recommendedCategory: recommendation?.recommendedCategory,
+            longestRunKm: currentProfile?.summary.longestRunKm,
+            weeklyFrequency: currentProfile?.summary.weeklyFrequency,
+            averagePaceMinPerKm: currentProfile?.summary.averagePaceMinPerKm,
+            consistencyScore: currentProfile?.summary.consistencyScore,
+            readiness: recommendation?.readiness,
+            totalRuns: currentProfile?.summary.totalRuns,
+          }),
+        });
+        const data = await res.json();
+        if (data.success && isMounted) {
+          setAiExplanation({
+            explanation: data.explanation,
+            safetyNotes: data.safetyNotes,
+            modelUsed: data.modelUsed,
+          });
+        }
+      } catch {
+        // Fallback offline
+      } finally {
+        if (isMounted) setIsAiLoading(false);
+      }
+    }
+
+    fetchAiExplanation();
+    return () => {
+      isMounted = false;
+    };
+  }, [currentProfile?.id, currentProfile?.summary?.longestRunKm, recommendation?.recommendedCategory]);
 
   // 1. Jika belum login, tampilkan banner ajakan login sebagai pelari
   if (!currentUser) {
@@ -54,15 +104,15 @@ export function RecommendationCard() {
           </h3>
         </div>
         <p className="text-xs text-espresso-secondary leading-relaxed">
-          Hubungkan akun Strava Anda untuk melihat analisis kesiapan fisik dan kategori jarak lomba yang paling ideal (5K, 10K, Half Marathon, atau Full Marathon).
+          Unggah file GPX/CSV atau isi data latihan Anda untuk melihat analisis kesiapan fisik dan kategori jarak lomba yang paling ideal (5K, 10K, Half Marathon, atau Full Marathon).
         </p>
         <div className="flex items-center gap-3 pt-1 flex-wrap">
           <Link
             href="/dashboard?tab=strava"
-            className="px-4 py-2 rounded-btn bg-accent-strava hover:bg-orange-600 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-colors"
+            className="px-4 py-2 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-colors"
           >
             <Activity className="w-3.5 h-3.5" />
-            <span>Hubungkan Akun Strava</span>
+            <span>Sinkronkan Riwayat Lari</span>
           </Link>
         </div>
       </div>
@@ -152,14 +202,38 @@ export function RecommendationCard() {
         </div>
       </div>
 
-      {/* Reasons Breakdown */}
-      <div className="space-y-2">
-        <span className="text-[11px] uppercase font-bold tracking-wider text-espresso-muted block">
-          Alasan Rekomendasi (Rule-Based Engine):
+      {/* Groq LLM Explanation Layer (PRD §15.1) */}
+      <div className="bg-white/95 rounded-btn p-4 border border-brand-200/80 space-y-2 shadow-xs">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-brand font-black text-xs">
+            <Sparkles className="w-3.5 h-3.5 text-accent-ai animate-pulse" />
+            <span>Penjelasan AI (Groq Cloud Inference)</span>
+          </div>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand font-bold border border-brand-200">
+            {aiExplanation?.modelUsed || "Groq LPU"}
+          </span>
+        </div>
+
+        {isAiLoading ? (
+          <div className="animate-pulse space-y-1.5 py-1">
+            <div className="h-2.5 bg-sand-border/70 rounded w-full" />
+            <div className="h-2.5 bg-sand-border/70 rounded w-4/5" />
+          </div>
+        ) : (
+          <p className="text-xs text-espresso leading-relaxed">
+            {aiExplanation?.explanation || recommendation.reasons.join(" ")}
+          </p>
+        )}
+      </div>
+
+      {/* Reasons Breakdown (Rule-Based Engine) */}
+      <div className="space-y-1.5">
+        <span className="text-[10px] uppercase font-bold tracking-wider text-espresso-muted block">
+          Poin Analitik Scoring Engine:
         </span>
-        <ul className="space-y-1.5">
+        <ul className="space-y-1">
           {recommendation.reasons.map((reason, idx) => (
-            <li key={idx} className="flex items-start gap-2 text-xs text-espresso-secondary leading-relaxed">
+            <li key={idx} className="flex items-start gap-2 text-[11px] text-espresso-secondary leading-relaxed">
               <span className="w-1.5 h-1.5 rounded-full bg-brand shrink-0 mt-1.5" />
               <span>{reason}</span>
             </li>

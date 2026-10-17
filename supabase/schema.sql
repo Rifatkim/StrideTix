@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS public.event_recommendations (
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 
--- 4. USER_STRAVA_SYNC TABLE (1-to-1 sync Strava token)
+-- 4. USER_STRAVA_SYNC TABLE (1-to-1 sync Strava token - legacy/optional)
 CREATE TABLE IF NOT EXISTS public.user_strava_sync (
     user_id UUID PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
     strava_athlete_id TEXT,
@@ -46,7 +46,19 @@ CREATE TABLE IF NOT EXISTS public.user_strava_sync (
     last_synced_at TIMESTAMPTZ
 );
 
--- 5. RAW_STRAVA_ACTIVITIES TABLE (1-to-N aktivitas lari)
+-- 4b. USER_FITNESS_SYNC TABLE (Universal Sync: GPX, CSV, Manual, & Strava)
+CREATE TABLE IF NOT EXISTS public.user_fitness_sync (
+    user_id UUID PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
+    sync_source TEXT NOT NULL DEFAULT 'manual' CHECK (sync_source IN ('manual', 'gpx_upload', 'csv_upload', 'strava', 'preset_persona')),
+    athlete_name TEXT DEFAULT 'Pelari StrideTix',
+    device_or_app TEXT DEFAULT 'Manual Assessment',
+    total_activities_synced INTEGER DEFAULT 0,
+    is_sync_active BOOLEAN DEFAULT true,
+    last_synced_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+
+-- 5. RAW_STRAVA_ACTIVITIES TABLE (1-to-N aktivitas lari - legacy/optional)
 CREATE TABLE IF NOT EXISTS public.raw_strava_activities (
     strava_activity_id TEXT NOT NULL,
     user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
@@ -56,6 +68,21 @@ CREATE TABLE IF NOT EXISTS public.raw_strava_activities (
     start_date TIMESTAMPTZ NOT NULL,
     raw_payload JSONB DEFAULT '{}'::jsonb,
     PRIMARY KEY (strava_activity_id, user_id)
+);
+
+-- 5b. RAW_FITNESS_ACTIVITIES TABLE (1-to-N aktivitas lari GPX, CSV, Manual)
+CREATE TABLE IF NOT EXISTS public.raw_fitness_activities (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    activity_name TEXT NOT NULL DEFAULT 'Aktivitas Lari',
+    activity_type TEXT NOT NULL DEFAULT 'Run',
+    distance_meters DOUBLE PRECISION NOT NULL DEFAULT 0,
+    moving_time_seconds INTEGER NOT NULL DEFAULT 0,
+    average_speed_mps DOUBLE PRECISION DEFAULT 0,
+    start_date TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    source TEXT NOT NULL DEFAULT 'manual' CHECK (source IN ('manual', 'gpx', 'csv', 'strava', 'preset')),
+    raw_payload JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 
 -- 6. RUNNING_EVENTS TABLE (Event lari dibuat organizer)
@@ -111,6 +138,7 @@ CREATE TABLE IF NOT EXISTS public.tickets (
 CREATE INDEX IF NOT EXISTS idx_users_role ON public.users(role);
 CREATE INDEX IF NOT EXISTS idx_event_recommendations_user_id ON public.event_recommendations(user_id);
 CREATE INDEX IF NOT EXISTS idx_raw_strava_activities_user_id ON public.raw_strava_activities(user_id);
+CREATE INDEX IF NOT EXISTS idx_raw_fitness_activities_user_date ON public.raw_fitness_activities(user_id, start_date DESC);
 CREATE INDEX IF NOT EXISTS idx_running_events_organizer_id ON public.running_events(organizer_id);
 CREATE INDEX IF NOT EXISTS idx_running_events_status ON public.running_events(status);
 CREATE INDEX IF NOT EXISTS idx_event_categories_event_id ON public.event_categories(event_id);
@@ -161,7 +189,9 @@ ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.runner_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_recommendations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_strava_sync ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_fitness_sync ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.raw_strava_activities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.raw_fitness_activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.running_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
@@ -200,8 +230,20 @@ CREATE POLICY "Users manage own strava sync" ON public.user_strava_sync
   USING ((select auth.uid()) = user_id)
   WITH CHECK ((select auth.uid()) = user_id);
 
+-- Policy USER_FITNESS_SYNC:
+CREATE POLICY "Users manage own fitness sync" ON public.user_fitness_sync
+  FOR ALL TO authenticated
+  USING ((select auth.uid()) = user_id)
+  WITH CHECK ((select auth.uid()) = user_id);
+
 -- Policy RAW_STRAVA_ACTIVITIES:
 CREATE POLICY "Users view own strava activities" ON public.raw_strava_activities
+  FOR ALL TO authenticated
+  USING ((select auth.uid()) = user_id)
+  WITH CHECK ((select auth.uid()) = user_id);
+
+-- Policy RAW_FITNESS_ACTIVITIES:
+CREATE POLICY "Users manage own fitness activities" ON public.raw_fitness_activities
   FOR ALL TO authenticated
   USING ((select auth.uid()) = user_id)
   WITH CHECK ((select auth.uid()) = user_id);

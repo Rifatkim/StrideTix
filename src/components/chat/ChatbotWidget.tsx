@@ -1,9 +1,21 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { MessageSquare, X, Send, Sparkles, ShieldAlert, Bot, User } from "lucide-react";
-import { PREDEFINED_PROMPTS, getSmartAssistantReply } from "@/lib/mock-data/chatResponses";
+import {
+  MessageSquare,
+  X,
+  Send,
+  Sparkles,
+  ShieldAlert,
+  Bot,
+  User,
+  Loader2,
+} from "lucide-react";
+import { QUICK_PROMPT_STARTERS, AI_ASSISTANT_DISCLAIMER } from "@/lib/mock-data/chatResponses";
 import { useAuth } from "@/context/AuthContext";
+import { useRunner } from "@/context/RunnerContext";
+import { AIChatMessage } from "@/types/ai";
+import { ChatMessageContent } from "./ChatMessageContent";
 
 interface ChatMessage {
   id: string;
@@ -13,17 +25,18 @@ interface ChatMessage {
 
 export function ChatbotWidget() {
   const { currentUser, role } = useAuth();
+  const { currentProfile, recommendation } = useRunner();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "initial-msg",
       sender: "bot",
-      text: "Halo! Saya Asisten Lari StrideTix 🏃. Ada yang bisa saya bantu seputar persiapan lomba, checklist perlengkapan, atau tips hidrasi Anda?",
+      text: "Halo! Saya Asisten Lari StrideTix 🏃 didukung oleh Groq AI. Ada yang bisa saya bantu seputar persiapan lomba, checklist perlengkapan, hidrasi, atau strategi pace Anda?",
     },
   ]);
   const [inputValue, setInputValue] = useState("");
+  const [isThinking, setIsThinking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
   const [isBookingBarActive, setIsBookingBarActive] = useState(false);
 
   useEffect(() => {
@@ -51,32 +64,85 @@ export function ChatbotWidget() {
     if (isOpen) {
       scrollToBottom();
     }
-  }, [messages, isOpen]);
+  }, [messages, isOpen, isThinking]);
 
   // AI Assistant HANYA khusus untuk pelari yang sudah login
   if (!currentUser || role !== "runner") {
     return null;
   }
 
-  const handleSendMessage = (textToSend?: string) => {
+  const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || inputValue).trim();
-    if (!text) return;
+    if (!text || isThinking) return;
 
     const userMsgId = `user-${Date.now()}`;
     const botMsgId = `bot-${Date.now() + 1}`;
 
-    const newMessages: ChatMessage[] = [
+    const updatedMessages: ChatMessage[] = [
       ...messages,
       { id: userMsgId, sender: "user", text },
     ];
-    setMessages(newMessages);
-    if (!textToSend) setInputValue("");
 
-    // Simulate short assistant thinking time
-    setTimeout(() => {
-      const reply = getSmartAssistantReply(text);
-      setMessages((prev) => [...prev, { id: botMsgId, sender: "bot", text: reply }]);
-    }, 400);
+    setMessages(updatedMessages);
+    if (!textToSend) setInputValue("");
+    setIsThinking(true);
+
+    try {
+      // Siapkan payload riwayat untuk API
+      const apiMessages: AIChatMessage[] = updatedMessages.map((m) => ({
+        role: m.sender === "user" ? "user" : "assistant",
+        content: m.text,
+      }));
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: apiMessages,
+          runnerContext: currentProfile
+            ? {
+                targetCategory: recommendation?.recommendedCategory || undefined,
+                longestRunKm: currentProfile.summary.longestRunKm,
+                weeklyFrequency: currentProfile.summary.weeklyFrequency,
+                averagePaceMinPerKm: currentProfile.summary.averagePaceMinPerKm,
+                readinessLevel: recommendation?.readiness,
+              }
+            : undefined,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success && data.reply) {
+        setMessages((prev) => [
+          ...prev,
+          { id: botMsgId, sender: "bot", text: data.reply },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: botMsgId,
+            sender: "bot",
+            text:
+              data.reply ||
+              "Maaf, asisten sedang mengalami kendala jaringan. Silakan coba kembali sesaat lagi.",
+          },
+        ]);
+      }
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: botMsgId,
+          sender: "bot",
+          text:
+            "Koneksi ke server AI terputus. Pastikan internet Anda aktif dan silakan kirim ulang pesan Anda.",
+        },
+      ]);
+    } finally {
+      setIsThinking(false);
+    }
   };
 
   return (
@@ -104,7 +170,7 @@ export function ChatbotWidget() {
 
       {/* Chat Window Panel */}
       {isOpen && (
-        <div className="w-[92vw] sm:w-[380px] h-[520px] max-h-[80vh] bg-white rounded-modal border border-sand-border shadow-warm-modal flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="w-[94vw] sm:w-[420px] h-[540px] max-h-[85vh] bg-white rounded-modal border border-sand-border shadow-warm-modal flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
           {/* Header */}
           <div className="bg-gradient-to-r from-brand to-brand-800 px-4 py-3.5 text-white flex items-center justify-between shrink-0 shadow-sm">
             <div className="flex items-center gap-2.5">
@@ -116,7 +182,7 @@ export function ChatbotWidget() {
                   <span className="font-extrabold text-sm leading-tight">StrideTix AI</span>
                   <span className="w-2 h-2 rounded-full bg-accent-success" />
                 </div>
-                <span className="text-[10px] text-white/80 block">Asisten Persiapan Lomba Lari</span>
+                <span className="text-[10px] text-white/80 block">Groq Cloud • LLaMA/GPT-OSS</span>
               </div>
             </div>
 
@@ -128,10 +194,10 @@ export function ChatbotWidget() {
             </button>
           </div>
 
-          {/* Medical Disclaimer Alert */}
+          {/* Medical Disclaimer Alert (FR-CHAT-06) */}
           <div className="bg-accent-warning-bg px-3.5 py-2 border-b border-accent-warning-border flex items-center gap-2 text-[10px] text-[#59422A] shrink-0">
             <ShieldAlert className="w-3.5 h-3.5 text-accent-warning shrink-0" />
-            <span>Saran umum latihan & checklist. Bukan diagnosis medis resmi.</span>
+            <span>{AI_ASSISTANT_DISCLAIMER}</span>
           </div>
 
           {/* Messages Body */}
@@ -154,27 +220,41 @@ export function ChatbotWidget() {
                 </div>
 
                 <div
-                  className={`max-w-[80%] rounded-card px-3.5 py-2.5 leading-relaxed whitespace-pre-line ${
+                  className={`max-w-[85%] rounded-card px-3.5 py-2.5 leading-relaxed ${
                     msg.sender === "user"
                       ? "bg-brand text-white font-medium"
-                      : "bg-surface-soft border border-sand-border text-espresso"
+                      : "bg-surface-soft border border-sand-border text-espresso shadow-xs"
                   }`}
                 >
-                  {msg.text}
+                  <ChatMessageContent content={msg.text} isUser={msg.sender === "user"} />
                 </div>
               </div>
             ))}
+
+            {isThinking && (
+              <div className="flex gap-2 items-start">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] bg-brand-100 text-brand-800">
+                  <Bot className="w-3.5 h-3.5" />
+                </div>
+                <div className="rounded-card px-3.5 py-2.5 bg-surface-soft border border-sand-border text-espresso flex items-center gap-2 text-xs text-espresso-muted">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-brand" />
+                  <span>Sedang memproses jawaban...</span>
+                </div>
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
           {/* Quick Predefined Questions */}
           <div className="px-3 py-2 border-t border-sand-border bg-surface-main shrink-0">
             <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[10px]">
-              {PREDEFINED_PROMPTS.map((prompt) => (
+              {QUICK_PROMPT_STARTERS.map((prompt) => (
                 <button
                   key={prompt.id}
+                  disabled={isThinking}
                   onClick={() => handleSendMessage(prompt.question)}
-                  className="px-2.5 py-1 rounded-full bg-white hover:bg-brand-50 border border-sand-border text-espresso font-semibold whitespace-nowrap transition-colors"
+                  className="px-2.5 py-1 rounded-full bg-white hover:bg-brand-50 border border-sand-border text-espresso font-semibold whitespace-nowrap transition-colors disabled:opacity-50"
                 >
                   {prompt.label}
                 </button>
@@ -194,15 +274,16 @@ export function ChatbotWidget() {
               type="text"
               placeholder="Tanyakan persiapan lari Anda..."
               value={inputValue}
+              disabled={isThinking}
               onChange={(e) => setInputValue(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-input bg-surface-main border border-sand-border text-xs text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+              className="flex-1 px-3 py-2 rounded-input bg-surface-main border border-sand-border text-xs text-espresso focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50"
             />
             <button
               type="submit"
-              disabled={!inputValue.trim()}
-              className="p-2.5 rounded-btn bg-brand hover:bg-brand-800 text-white disabled:opacity-40 transition-colors"
+              disabled={!inputValue.trim() || isThinking}
+              className="p-2.5 rounded-btn bg-brand hover:bg-brand-800 text-white disabled:opacity-40 transition-colors flex items-center justify-center"
             >
-              <Send className="w-3.5 h-3.5" />
+              {isThinking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
             </button>
           </form>
         </div>
