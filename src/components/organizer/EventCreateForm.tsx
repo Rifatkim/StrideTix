@@ -4,9 +4,11 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { createEvent } from "@/services/eventService";
+import { createEvent, uploadEventPoster } from "@/services/eventService";
 import { CategoryFormBuilder } from "./CategoryFormBuilder";
 import { EventCreateSummarySidebar } from "./EventCreateSummarySidebar";
+import { PosterUploadField, INTERNAL_BANNER_PRESETS } from "./PosterUploadField";
+import { TimePickerInput } from "./TimePickerInput";
 import { RunningEvent, TicketCategory } from "@/types";
 import {
   Calendar,
@@ -20,99 +22,114 @@ import {
   FileText,
 } from "lucide-react";
 
-const BANNER_PRESETS = [
-  {
-    label: "City Race",
-    url: "https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?auto=format&fit=crop&w=1600&q=80",
-  },
-  {
-    label: "Sunset Trail",
-    url: "https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=1600&q=80",
-  },
-  {
-    label: "Morning Marathon",
-    url: "https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=1600&q=80",
-  },
-];
-
 export function EventCreateForm() {
   const router = useRouter();
   const { currentUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Form states
+  // File Upload & Poster state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [posterPreview, setPosterPreview] = useState<string | null>(null);
+
+  // Form states - Empty by default with background placeholders
   const [title, setTitle] = useState("");
   const [organizerName, setOrganizerName] = useState(
-    currentUser?.organizerName || "Stride Running Club"
+    currentUser?.organizerName || ""
   );
   const [description, setDescription] = useState("");
-  const [locationCity, setLocationCity] = useState("Bandung");
+  const [locationCity, setLocationCity] = useState("");
   const [locationVenue, setLocationVenue] = useState("");
-  const [eventDate, setEventDate] = useState("2026-12-20");
-  const [startTime, setStartTime] = useState("05:00 WIB");
-  const [registrationDeadline, setRegistrationDeadline] = useState("2026-12-10");
-  const [bannerImage, setBannerImage] = useState(BANNER_PRESETS[0].url);
-  const [rules, setRules] = useState(
-    "1. Peserta wajib berusia minimal sesuai regulasi kategori (5K: 12th, 10K: 15th, HM: 17th).\n2. Membawa identitas resmi saat pengambilan race pack.\n3. Mengikuti rute resmi dengan timing chip yang aktif."
-  );
+  const [eventDate, setEventDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [registrationDeadline, setRegistrationDeadline] = useState("");
+  const [bannerImage, setBannerImage] = useState(INTERNAL_BANNER_PRESETS[0].url);
+  const [rules, setRules] = useState("");
 
   const [categories, setCategories] = useState<TicketCategory[]>([
     {
       id: "cat-new-5k",
       name: "5K",
       distanceKm: 5,
-      price: 200000,
-      quota: 500,
-      availableQuota: 500,
-      description: "Kategori 5K fun run untuk keluarga dan pemula.",
+      price: 0,
+      quota: 0,
+      availableQuota: 0,
+      description: "",
       benefits: ["Jersey", "Finisher Medal", "Timing Chip", "Refreshment"],
-    },
-    {
-      id: "cat-new-10k",
-      name: "10K",
-      distanceKm: 10,
-      price: 350000,
-      quota: 800,
-      availableQuota: 800,
-      description: "Kategori 10K untuk pelari yang ingin mempertajam waktu tempuh.",
-      benefits: ["Jersey", "Finisher Medal", "Timing Chip", "Refreshment & Isotonik"],
     },
   ]);
 
+  const handleDeletePoster = () => {
+    if (posterPreview && posterPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(posterPreview);
+    }
+    setSelectedFile(null);
+    setPosterPreview(null);
+    setBannerImage(INTERNAL_BANNER_PRESETS[0].url);
+  };
+
   const handleSubmit = async (targetStatus: "draft" | "published") => {
-    if (!title.trim() || !locationVenue.trim()) {
-      alert("Harap isi nama event dan venue lomba.");
+    if (!title.trim() || !locationVenue.trim() || !eventDate.trim()) {
+      alert("Harap isi nama event, tanggal pelaksanaan, dan venue lomba.");
+      return;
+    }
+
+    const validCategories = categories.filter((c) => (c.quota || 0) > 0);
+    if (validCategories.length === 0) {
+      alert("Harap tentukan minimal satu kategori dengan kuota peserta (> 0).");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const rulesList = rules
-        .split("\n")
-        .map((r) => r.trim())
-        .filter((r) => r.length > 0);
+      // 1. Upload custom poster file to Supabase Storage if selected
+      let finalBannerUrl = bannerImage;
+      if (selectedFile) {
+        try {
+          finalBannerUrl = await uploadEventPoster(selectedFile);
+        } catch (uploadErr: any) {
+          console.warn("Upload poster gagal, menggunakan template lokal:", uploadErr);
+          alert(
+            `Pemberitahuan: Foto belum dapat diunggah ke Supabase Storage (${uploadErr.message}). Event tetap disimpan menggunakan poster template internal. Pastikan Anda telah menjalankan skrip SQL storage di Supabase SQL Editor.`
+          );
+          finalBannerUrl = INTERNAL_BANNER_PRESETS[0].url;
+        }
+      }
+
+      const rulesList = rules.trim()
+        ? rules
+            .split("\n")
+            .map((r) => r.trim())
+            .filter((r) => r.length > 0)
+        : [
+            "Peserta dalam kondisi fisik sehat dan siap mengikuti lomba.",
+            "Membawa kartu identitas resmi saat penukaran race pack (RPC).",
+            "Nomor dada (BIB) resmi wajib dikenakan selama perlombaan.",
+          ];
 
       await createEvent({
+        organizerId: currentUser?.id,
         title,
-        organizerName,
-        organizerLogo:
-          "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=120&q=80",
-        description: description || `Ajang lari bergengsi ${title} di ${locationCity}.`,
-        locationCity,
+        organizerName: organizerName.trim() || currentUser?.organizerName || currentUser?.name || "Stride Organizer",
+        organizerLogo: "/brand/stridetix-symbol-dark.svg",
+        description:
+          description.trim() ||
+          `Ajang lomba lari bergengsi ${title} di ${locationCity || "Indonesia"}.`,
+        locationCity: locationCity.trim() || "Indonesia",
         locationVenue,
         eventDate,
-        startTime,
-        registrationDeadline,
-        bannerImage,
+        startTime: startTime.trim() || "05:30 AM",
+        registrationDeadline: registrationDeadline.trim() || eventDate,
+        bannerImage: finalBannerUrl.trim() || INTERNAL_BANNER_PRESETS[0].url,
         status: targetStatus,
-        categories,
+        categories: validCategories,
         rulesAndTerms: rulesList,
         routeHighlights: ["Titik Start & Finish Utama", "Water Station & Medic Support"],
       });
 
       router.push("/organizer/dashboard");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Gagal membuat event:", err);
+      alert(`Gagal membuat event: ${err?.message || "Terjadi kesalahan sistem."}`);
       setIsSubmitting(false);
     }
   };
@@ -122,153 +139,142 @@ export function EventCreateForm() {
       {/* Kolom Kiri: Form Inputs (lg:col-span-8) */}
       <div className="lg:col-span-8 bg-white rounded-card border border-sand-border p-6 sm:p-8 shadow-warm space-y-8">
         {/* 1. Informasi Umum Event */}
-      <div className="space-y-4">
-        <div className="border-b border-sand-border pb-3">
-          <h2 className="text-sm font-black text-espresso uppercase tracking-wider flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-brand" />
-            1. Informasi Dasar Lomba
-          </h2>
-          <p className="text-xs text-espresso-secondary mt-1">
-            Lengkapi nama event, lokasi race, tanggal pelaksanaan, dan poster resmi lomba.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="sm:col-span-2">
-            <label className="block text-[11px] font-bold text-espresso mb-1">
-              Nama Event Lari *
-            </label>
-            <input
-              type="text"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Contoh: Bandung Heritage Half Marathon 2026"
-              className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none"
-            />
+        <div className="space-y-4">
+          <div className="border-b border-sand-border pb-3">
+            <h2 className="text-sm font-black text-espresso uppercase tracking-wider flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-brand" />
+              1. Informasi Dasar Lomba
+            </h2>
+            <p className="text-xs text-espresso-secondary mt-1">
+              Lengkapi nama event, lokasi race, tanggal pelaksanaan, dan poster lomba. Contoh tertera di latar belakang.
+            </p>
           </div>
 
-          <div>
-            <label className="block text-[11px] font-bold text-espresso mb-1">
-              Nama Penyelenggara (Organizer)
-            </label>
-            <input
-              type="text"
-              value={organizerName}
-              onChange={(e) => setOrganizerName(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-bold text-espresso mb-1">
-              Kota Penyelenggaraan
-            </label>
-            <input
-              type="text"
-              value={locationCity}
-              onChange={(e) => setLocationCity(e.target.value)}
-              placeholder="Contoh: Bandung, Surabaya, Yogyakarta"
-              className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none"
-            />
-          </div>
-
-          <div className="sm:col-span-2">
-            <label className="block text-[11px] font-bold text-espresso mb-1">
-              Venue / Titik Start & Finish *
-            </label>
-            <input
-              type="text"
-              required
-              value={locationVenue}
-              onChange={(e) => setLocationVenue(e.target.value)}
-              placeholder="Contoh: Plaza Gedung Sate, Jl. Diponegoro No. 22"
-              className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-bold text-espresso mb-1">
-              Tanggal Pelaksanaan Lomba
-            </label>
-            <input
-              type="date"
-              value={eventDate}
-              onChange={(e) => setEventDate(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
               <label className="block text-[11px] font-bold text-espresso mb-1">
-                Jam Flag-off
+                Nama Event Lari *
               </label>
               <input
                 type="text"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                placeholder="05:00 WIB"
+                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Contoh: Bandung Heritage Half Marathon 2026"
                 className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none"
               />
             </div>
+
             <div>
               <label className="block text-[11px] font-bold text-espresso mb-1">
-                Tenggat Registrasi
+                Nama Penyelenggara (Organizer)
+              </label>
+              <input
+                type="text"
+                value={organizerName}
+                onChange={(e) => setOrganizerName(e.target.value)}
+                placeholder="Contoh: Stride Running Club / Danamon Run"
+                className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-espresso mb-1">
+                Kota Penyelenggaraan
+              </label>
+              <input
+                type="text"
+                value={locationCity}
+                onChange={(e) => setLocationCity(e.target.value)}
+                placeholder="Contoh: Bandung, Surabaya, Jakarta, Denpasar"
+                className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-[11px] font-bold text-espresso mb-1">
+                Venue / Titik Start & Finish *
+              </label>
+              <input
+                type="text"
+                required
+                value={locationVenue}
+                onChange={(e) => setLocationVenue(e.target.value)}
+                placeholder="Contoh: Plaza Gedung Sate, Jl. Diponegoro No. 22"
+                className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-espresso mb-1">
+                Tanggal Pelaksanaan Lomba *
               </label>
               <input
                 type="date"
-                value={registrationDeadline}
-                onChange={(e) => setRegistrationDeadline(e.target.value)}
+                required
+                value={eventDate}
+                onChange={(e) => setEventDate(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none"
               />
             </div>
-          </div>
 
-          <div className="sm:col-span-2">
-            <label className="block text-[11px] font-bold text-espresso mb-1">
-              Deskripsi Event
-            </label>
-            <textarea
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Tuliskan latar belakang lomba, sertifikasi lintasan, keunikan rute..."
-              className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none resize-none"
-            />
-          </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-[11px] font-bold text-espresso mb-1">
+                  Jam Flag-off
+                </label>
+                <TimePickerInput
+                  value={startTime}
+                  onChange={(val) => setStartTime(val)}
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-espresso mb-1">
+                  Tenggat Registrasi
+                </label>
+                <input
+                  type="date"
+                  value={registrationDeadline}
+                  onChange={(e) => setRegistrationDeadline(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none"
+                />
+              </div>
+            </div>
 
-          {/* Banner Image URL & Presets */}
-          <div className="sm:col-span-2 space-y-2">
-            <label className="block text-[11px] font-bold text-espresso">
-              Banner Poster Lomba (URL Gambar)
-            </label>
-            <input
-              type="url"
-              value={bannerImage}
-              onChange={(e) => setBannerImage(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none"
-            />
-            <div className="flex items-center gap-2 pt-1 flex-wrap">
-              <span className="text-[10px] text-espresso-muted">Preset Banner Cepat:</span>
-              {BANNER_PRESETS.map((p) => (
-                <button
-                  type="button"
-                  key={p.label}
-                  onClick={() => setBannerImage(p.url)}
-                  className={`text-[10px] font-semibold px-2 py-0.5 rounded border transition-colors ${
-                    bannerImage === p.url
-                      ? "bg-brand text-white border-brand"
-                      : "bg-sand-warm text-espresso-secondary border-sand-border hover:border-brand"
-                  }`}
-                >
-                  {p.label}
-                </button>
-              ))}
+            <div className="sm:col-span-2">
+              <label className="block text-[11px] font-bold text-espresso mb-1">
+                Deskripsi Event
+              </label>
+              <textarea
+                rows={3}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Tuliskan latar belakang lomba, keunikan rute lari, standar fasilitas, atau cut-off time..."
+                className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none resize-none"
+              />
+            </div>
+
+            {/* Banner Poster Upload & Delete Section */}
+            <div className="sm:col-span-2 pt-2 border-t border-sand-border">
+              <PosterUploadField
+                selectedFile={selectedFile}
+                posterPreview={posterPreview}
+                bannerImage={bannerImage}
+                onFileSelect={(file) => {
+                  setSelectedFile(file);
+                  const preview = URL.createObjectURL(file);
+                  setPosterPreview(preview);
+                  setBannerImage(preview);
+                }}
+                onDeletePoster={handleDeletePoster}
+                onSelectPreset={(url) => {
+                  handleDeletePoster();
+                  setBannerImage(url);
+                }}
+              />
             </div>
           </div>
         </div>
-      </div>
 
       {/* 2. Builder Kategori Tiket */}
       <div className="pt-4 border-t border-sand-border">
@@ -288,6 +294,7 @@ export function EventCreateForm() {
           rows={4}
           value={rules}
           onChange={(e) => setRules(e.target.value)}
+          placeholder={"Contoh format regulasi (1 per baris):\n1. Peserta wajib berusia minimal sesuai regulasi kategori.\n2. Membawa e-ticket resmi & kartu identitas saat pengambilan race pack.\n3. Mengikuti rute resmi dengan timing chip yang aktif."}
           className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:ring-2 focus:ring-brand outline-none resize-none font-mono"
         />
       </div>

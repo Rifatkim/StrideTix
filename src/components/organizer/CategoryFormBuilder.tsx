@@ -3,7 +3,7 @@
 import React from "react";
 import { DistanceCategory, TicketCategory } from "@/types";
 import { formatRupiah } from "@/lib/utils";
-import { Plus, Trash2, Award, Users, Tag } from "lucide-react";
+import { Plus, Trash2, Award, Users, Tag, Ticket } from "lucide-react";
 
 interface CategoryFormBuilderProps {
   categories: TicketCategory[];
@@ -69,8 +69,9 @@ export function CategoryFormBuilder({ categories, onChange }: CategoryFormBuilde
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xs font-bold text-espresso uppercase tracking-wider">
-            Kategori Jarak & Kuota Tiket
+          <h3 className="text-xs font-bold text-espresso uppercase tracking-wider flex items-center gap-2">
+            <Ticket className="w-4 h-4 text-brand" />
+            2. Kategori Jarak & Kuota Tiket
           </h3>
           <p className="text-[11px] text-espresso-muted">
             Tentukan kategori jarak yang dilombakan, harga tiket dalam IDR, dan kuota peserta.
@@ -135,9 +136,16 @@ export function CategoryFormBuilder({ categories, onChange }: CategoryFormBuilde
                 <input
                   type="number"
                   step={10000}
-                  min={50000}
-                  value={cat.price}
-                  onChange={(e) => handleUpdateField(index, "price", Number(e.target.value))}
+                  min={0}
+                  value={cat.price === 0 ? "" : cat.price}
+                  onChange={(e) =>
+                    handleUpdateField(
+                      index,
+                      "price",
+                      e.target.value === "" ? 0 : Math.max(0, Number(e.target.value))
+                    )
+                  }
+                  placeholder="Contoh: 200000"
                   className="w-full px-2.5 py-1.5 rounded bg-white border border-sand-border text-xs text-espresso focus:ring-1 focus:ring-brand outline-none"
                 />
               </div>
@@ -148,9 +156,16 @@ export function CategoryFormBuilder({ categories, onChange }: CategoryFormBuilde
                 </label>
                 <input
                   type="number"
-                  min={10}
-                  value={cat.quota}
-                  onChange={(e) => handleUpdateField(index, "quota", Number(e.target.value))}
+                  min={0}
+                  value={cat.quota === 0 ? "" : cat.quota}
+                  onChange={(e) =>
+                    handleUpdateField(
+                      index,
+                      "quota",
+                      e.target.value === "" ? 0 : Math.max(0, Number(e.target.value))
+                    )
+                  }
+                  placeholder="Contoh: 500"
                   className="w-full px-2.5 py-1.5 rounded bg-white border border-sand-border text-xs text-espresso focus:ring-1 focus:ring-brand outline-none"
                 />
               </div>
@@ -160,7 +175,7 @@ export function CategoryFormBuilder({ categories, onChange }: CategoryFormBuilde
                   Estimasi Nilai Kuota
                 </label>
                 <div className="px-2.5 py-1.5 rounded bg-white/70 border border-sand-border text-xs font-bold text-espresso">
-                  {formatRupiah(cat.price * cat.quota)}
+                  {formatRupiah((cat.price || 0) * (cat.quota || 0))}
                 </div>
               </div>
             </div>
@@ -173,7 +188,7 @@ export function CategoryFormBuilder({ categories, onChange }: CategoryFormBuilde
                 type="text"
                 value={cat.description}
                 onChange={(e) => handleUpdateField(index, "description", e.target.value)}
-                placeholder="Deskripsi target peserta kategori ini"
+                placeholder="Contoh: Kategori lomba lari 5K untuk keluarga dan pelari pemula"
                 className="w-full px-2.5 py-1.5 rounded bg-white border border-sand-border text-xs text-espresso focus:ring-1 focus:ring-brand outline-none"
               />
             </div>

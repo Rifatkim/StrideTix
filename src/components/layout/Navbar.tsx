@@ -248,11 +248,11 @@ export function Navbar() {
                 <Link
                   href="/organizer/events/new"
                   className={`px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${isActive("/organizer/events/new")
-                      ? "bg-brand text-white font-bold shadow-warm"
-                      : "bg-brand-50 hover:bg-brand-100 text-brand font-bold border border-brand/20"
+                      ? "bg-[#FFF7ED] text-brand font-bold shadow-xs border border-brand/20"
+                      : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
                     }`}
                 >
-                  <PlusCircle className="w-4 h-4 text-brand" />
+                  <PlusCircle className="w-4 h-4" />
                   <span>Buat Event Lomba</span>
                 </Link>
                 <Link

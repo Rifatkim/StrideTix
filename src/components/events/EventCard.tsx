@@ -50,9 +50,13 @@ export function EventCard({ event, isRecommended = false }: EventCardProps) {
       {/* 1. 16:9 Image Container */}
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-surface-muted">
         <Image
-          src={event.bannerImage}
+          src={event.bannerImage || "/images/events/city-marathon.jpg"}
           alt={event.title}
           fill
+          unoptimized
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/images/events/city-marathon.jpg";
+          }}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
           className="object-cover group-hover:scale-105 transition-transform duration-300"
         />

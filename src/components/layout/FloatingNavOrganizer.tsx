@@ -62,11 +62,13 @@ export function FloatingNavOrganizer() {
           <span>Event Saya</span>
         </Link>
 
-        {/* Buat Event - Prominent Race Orange Button */}
+        {/* Buat Event */}
         <Link
           href="/organizer/events/new"
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-white shadow-warm transition-all active:scale-95 shrink-0 ${
-            isNewEventActive ? "bg-brand-800 ring-2 ring-brand/40" : "bg-brand hover:bg-orange-600"
+          className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95 shrink-0 ${
+            isNewEventActive
+              ? "bg-[#FFF7ED] text-brand border border-brand/20 shadow-xs font-bold"
+              : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE]"
           }`}
           title="Buat Event Baru"
         >

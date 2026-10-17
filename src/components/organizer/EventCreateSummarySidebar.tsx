@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { TicketCategory } from "@/types";
 import { formatRupiah } from "@/lib/utils";
@@ -13,6 +13,8 @@ import {
   Send,
   Loader2,
 } from "lucide-react";
+
+const DEFAULT_BANNER = "/images/events/city-marathon.jpg";
 
 interface EventCreateSummarySidebarProps {
   title: string;
@@ -41,15 +43,21 @@ export function EventCreateSummarySidebar({
   isSubmitting,
   onSubmit,
 }: EventCreateSummarySidebarProps) {
-  const totalQuota = categories.reduce((acc, c) => acc + c.quota, 0);
+  const [imgSrc, setImgSrc] = useState(bannerImage || DEFAULT_BANNER);
+
+  useEffect(() => {
+    setImgSrc(bannerImage || DEFAULT_BANNER);
+  }, [bannerImage]);
+
+  const totalQuota = categories.reduce((acc, c) => acc + (Number(c.quota) || 0), 0);
   const potentialRevenue = categories.reduce(
-    (acc, c) => acc + c.quota * c.price,
+    (acc, c) => acc + (Number(c.quota) || 0) * (Number(c.price) || 0),
     0
   );
 
   const isTitleComplete = title.trim().length > 3;
   const isVenueComplete = locationVenue.trim().length > 3;
-  const hasCategories = categories.length > 0;
+  const hasCategories = categories.length > 0 && categories.some(c => c.price > 0 && c.quota > 0);
   const isRulesComplete = rules.trim().length > 10;
 
   const completionPercent = [
@@ -65,9 +73,11 @@ export function EventCreateSummarySidebar({
       <div className="bg-white rounded-card border border-sand-border overflow-hidden shadow-warm">
         <div className="relative aspect-[16/9] w-full bg-surface-muted">
           <Image
-            src={bannerImage}
+            src={imgSrc}
             alt="Preview Banner Lomba"
             fill
+            unoptimized
+            onError={() => setImgSrc(DEFAULT_BANNER)}
             className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-espresso/80 via-transparent to-transparent" />

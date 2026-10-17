@@ -44,7 +44,7 @@ function mapRowToRunningEvent(row: any): RunningEvent {
     locationCity: row.city || "",
     locationVenue: row.location || "",
     eventDate: row.event_date || "",
-    startTime: "05:30 WIB",
+    startTime: row.start_time || "05:30 AM",
     registrationDeadline: row.event_date || "",
     bannerImage: row.banner_url || "/images/hero-landingpage.jpg",
     status: (row.status || "published") as EventStatus,
@@ -137,14 +137,42 @@ export async function getTicketCategory(
 }
 
 export async function createEvent(
-  payload: Omit<RunningEvent, "id" | "slug">
+  payload: Omit<RunningEvent, "id" | "slug"> & { organizerId?: string }
 ): Promise<RunningEvent> {
   const supabase = getSupabase();
   if (!supabase) throw new Error("Supabase is not configured.");
 
+  // 1. Get authenticated user ID to satisfy Supabase RLS policy
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const organizerId = payload.organizerId || user?.id;
+  if (!organizerId) {
+    throw new Error(
+      "Sesi login Anda tidak valid atau telah berakhir. Silakan login kembali sebagai Organizer."
+    );
+  }
+
+  // 2. Ensure public.users entry exists to satisfy foreign key REFERENCES public.users(id)
+  try {
+    await supabase.from("users").upsert(
+      {
+        id: organizerId,
+        email: user?.email || "organizer@stridetix.com",
+        full_name: payload.organizerName || user?.user_metadata?.full_name || "Organizer",
+        role: "organizer",
+      },
+      { onConflict: "id", ignoreDuplicates: true }
+    );
+  } catch (upsertErr) {
+    console.warn("Could not upsert public.users:", upsertErr);
+  }
+
   const { data: eventData, error: eventError } = await supabase
     .from("running_events")
     .insert({
+      organizer_id: organizerId,
       title: payload.title,
       description: payload.description,
       location: payload.locationVenue,
@@ -220,3 +248,152 @@ export async function updateEventStatus(
     return null;
   }
 }
+
+export async function updateEvent(
+  id: string,
+  eventUpdates: {
+    title?: string;
+    description?: string;
+    locationVenue?: string;
+    locationCity?: string;
+    eventDate?: string;
+    bannerImage?: string;
+    status?: EventStatus;
+    startTime?: string;
+  },
+  categories?: TicketCategory[]
+): Promise<RunningEvent | null> {
+  const supabase = getSupabase();
+  if (!supabase) throw new Error("Supabase tidak terhubung.");
+
+  const fieldsToUpdate: Record<string, any> = {};
+  if (eventUpdates.title !== undefined) fieldsToUpdate.title = eventUpdates.title;
+  if (eventUpdates.description !== undefined) fieldsToUpdate.description = eventUpdates.description;
+  if (eventUpdates.locationVenue !== undefined) fieldsToUpdate.location = eventUpdates.locationVenue;
+  if (eventUpdates.locationCity !== undefined) fieldsToUpdate.city = eventUpdates.locationCity;
+  if (eventUpdates.eventDate !== undefined) fieldsToUpdate.event_date = eventUpdates.eventDate;
+  if (eventUpdates.bannerImage !== undefined) fieldsToUpdate.banner_url = eventUpdates.bannerImage;
+  if (eventUpdates.status !== undefined) fieldsToUpdate.status = eventUpdates.status;
+
+  if (Object.keys(fieldsToUpdate).length > 0) {
+    const { error: eventError } = await supabase
+      .from("running_events")
+      .update(fieldsToUpdate)
+      .eq("id", id);
+
+    if (eventError) {
+      throw new Error(`Gagal memperbarui event: ${eventError.message}`);
+    }
+  }
+
+  // Update categories if supplied
+  if (categories && categories.length > 0) {
+    for (const cat of categories) {
+      const isExistingUuid =
+        cat.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cat.id);
+
+      if (isExistingUuid) {
+        // Query existing category to preserve sold tickets count when reducing/increasing quota
+        const { data: currentCat } = await supabase
+          .from("event_categories")
+          .select("quota, remaining_quota")
+          .eq("id", cat.id)
+          .single();
+
+        const sold = currentCat
+          ? Math.max(0, (currentCat.quota || 0) - (currentCat.remaining_quota || 0))
+          : 0;
+        const newQuota = Number(cat.quota) || 0;
+        const newRemaining = Math.max(0, newQuota - sold);
+
+        await supabase
+          .from("event_categories")
+          .update({
+            category_name: cat.name,
+            distance_km: Number(cat.distanceKm) || 10,
+            price: Number(cat.price) || 0,
+            quota: newQuota,
+            remaining_quota: newRemaining,
+          })
+          .eq("id", cat.id);
+      } else {
+        // New category added
+        await supabase.from("event_categories").insert({
+          event_id: id,
+          category_name: cat.name,
+          distance_km: Number(cat.distanceKm) || 10,
+          price: Number(cat.price) || 0,
+          quota: Number(cat.quota) || 100,
+          remaining_quota: Number(cat.quota) || 100,
+        });
+      }
+    }
+  }
+
+  return getEventById(id);
+}
+
+export async function deleteEvent(id: string): Promise<boolean> {
+  const supabase = getSupabase();
+  if (!supabase) throw new Error("Supabase tidak terhubung.");
+
+  // 1. Get all category IDs for this event
+  const { data: categories } = await supabase
+    .from("event_categories")
+    .select("id")
+    .eq("event_id", id);
+
+  const categoryIds = (categories || []).map((c: any) => c.id);
+
+  // 2. If categories exist, delete any associated tickets first (due to ON DELETE RESTRICT)
+  if (categoryIds.length > 0) {
+    const { error: ticketError } = await supabase
+      .from("tickets")
+      .delete()
+      .in("category_id", categoryIds);
+
+    if (ticketError) {
+      console.warn("Notice deleting tickets for categories:", ticketError.message);
+    }
+  }
+
+  // 3. Delete the event (cascades to event_categories)
+  const { error: eventError } = await supabase
+    .from("running_events")
+    .delete()
+    .eq("id", id);
+
+  if (eventError) {
+    throw new Error(`Gagal menghapus event: ${eventError.message}`);
+  }
+
+  return true;
+}
+
+export async function uploadEventPoster(file: File): Promise<string> {
+  const supabase = getSupabase();
+  if (!supabase) throw new Error("Supabase tidak terhubung.");
+
+  const fileExt = file.name.split(".").pop() || "jpg";
+  const cleanExt = fileExt.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const fileName = `poster-${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${cleanExt || "jpg"}`;
+  const filePath = `${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("event-posters")
+    .upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: true,
+      contentType: file.type || "image/jpeg",
+    });
+
+  if (uploadError) {
+    console.warn("Storage upload error:", uploadError.message);
+    throw new Error(`Gagal upload poster ke Supabase Storage: ${uploadError.message}`);
+  }
+
+  const { data } = supabase.storage.from("event-posters").getPublicUrl(filePath);
+  return data.publicUrl;
+}
+
+

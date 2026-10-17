@@ -3,7 +3,16 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["tailwind-merge", "clsx"],
   images: {
-    domains: ["images.unsplash.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
+      },
+    ],
   },
 };
 

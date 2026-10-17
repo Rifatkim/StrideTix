@@ -30,10 +30,14 @@ export function EventDetailHeader({ event }: EventDetailHeaderProps) {
       {/* Main Banner Container */}
       <div className="relative aspect-[21/9] sm:aspect-[2.5/1] w-full rounded-card overflow-hidden bg-espresso shadow-warm border border-sand-border">
         <Image
-          src={event.bannerImage}
+          src={event.bannerImage || "/images/events/city-marathon.jpg"}
           alt={event.title}
           fill
           priority
+          unoptimized
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/images/events/city-marathon.jpg";
+          }}
           sizes="100vw"
           className="object-cover"
         />

@@ -110,7 +110,15 @@ export default function OrganizerDashboardPage() {
                 Memuat data event organizer...
               </div>
             ) : (
-              <ManagedEventsList events={events} />
+              <ManagedEventsList
+                events={events}
+                onEventUpdated={(updated) =>
+                  setEvents((prev) => prev.map((e) => (e.id === updated.id ? updated : e)))
+                }
+                onEventDeleted={(deletedId) =>
+                  setEvents((prev) => prev.filter((e) => e.id !== deletedId))
+                }
+              />
             )}
           </div>
         </AuthGuard>
