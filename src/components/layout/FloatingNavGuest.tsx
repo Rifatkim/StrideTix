@@ -35,25 +35,6 @@ export function FloatingNavGuest({
         {/* Navigation Pills (Desktop lg+) */}
         <div className="hidden lg:flex items-center gap-1">
           <Link
-            href="/#jelajahi-event"
-            onClick={(e) => {
-              if (scrollToSection) {
-                e.preventDefault();
-                scrollToSection("jelajahi-event");
-              }
-            }}
-            aria-current={activeSection === "jelajahi-event" ? "page" : undefined}
-            className={`px-3 py-1.5 rounded-full text-xs transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${
-              activeSection === "jelajahi-event"
-                ? "bg-[#FFF7ED] text-brand font-bold border border-brand/20 shadow-xs"
-                : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
-            }`}
-          >
-            <Compass className={`w-3.5 h-3.5 ${activeSection === "jelajahi-event" ? "text-brand" : "text-espresso-muted"}`} />
-            <span>Jelajahi Event</span>
-          </Link>
-
-          <Link
             href="/#kalender-lomba"
             onClick={(e) => {
               if (scrollToSection) {
@@ -70,6 +51,25 @@ export function FloatingNavGuest({
           >
             <Calendar className={`w-3.5 h-3.5 ${activeSection === "kalender-lomba" ? "text-brand" : "text-espresso-muted"}`} />
             <span>Kalender Lomba</span>
+          </Link>
+
+          <Link
+            href="/#jelajahi-event"
+            onClick={(e) => {
+              if (scrollToSection) {
+                e.preventDefault();
+                scrollToSection("jelajahi-event");
+              }
+            }}
+            aria-current={activeSection === "jelajahi-event" ? "page" : undefined}
+            className={`px-3 py-1.5 rounded-full text-xs transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${
+              activeSection === "jelajahi-event"
+                ? "bg-[#FFF7ED] text-brand font-bold border border-brand/20 shadow-xs"
+                : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
+            }`}
+          >
+            <Compass className={`w-3.5 h-3.5 ${activeSection === "jelajahi-event" ? "text-brand" : "text-espresso-muted"}`} />
+            <span>Jelajahi Event</span>
           </Link>
 
           <Link

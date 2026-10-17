@@ -37,10 +37,11 @@ export function RegisterForm() {
 
       if (redirectParam && redirectParam.startsWith("/")) {
         router.push(redirectParam);
-      } else if (user.role === "organizer") {
-        router.push("/organizer/dashboard");
       } else {
         router.push("/");
+        if (typeof window !== "undefined") {
+          window.scrollTo({ top: 0, behavior: "instant" });
+        }
       }
     } catch (err: any) {
       setErrorMessage(err.message || "Gagal mendaftarkan akun. Silakan coba kembali.");

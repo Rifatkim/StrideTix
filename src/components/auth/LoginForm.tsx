@@ -37,13 +37,11 @@ export function LoginForm() {
     }
   };
 
-  const redirectByRole = (role: UserRole) => {
-    if (role === "admin") {
-      router.push("/admin/dashboard");
-    } else if (role === "organizer") {
-      router.push("/organizer/dashboard");
-    } else {
-      router.push("/");
+  const redirectByRole = (_role: UserRole) => {
+    // Selalu direct ke item pertama paling kiri di navbar (URL: /)
+    router.push("/");
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "instant" });
     }
   };
 

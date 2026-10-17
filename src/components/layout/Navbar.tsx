@@ -43,12 +43,17 @@ export function Navbar() {
 
       {/* 2. Unified Navbar: Full-width at top, smoothly morphs to floating capsule on scroll */}
       <header
-        className={`fixed z-40 transition-all duration-300 ease-out font-sans ${isScrolled
-            ? "top-2 sm:top-3.5 left-1/2 -translate-x-1/2 w-[calc(100%-20px)] sm:w-[calc(100%-32px)] max-w-[1440px] h-14 sm:h-15.5 rounded-full bg-white/95 backdrop-blur-md border border-[#E8DDD0] shadow-[0_12px_36px_rgba(36,28,23,0.14),0_2px_8px_rgba(36,28,23,0.06)] px-3.5 sm:px-5 md:px-6"
-            : "top-0 left-0 w-full h-16 sm:h-18 rounded-none bg-white/95 backdrop-blur-md border-b border-sand-border/80 shadow-xs px-4 sm:px-6 lg:px-8 xl:px-12"
-          }`}
+        className={`fixed top-0 left-0 w-full z-40 pointer-events-none flex justify-center transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] font-sans ${
+          isScrolled ? "pt-2 sm:pt-3.5" : "pt-0"
+        }`}
       >
-        <div className="w-full h-full flex items-center justify-between gap-2 sm:gap-4 max-w-[1680px] mx-auto">
+        <div
+          className={`pointer-events-auto transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] flex items-center justify-between gap-2 sm:gap-4 mx-auto ${
+            isScrolled
+              ? "w-[calc(100%-20px)] sm:w-[calc(100%-32px)] max-w-[1440px] h-14 sm:h-15.5 rounded-full bg-white/95 backdrop-blur-md border border-[#E8DDD0] shadow-[0_12px_36px_rgba(36,28,23,0.14),0_2px_8px_rgba(36,28,23,0.06)] px-3.5 sm:px-5 md:px-6"
+              : "w-full max-w-[1680px] h-16 sm:h-18 rounded-none bg-white/95 backdrop-blur-md border-b border-sand-border/80 shadow-xs px-4 sm:px-6 lg:px-8 xl:px-12"
+          }`}
+        >
           {/* Logo StrideTix */}
           <Link href={homeHref} className="flex items-center gap-2 sm:gap-2.5 group shrink-0" aria-label="StrideTix Homepage">
             <div
@@ -99,30 +104,9 @@ export function Navbar() {
 
           {/* Desktop Navigation - Preserved Completely Across Both States! */}
           <nav className="hidden md:flex items-center gap-1 sm:gap-1.5 lg:gap-2">
-            {/* 1. GUEST DESKTOP */}
+            {/* 1. GUEST DESKTOP: Kalender Lomba (Top section) -> Jelajahi Event (Lower section) -> Tentang Smart AI */}
             {!currentUser && (
               <>
-                <Link
-                  href="/#jelajahi-event"
-                  onClick={(e) => {
-                    if (pathname === "/") {
-                      e.preventDefault();
-                      scrollToSection("jelajahi-event");
-                    }
-                  }}
-                  aria-current={activeSection === "jelajahi-event" ? "page" : undefined}
-                  className={`px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${activeSection === "jelajahi-event"
-                      ? "bg-[#FFF7ED] text-brand font-bold shadow-xs border border-brand/20"
-                      : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
-                    }`}
-                >
-                  <Compass
-                    className={`w-4 h-4 ${activeSection === "jelajahi-event" ? "text-brand" : "text-espresso-muted"
-                      }`}
-                  />
-                  <span>Jelajahi Event</span>
-                </Link>
-
                 <Link
                   href="/#kalender-lomba"
                   onClick={(e) => {
@@ -142,6 +126,27 @@ export function Navbar() {
                       }`}
                   />
                   <span>Kalender Lomba</span>
+                </Link>
+
+                <Link
+                  href="/#jelajahi-event"
+                  onClick={(e) => {
+                    if (pathname === "/") {
+                      e.preventDefault();
+                      scrollToSection("jelajahi-event");
+                    }
+                  }}
+                  aria-current={activeSection === "jelajahi-event" ? "page" : undefined}
+                  className={`px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${activeSection === "jelajahi-event"
+                      ? "bg-[#FFF7ED] text-brand font-bold shadow-xs border border-brand/20"
+                      : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
+                    }`}
+                >
+                  <Compass
+                    className={`w-4 h-4 ${activeSection === "jelajahi-event" ? "text-brand" : "text-espresso-muted"
+                      }`}
+                  />
+                  <span>Jelajahi Event</span>
                 </Link>
 
                 <Link
