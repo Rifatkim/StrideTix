@@ -81,6 +81,7 @@ export function LoginForm() {
           <div className="relative">
             <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
             <input
+              id="email-input"
               type="email"
               required
               placeholder="nama@email.com"
@@ -98,6 +99,7 @@ export function LoginForm() {
           <div className="relative">
             <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
             <input
+              id="password-input"
               type="password"
               required
               placeholder="Masukkan password akun"
@@ -109,6 +111,7 @@ export function LoginForm() {
         </div>
 
         <button
+          id="login-submit-btn"
           type="submit"
           disabled={isSubmitting}
           className="w-full py-3 px-6 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm transition-all flex items-center justify-center gap-2 group disabled:opacity-50"

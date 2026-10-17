@@ -232,7 +232,7 @@ export function PaymentSimulationStep({
       <div className="p-3.5 rounded-btn bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-start gap-2.5">
         <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
         <span className="leading-relaxed">
-          <strong>Mode Simulasi:</strong> Anda tidak perlu melakukan transfer riil. Cukup klik tombol <strong>"Simulasikan Pembayaran Berhasil"</strong> di bawah untuk langsung menerbitkan tiket dan QR Code resmi.
+          <strong>Mode Simulasi:</strong> Anda tidak perlu melakukan transfer riil. Cukup klik tombol <strong>&ldquo;Simulasikan Pembayaran Berhasil&rdquo;</strong> di bawah untuk langsung menerbitkan tiket dan QR Code resmi.
         </span>
       </div>
 

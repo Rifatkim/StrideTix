@@ -27,7 +27,7 @@ export function RunnerHomeBanner() {
               <span>Halo, {currentUser?.name || "Pelari Hebat"}!</span>
               <RunningStrideIcon
                 size={34}
-                className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 shrink-0 inline-block"
+                className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 shrink-0 inline-block drop-shadow-[0_3px_8px_rgba(234,88,12,0.25)] hover:scale-105 transition-transform duration-200"
               />
             </h1>
             <p className="text-xs sm:text-sm text-espresso-secondary max-w-3xl leading-relaxed">
