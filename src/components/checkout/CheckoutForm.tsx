@@ -1,37 +1,42 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { ParticipantData, RunningEvent, TicketCategory } from "@/types";
-import { createTicketOrder } from "@/services/ticketService";
 import { useAuth } from "@/context/AuthContext";
-import { CreditCard, Lock, Sparkles, UserCheck } from "lucide-react";
+import { ArrowRight, UserCheck } from "lucide-react";
 
 interface CheckoutFormProps {
   event: RunningEvent;
   category: TicketCategory;
+  initialData?: ParticipantData;
+  onProceedToPayment: (data: ParticipantData) => void;
 }
 
-export function CheckoutForm({ event, category }: CheckoutFormProps) {
-  const router = useRouter();
+export function CheckoutForm({
+  event,
+  category,
+  initialData,
+  onProceedToPayment,
+}: CheckoutFormProps) {
   const { currentUser } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form State with sensible defaults for quick testing
-  const [formData, setFormData] = useState<ParticipantData>({
-    fullName: currentUser?.name || "Budi Pratama",
-    email: currentUser?.email || "budi.pratama@example.com",
-    phoneNumber: "081234567890",
-    gender: "male",
-    dateOfBirth: "1995-08-17",
-    bibName: currentUser?.name ? currentUser.name.split(" ")[0].toUpperCase() : "BUDI P.",
-    emergencyContactName: "Dewi Pratama",
-    emergencyContactPhone: "081298765432",
-    bloodType: "O",
-  });
+  const [formData, setFormData] = useState<ParticipantData>(
+    initialData || {
+      fullName: currentUser?.name || "Bams",
+      email: currentUser?.email || "bambang123@gmail.com",
+      phoneNumber: "081234567890",
+      gender: "male",
+      dateOfBirth: "1995-08-17",
+      bibName: currentUser?.name ? currentUser.name.split(" ")[0].toUpperCase() : "BAMS",
+      emergencyContactName: "Dewi Pratama",
+      emergencyContactPhone: "081298765432",
+      bloodType: "O",
+    }
+  );
 
   useEffect(() => {
-    if (currentUser) {
+    if (currentUser && !initialData) {
       setFormData((prev) => ({
         ...prev,
         fullName: currentUser.name || prev.fullName,
@@ -39,40 +44,15 @@ export function CheckoutForm({ event, category }: CheckoutFormProps) {
         bibName: currentUser.name ? currentUser.name.split(" ")[0].toUpperCase() : prev.bibName,
       }));
     }
-  }, [currentUser]);
+  }, [currentUser, initialData]);
 
-  const [agreedToTerms, setAgreedToTerms] = useState(true);
+  // Ceklis TIDAK otomatis dicentang per permintaan user: harus dibaca dan dicentang manual
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreedToTerms) return;
-
-    setIsSubmitting(true);
-    try {
-      const ticket = await createTicketOrder({
-        event: {
-          id: event.id,
-          title: event.title,
-          bannerImage: event.bannerImage,
-          eventDate: event.eventDate,
-          startTime: event.startTime,
-          locationVenue: event.locationVenue,
-          locationCity: event.locationCity,
-        },
-        category: {
-          id: category.id,
-          name: category.name,
-          price: category.price,
-        },
-        participant: formData,
-      });
-
-      // Redirect to the newly generated e-ticket
-      router.push(`/tickets/${ticket.ticketCode}`);
-    } catch (err) {
-      console.error("Order creation failed", err);
-      setIsSubmitting(false);
-    }
+    onProceedToPayment(formData);
   };
 
   return (
@@ -178,14 +158,15 @@ export function CheckoutForm({ event, category }: CheckoutFormProps) {
 
       {/* Terms Agreement */}
       <div className="pt-2 border-t border-sand-border">
-        <label className="flex items-start gap-3 cursor-pointer">
+        <label htmlFor="terms-checkbox" className="flex items-start gap-3 cursor-pointer select-none">
           <input
+            id="terms-checkbox"
             type="checkbox"
             checked={agreedToTerms}
             onChange={(e) => setAgreedToTerms(e.target.checked)}
             className="mt-0.5 w-4 h-4 rounded text-brand focus:ring-brand border-sand-border cursor-pointer"
           />
-          <span className="text-xs text-espresso select-none leading-relaxed">
+          <span className="text-xs text-espresso leading-relaxed">
             Saya menyetujui seluruh Syarat & Ketentuan lomba, memahami cut-off time (COT), serta menyatakan kondisi fisik dalam keadaan sehat untuk berpartisipasi.
           </span>
         </label>
@@ -194,19 +175,19 @@ export function CheckoutForm({ event, category }: CheckoutFormProps) {
       {/* Submit Button */}
       <div className="pt-2">
         <button
+          id="proceed-payment-btn"
           type="submit"
-          disabled={!agreedToTerms || isSubmitting}
-          className="w-full py-3.5 px-6 rounded-btn bg-brand hover:bg-brand-800 text-white font-extrabold text-sm shadow-warm transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={!agreedToTerms}
+          className="w-full py-4 px-6 rounded-btn bg-brand hover:bg-brand-800 text-white font-extrabold text-sm shadow-warm transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <CreditCard className="w-4 h-4" />
-          <span>
-            {isSubmitting ? "Memproses Transaksi..." : "Bayar & Terbitkan Tiket (Sandbox Simulator)"}
-          </span>
+          <span>Lanjutkan ke Simulasi Pembayaran</span>
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </button>
-        <span className="text-[11px] text-espresso-muted text-center block mt-2 flex items-center justify-center gap-1">
-          <Lock className="w-3 h-3 text-accent-success" />
-          <span>Simulasi instan tanpa kartu kredit / payment gateway eksternal</span>
-        </span>
+        {!agreedToTerms && (
+          <span className="text-[11px] text-amber-700 text-center block mt-2 font-medium">
+            * Silakan baca dan centang persetujuan syarat & ketentuan di atas untuk melanjutkan.
+          </span>
+        )}
       </div>
     </form>
   );

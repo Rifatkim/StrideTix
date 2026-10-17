@@ -112,91 +112,20 @@ export async function createTicket(params: {
   };
   participant: ParticipantData;
 }): Promise<ETicket> {
-  const supabase = createClient();
+  const res = await fetch("/api/tickets/purchase", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    throw new Error("Anda harus masuk terlebih dahulu untuk membeli tiket.");
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || "Gagal menerbitkan e-ticket.");
   }
 
-  // 1. Create order in Supabase
-  const { data: order, error: orderError } = await supabase
-    .from("orders")
-    .insert({
-      user_id: user.id,
-      total_amount: params.category.price,
-      status: "paid",
-    })
-    .select()
-    .single();
-
-  if (orderError || !order) {
-    throw new Error(orderError?.message || "Gagal membuat pesanan tiket.");
-  }
-
-  // 2. Generate ticket code and QR payload
-  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-  const cityCode = params.event.locationCity.slice(0, 3).toUpperCase();
-  const ticketCode = `STX-2026-${cityCode}-${randomSuffix}`;
-  const qrHash = `STRIDETIX-TOKEN-${ticketCode}-VERIFIED`;
-
-  // 3. Create ticket in Supabase
-  const { data: ticket, error: ticketError } = await supabase
-    .from("tickets")
-    .insert({
-      order_id: order.id,
-      category_id: params.category.id,
-      user_id: user.id,
-      ticket_code: ticketCode,
-      qr_code_hash: qrHash,
-      status: "valid",
-    })
-    .select()
-    .single();
-
-  if (ticketError || !ticket) {
-    throw new Error(ticketError?.message || "Gagal menerbitkan e-ticket.");
-  }
-
-  // 4. Reduce remaining quota
-  try {
-    const { data: currentCat } = await supabase
-      .from("event_categories")
-      .select("remaining_quota")
-      .eq("id", params.category.id)
-      .single();
-
-    if (currentCat && currentCat.remaining_quota > 0) {
-      await supabase
-        .from("event_categories")
-        .update({ remaining_quota: currentCat.remaining_quota - 1 })
-        .eq("id", params.category.id);
-    }
-  } catch (quotaErr) {
-    console.warn("Could not decrement quota:", quotaErr);
-  }
-
-  return {
-    ticketCode,
-    orderId: order.id,
-    eventId: params.event.id,
-    eventTitle: params.event.title,
-    eventBanner: params.event.bannerImage,
-    eventDate: params.event.eventDate,
-    startTime: params.event.startTime,
-    venue: params.event.locationVenue,
-    city: params.event.locationCity,
-    categoryName: params.category.name,
-    bibName: params.participant.bibName.toUpperCase(),
-    participantName: params.participant.fullName,
-    participantEmail: params.participant.email,
-    status: "issued",
-    qrPayload: qrHash,
-    issuedAt: new Date().toISOString(),
-  };
+  return data.ticket;
 }
 
 export const createTicketOrder = createTicket;
