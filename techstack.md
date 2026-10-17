@@ -17,7 +17,7 @@ Pemilihan teknologi pada **StrideTix** dirancang agar pengembangan fitur *core t
 | **Bahasa Pemrograman** | **TypeScript** | Menjaga *type-safety* pada pengolahan data metrik Strava, respons API Groq, dan transaksi tiket. |
 | **Styling & UI Components** | **Tailwind CSS + shadcn/ui + GSAP Animation** | Membangun antarmuka responsif untuk katalog event, *badge* rekomendasi, modal *safety warning*, dan dashboard. |
 | **Database & Backend-as-a-Service** | **Supabase (PostgreSQL)** | Menyimpan data relasional, autentikasi pengguna (*Supabase Auth*), proteksi akses (*Row Level Security*), dan penyimpanan gambar banner event (*Supabase Storage*). |
-| **External Fitness API** | **Strava API v3 (OAuth 2.0)** | Mengambil riwayat aktivitas lari pengguna (*distance, moving time, pace, frequency*) secara aman. |
+| **Data Kebugaran & Aktivitas Lari** | **Universal Fitness Sync (GPX, CSV, Manual Assessment, & Strava)** | Mengambil dan mem-parse riwayat aktivitas lari pengguna (*distance, moving time, pace, frequency*) secara aman dan fleksibel tanpa hambatan paywall API eksternal. |
 | **AI & LLM Inference Engine** | **Groq Cloud API** | Menghasilkan penjelasan naratif dari hasil *Rule-Based Scoring Engine* serta menjalankan fitur *AI Running Assistant (Chatbot)* dengan kecepatan tinggi (*ultra-low latency*). |
 | **QR Code Utility** | **`qrcode.react` & `html5-qrcode`** | Membuat kode QR unik pada E-Ticket peserta dan memindai QR melalui kamera/input pada dashboard Event Organizer. |
 
@@ -31,9 +31,9 @@ Menggunakan **Next.js App Router** memungkinkan pemisahan yang bersih antara hal
 * **Server Components (RSC):** Digunakan pada halaman *Event Discovery* dan *Event Detail* agar waktu muat halaman memenuhi target NFR ($\le 3$ detik).
 * **Client Components:** Digunakan pada komponen interaktif seperti *Filter Event*, *Chatbot UI*, pemindai *QR Code Check-in*, dan modal persetujuan *Safety Warning*.
 * **Route Handlers (`app/api/...`) & Server Actions:**
-  * Menangani *callback* OAuth 2.0 dari Strava (`/api/strava/callback`) agar `client_secret` dan `access_token` tidak pernah terekspos ke *browser* pengguna.
-  * Menjalankan kalkulasi **Scoring Engine** secara tertutup di sisi server.
-  * Menjadi jembatan pemanggilan API ke **Groq Console** menggunakan `GROQ_API_KEY` yang tersimpan di *server environment*.
+  * Menangani sinkronisasi kebugaran (`/api/fitness/upload`, `/api/fitness/manual`, `/api/fitness/status`, `/api/fitness/reset`).
+  * Menjalankan kalkulasi **Rule-Based Scoring Engine** secara tertutup di sisi server.
+  * Menjadi jembatan pemanggilan API ke **Groq Cloud** menggunakan `GROQ_API_KEY` yang tersimpan di *server environment*.
 * **Middleware (`middleware.ts`):** Mengatur proteksi rute berdasarkan *role* (`runner`, `organizer`, `admin`) bekerja sama dengan sesi dari Supabase.
 
 ---
@@ -41,24 +41,24 @@ Menggunakan **Next.js App Router** memungkinkan pemisahan yang bersih antara hal
 ### 2.2 Database, Auth & Storage: Supabase
 Supabase dipilih sebagai fondasi *Backend-as-a-Service* berbasis **PostgreSQL** untuk mempercepat pembuatan fitur autentikasi dan manajemen file:
 
-* **Supabase Database (PostgreSQL):** Menyimpan data multi-role, katalog event, kategori tiket, transaksi, ringkasan metrik Strava, dan riwayat rekomendasi.
+* **Supabase Database (PostgreSQL):** Menyimpan data multi-role, katalog event, kategori tiket, transaksi, ringkasan metrik kebugaran (`user_fitness_sync`, `runner_profiles`, `raw_fitness_activities`), dan riwayat rekomendasi (`event_recommendations`).
 * **Supabase Auth:** Menangani registrasi, login, manajemen sesi JWT, dan *password hashing* (memenuhi kebutuhan **FR-AUTH-01** s/d **FR-AUTH-07**).
 * **Row Level Security (RLS):** Kebijakan keamanan level baris untuk memastikan:
-  * *Runner* hanya bisa melihat tiket dan data Strava miliknya sendiri.
+  * *Runner* hanya bisa melihat tiket dan data kebugaran miliknya sendiri.
   * *Organizer* hanya bisa mengedit dan memvalidasi tiket pada event yang ia buat (**FR-ORG-08**).
   * *Admin* memiliki akses penuh untuk moderasi event dan verifikasi organizer.
 * **Supabase Storage:** Menyimpan aset gambar poster/banner event yang diunggah oleh Event Organizer (**US-11**).
 
 ---
 
-### 2.3 Integrasi Data Kebugaran: Strava API v3
-Integrasi dilakukan menggunakan alur standar **OAuth 2.0 Authorization Code Flow**:
+### 2.3 Integrasi Data Kebugaran: Universal Fitness Sync
+Mengingat pendaftaran API pihak ketiga tertentu (seperti Strava API v3) kini menerapkan skema berbayar (*Strava Subscriber*), StrideTix menerapkan arsitektur **Universal Fitness Sync**:
 
-1. **Otorisasi Scope:** Meminta izin akses `read` dan `activity:read_all` (atau `activity:read`) kepada pengguna.
-2. **Manajemen Token:** Menyimpan `access_token`, `refresh_token`, dan `expires_at` di tabel khusus pada Supabase yang hanya dapat diakses oleh *Next.js Server*. Sistem otomatis melakukan *refresh token* jika masa aktif habis (**FR-STR-08**).
-3. **Endpoint yang Digunakan:**
-   * `GET /api/v3/athlete` — Mengambil identitas dasar profil atlet Strava.
-   * `GET /api/v3/athlete/activities` — Mengambil daftar aktivitas dalam periode analisis (misal: 4–8 minggu terakhir), lalu difilter di *backend* Next.js khusus untuk tipe `type === "Run"` (**FR-STR-04**).
+1. **Parser File GPX (GPS Exchange Format):** Mengekstrak data koordinat geospasial `<trkpt>`, menghitung jarak kumulatif via formula *Haversine*, durasi bergerak (*moving time*), elevasi, dan menghitung pace rata-rata secara presisi dari file jam Garmin/Coros/Apple Watch/Strava.
+2. **Parser File CSV (Activity Log):** Mengekstrak ringkasan spreadsheet sesi latihan (*date, distance, moving time, pace*).
+3. **Formulir Penilaian Mandiri Cepat:** Input 3 parameter praktis (*longest run*, frekuensi latihan mingguan, dan rata-rata pace) bagi pelari yang belum memiliki perangkat jam GPS.
+4. **Preset Persona Simulator:** Profil terkalibrasi (*5K Novice, 10K Intermediate, 21K Half Marathon, 42K Marathon*) untuk demonstrasi dan evaluasi sistem.
+5. **Koneksi Eksternal OAuth (Strava API v3 - Opsi Legacy):** Tetap didukung jika kredensial pengembang resmi tersedia.
 
 ---
 
@@ -87,7 +87,7 @@ Berikut adalah daftar *package* pendukung yang akan dipasang pada proyek Next.js
 | **QR Code** | `qrcode.react` | Merender QR Code unik pada halaman E-Ticket peserta. |
 | **QR Scanner** | `html5-qrcode` | Membaca QR Code melalui kamera perangkat saat Organizer melakukan *check-in* peserta. |
 | **Icons & UI** | `lucide-react`, `tailwindcss` | Ikon antarmuka (seperti badge rekomendasi, peringatan keselamatan, dan status tiket). |
-| **Date Utility** | `date-fns` | Mengolah rentang tanggal event dan menghitung periode analisis aktivitas Strava (misal 30–60 hari ke belakang). |
+| **Date Utility** | `date-fns` | Mengolah rentang tanggal event dan menghitung periode analisis aktivitas lari (misal 30–60 hari ke belakang). |
 
 ---
 
@@ -96,27 +96,24 @@ Berikut adalah daftar *package* pendukung yang akan dipasang pada proyek Next.js
 ```
 [Browser Pengguna (Next.js Client)]
        │
-       ├── 1. Klik "Connect Strava" ────────────────────────► [Strava OAuth Page]
-       │                                                             │
-       ◄── 2. Redirect dengan Authorization Code ────────────────────┘
+       ├── 1. Upload GPX/CSV, Form Mandiri, atau Preset Persona ─► [Fitness Sync UI]
+       │                                                                  │
+       ▼                                                                  │
+[Next.js Backend (Route Handlers: /api/fitness/*)] ◄──────────────────────┘
        │
-       ▼
-[Next.js Backend (Server Actions / API Routes)]
+       ├── 2. Parse & Validasi Data Lari (Haversine Distance, Moving Time, Pace)
        │
-       ├── 3. Tukar Code jadi Access Token & Ambil Data "Run" ► [Strava API v3]
+       ├── 3. Hitung Indikator & Jalankan Rule-Based Scoring Engine (5K/10K/HM/FM)
        │
-       ├── 4. Hitung Metrik (Avg Distance, Long Run, Pace, Konsistensi)
-       │      & Jalankan Rule-Based Scoring Engine (Tentukan 5K/10K/HM/FM)
+       ├── 4. Kirim Ringkasan Skor ke LLM Explanation Layer ──► [Groq Cloud API]
+       │      (Minta narasi penjelasan & catatan keselamatan)
        │
-       ├── 5. Kirim Ringkasan Skor ke LLM ────────────────────► [Groq Cloud API]
-       │      (Minta penjelasan alasan & safety note)
-       │
-       ├── 6. Simpan Metrik, Hasil Rekomendasi & Transaksi ───► [Supabase PostgreSQL]
+       ├── 5. Simpan Metrik, Hasil Rekomendasi & Transaksi ────► [Supabase PostgreSQL]
        │
        ▼
 [Browser Pengguna (Next.js UI)]
-       └── 7. Tampilkan Badge "Recommended for You", Confidence Level,
-              Penjelasan AI, dan terbitkan E-Ticket (QR Code) saat lunas.
+       └── 6. Tampilkan Badge "Recommended for You", Confidence Level,
+              Penjelasan AI, Chatbot Asisten Lari, dan terbitkan E-Ticket (QR Code).
 ```
 
 ---
@@ -131,14 +128,14 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 
-# 2. Konfigurasi Strava API v3 (Hanya diakses di Server/Backend)
+# 2. Konfigurasi Groq Cloud API (Hanya diakses di Server/Backend)
+GROQ_API_KEY=gsk_your_groq_api_key_here
+GROQ_MODEL=openai/gpt-oss-120b
+
+# 3. Konfigurasi Strava API v3 (Opsional / Legacy)
 STRAVA_CLIENT_ID=your_strava_client_id
 STRAVA_CLIENT_SECRET=your_strava_client_secret
 NEXT_PUBLIC_STRAVA_REDIRECT_URI=http://localhost:3000/api/strava/callback
-
-# 3. Konfigurasi Groq Console API (Hanya diakses di Server/Backend)
-GROQ_API_KEY=gsk_your_groq_api_key_here
-GROQ_MODEL_NAME=llama-3.3-70b-versatile
 ```
 
 ---
@@ -146,5 +143,6 @@ GROQ_MODEL_NAME=llama-3.3-70b-versatile
 ## 6. Keunggulan Kombinasi Tech Stack
 
 1. **Kecepatan Eksekusi AI (Groq):** Memenuhi KPI waktu pembuatan rekomendasi di bawah 10 detik dengan sangat mudah karena inferensi Groq rata-rata selesai dalam 0,5–1,5 detik.
-2. **Keamanan Token Terjamin (Next.js Server + Supabase):** Token Strava dan API Key Groq diproses sepenuhnya di *Server Route* Next.js sehingga aman dari kebocoran di sisi klien (*browser*).
-3. **Kemudahan Deployment:** Seluruh aplikasi Fullstack Next.js dapat di-*deploy* langsung ke **Vercel**, terhubung otomatis dengan *cloud database* **Supabase**, tanpa perlu menyewa dan mengonfigurasi VPS terpisah untuk *backend* dan *frontend*.
+2. **Keamanan Kredensial Terjamin (Next.js Server + Supabase):** Kunci rahasia API Key Groq dan token autentikasi diproses sepenuhnya di *Server Route* Next.js sehingga aman dari kebocoran di sisi klien (*browser*).
+3. **Fleksibilitas Universal Fitness Sync:** Pelari dapat menggunakan file GPX dari jam tangan apa pun (Garmin, Coros, Apple Watch, Suunto) atau mengisi penilaian mandiri tanpa ketergantungan pada akun pihak ketiga berbayar.
+4. **Kemudahan Deployment:** Seluruh aplikasi Fullstack Next.js dapat di-*deploy* langsung ke **Vercel**, terhubung otomatis dengan *cloud database* **Supabase**, tanpa perlu menyewa dan mengonfigurasi VPS terpisah untuk *backend* dan *frontend*.

@@ -8,7 +8,7 @@
 **Nama Produk:** StrideTix  
 **Tagline:** *Every Stride Leads to a Race*
 
-> **Catatan:** PRD ini masih menjadi dokumen kebutuhan produk, bukan proposal final. Beberapa keputusan teknis, khususnya terkait AI, pembayaran, dan integrasi Strava, masih dapat disederhanakan sesuai kemampuan tim, waktu pengerjaan, dan arahan dosen pembimbing.
+> **Catatan:** PRD ini mendokumentasikan kebutuhan produk StrideTix. Mengingat pendaftaran API pihak ketiga tertentu (seperti Strava API v3) kini menerapkan skema berbayar (Strava Subscriber), arsitektur integrasi data aktivitas lari pada MVP difokuskan pada **Universal Fitness Sync** (Upload GPX/CSV dari smartwatch/aplikasi lari, Formulir Penilaian Mandiri Cepat, dan Simulasi Persona Pelari) dengan opsi Strava sebagai penyedia eksternal opsional/legacy.
 
 ---
 
@@ -16,7 +16,7 @@
 
 **StrideTix** merupakan platform berbasis web untuk pencarian, pendaftaran, pembelian, dan pengelolaan e-ticket event lari. Platform ini menyediakan fungsi ticketing seperti pencarian event, pemilihan kategori lomba, pemesanan tiket, pembayaran, penerbitan tiket digital berbentuk QR Code, dan validasi tiket ketika peserta melakukan check-in.
 
-Pembeda utama StrideTix dibandingkan platform ticketing umum adalah fitur **Smart Distance Recommendation**. Fitur ini membantu pengguna menentukan kategori jarak lari yang paling sesuai, seperti 5K, 10K, Half Marathon, atau Full Marathon, berdasarkan riwayat aktivitas lari pengguna dari Strava.
+Pembeda utama StrideTix dibandingkan platform ticketing umum adalah fitur **Smart Distance Recommendation**. Fitur ini membantu pengguna menentukan kategori jarak lari yang paling sesuai, seperti 5K, 10K, Half Marathon, atau Full Marathon, berdasarkan riwayat aktivitas lari pengguna melalui **Universal Fitness Sync** (Upload file GPX/CSV aktivitas lari dari Garmin/Coros/Apple Watch/Strava, Formulir Penilaian Mandiri Cepat, atau Preset Persona Simulator).
 
 Sistem mengambil data latihan yang relevan, seperti jarak rata-rata, long run terpanjang, frekuensi latihan, pace, dan konsistensi latihan. Data tersebut diolah oleh sistem rekomendasi untuk menghasilkan:
 
@@ -34,7 +34,7 @@ Sistem memiliki tiga peran utama:
 2. **Event Organizer**
 3. **Administrator**
 
-Dalam konteks tugas akhir, pengembangan difokuskan pada versi **Minimum Viable Product atau MVP** dengan alur ticketing lengkap, integrasi data aktivitas lari, rekomendasi jarak, chatbot, serta dashboard pengelolaan dasar.
+Dalam konteks tugas akhir, pengembangan difokuskan pada versi **Minimum Viable Product atau MVP** dengan alur ticketing lengkap, sinkronisasi data aktivitas lari serbaguna, rekomendasi jarak, chatbot, serta dashboard pengelolaan dasar.
 
 ---
 
@@ -72,7 +72,7 @@ StrideTix menggabungkan proses ticketing dengan analisis data aktivitas lari seh
 2. Meningkatkan ketepatan pemilihan kategori perlombaan oleh peserta.
 3. Memberikan nilai tambah kepada event organizer melalui fitur ticketing dan pengelolaan peserta terintegrasi.
 4. Meningkatkan kepercayaan pengguna melalui rekomendasi yang memiliki penjelasan.
-5. Mendorong pengguna untuk menghubungkan akun Strava sebagai sumber data aktivitas.
+5. Memudahkan pengguna menghubungkan atau memasukkan data aktivitas lari melalui Universal Fitness Sync (GPX, CSV, atau formulir mandiri).
 6. Mengurangi hambatan dalam proses registrasi dan validasi peserta event.
 7. Membangun diferensiasi produk melalui fitur rekomendasi kategori jarak.
 
@@ -102,7 +102,7 @@ StrideTix dirancang untuk:
 3. Memungkinkan pengguna membeli tiket secara daring.
 4. Menghasilkan e-ticket unik yang dilengkapi QR Code.
 5. Memungkinkan organizer memvalidasi tiket peserta.
-6. Mengintegrasikan data aktivitas lari dari Strava.
+6. Mengintegrasikan data aktivitas lari melalui Universal Fitness Sync (GPX/CSV/Manual Assessment).
 7. Menghasilkan rekomendasi kategori jarak berdasarkan indikator latihan.
 8. Menyampaikan rekomendasi secara transparan dan mudah dipahami.
 9. Memberikan peringatan apabila pengguna memilih kategori di atas rekomendasi.
@@ -135,8 +135,8 @@ Karena sistem dikembangkan sebagai tugas akhir, KPI dapat dibagi menjadi KPI pro
 |---|---:|
 | Tingkat keberhasilan registrasi akun | ≥ 95% |
 | Tingkat keberhasilan login | ≥ 95% |
-| Tingkat keberhasilan koneksi akun Strava | ≥ 90% pada skenario pengujian |
-| Tingkat keberhasilan pengambilan aktivitas | ≥ 90% pada akun uji |
+| Tingkat keberhasilan sinkronisasi kebugaran (GPX/CSV/Manual) | ≥ 95% pada skenario pengujian |
+| Tingkat akurasi ekstraksi aktivitas lari | ≥ 90% pada dataset uji |
 | Waktu menghasilkan rekomendasi | Maksimal 10 detik |
 | Tingkat keberhasilan pemesanan tiket | ≥ 95% |
 | Tingkat keberhasilan pembuatan QR Code | 100% pada transaksi berhasil |
@@ -171,7 +171,7 @@ Target tersebut merupakan target teknis untuk pengujian proyek dan bukan klaim e
 - Memiliki pengalaman event yang terbatas.
 - Belum memahami kategori jarak yang sesuai.
 - Mencari panduan sederhana dan mudah dipahami.
-- Mungkin baru menggunakan Strava beberapa minggu.
+- Mungkin baru mulai merekam aktivitas lari atau belum memiliki riwayat lari yang panjang.
 
 **Kebutuhan:**
 
@@ -244,20 +244,20 @@ Target tersebut merupakan target teknis untuk pengujian proyek dan bukan klaim e
 
 ## 8. User Journey
 
-### 8.1 Journey Runner dengan Strava
+### 8.1 Journey Runner dengan Universal Fitness Sync
 
 1. Pengguna membuka StrideTix.
 2. Pengguna melihat daftar event tanpa harus login.
 3. Pengguna memilih salah satu event.
 4. Pengguna membuka detail event.
 5. Pengguna melakukan registrasi atau login.
-6. Pengguna menghubungkan akun Strava.
-7. Pengguna memberikan persetujuan akses data.
-8. Sistem mengambil aktivitas lari dalam periode tertentu.
-9. Sistem menghitung indikator aktivitas.
-10. Modul rekomendasi menentukan kategori jarak.
-11. AI menghasilkan penjelasan rekomendasi.
-12. Pengguna melihat lencana **Recommended for You**.
+6. Pengguna membuka fitur **Universal Fitness Sync** pada dashboard atau halaman rekomendasi.
+7. Pengguna memilih metode input: upload file aktivitas GPX/CSV, mengisi Formulir Penilaian Mandiri Cepat, atau memilih Preset Persona Simulator.
+8. Sistem memproses data aktivitas lari dalam periode analisis (4–8 minggu terakhir).
+9. Sistem menghitung indikator aktivitas: jarak rata-rata, long run terjauh, frekuensi mingguan, pace, dan konsistensi.
+10. Rule-Based Scoring Engine menentukan kategori jarak rekomendasi (5K, 10K, Half Marathon, Full Marathon).
+11. LLM Explanation Layer menghasilkan narasi penjelasan rekomendasi dan catatan keselamatan.
+12. Pengguna melihat lencana **Recommended for You** pada kategori event.
 13. Pengguna memilih kategori tiket.
 14. Jika kategori berada di atas rekomendasi, sistem menampilkan safety warning.
 15. Pengguna mengisi data peserta.
@@ -267,19 +267,19 @@ Target tersebut merupakan target teknis untuk pengujian proyek dan bukan klaim e
 19. Organizer memindai QR Code.
 20. Sistem mengubah status tiket menjadi sudah digunakan.
 
-### 8.2 Journey Runner tanpa Strava
+### 8.2 Journey Runner tanpa Sinkronisasi Kebugaran
 
 1. Pengguna melihat event.
 2. Pengguna memilih event dan kategori.
-3. Sistem menawarkan koneksi Strava.
+3. Sistem menawarkan opsi pengisian data kebugaran mandiri atau upload file lari.
 4. Pengguna memilih untuk melewati proses tersebut.
 5. Pengguna tetap dapat membeli tiket.
-6. Sistem tidak menampilkan rekomendasi personal.
+6. Sistem tidak menampilkan rekomendasi personal (menampilkan kategori 5K sebagai opsi aman atau status Insufficient Data).
 7. Sistem dapat menampilkan informasi umum mengenai kategori jarak.
 8. Pengguna menyelesaikan pembayaran.
 9. Sistem menerbitkan e-ticket.
 
-Integrasi Strava sebaiknya bersifat **opsional**, bukan syarat wajib untuk membeli tiket.
+Sinkronisasi kebugaran bersifat **opsional**, bukan syarat wajib untuk membeli tiket.
 
 ### 8.3 Journey Organizer
 
@@ -361,20 +361,20 @@ Integrasi Strava sebaiknya bersifat **opsional**, bukan syarat wajib untuk membe
 - Sistem menampilkan syarat dan ketentuan.
 - Sistem menampilkan tombol pembelian jika tiket masih tersedia.
 
-#### US-05: Menghubungkan Strava
+#### US-05: Sinkronisasi Aktivitas Lari (Universal Fitness Sync)
 
 **User story:**
 
-> Sebagai pengguna, saya ingin menghubungkan akun Strava agar StrideTix dapat menganalisis riwayat lari saya.
+> Sebagai pengguna, saya ingin menyinkronkan data aktivitas lari saya (melalui upload file GPX/CSV, formulir mandiri, atau simulasi profil) agar StrideTix dapat menganalisis kapasitas fisik dan riwayat latihan saya.
 
 **Acceptance criteria:**
 
-- Pengguna dapat memilih tombol **Connect Strava**.
-- Pengguna diarahkan ke proses otorisasi.
-- Sistem hanya mengambil data setelah pengguna memberikan persetujuan.
-- Sistem menyimpan informasi koneksi secara aman.
-- Pengguna dapat mencabut koneksi.
-- Sistem menampilkan status keberhasilan atau kegagalan koneksi.
+- Pengguna dapat memilih metode sinkronisasi kebugaran: Upload File GPX/CSV, Formulir Penilaian Mandiri Cepat, atau Preset Persona Simulator.
+- Sistem dapat mem-parse file GPX/CSV dan mengekstrak metrik jarak, waktu bergerak, pace, dan tanggal aktivitas.
+- Sistem memungkinkan pengguna mengisi formulir mandiri (jarak long run terjauh, frekuensi mingguan, dan rata-rata pace).
+- Sistem memvalidasi kelengkapan data sebelum dihitung oleh Scoring Engine.
+- Pengguna dapat memperbarui atau mereset data kebugaran kapan saja.
+- Sistem menampilkan status keberhasilan, sumber sinkronisasi, dan waktu sinkronisasi terakhir.
 
 #### US-06: Mendapatkan rekomendasi jarak
 
@@ -570,18 +570,18 @@ Integrasi Strava sebaiknya bersifat **opsional**, bukan syarat wajib untuk membe
 - **FR-TIX-09:** Sistem harus mendukung pembatalan sesuai kebijakan.
 - **FR-TIX-10:** Sistem harus mencegah penggunaan tiket lebih dari satu kali.
 
-### 10.4 Integrasi Strava
+### 10.4 Universal Fitness Sync
 
-- **FR-STR-01:** Sistem harus menyediakan koneksi akun Strava.
-- **FR-STR-02:** Sistem harus meminta persetujuan pengguna.
-- **FR-STR-03:** Sistem harus mengambil data aktivitas lari yang diperlukan.
-- **FR-STR-04:** Sistem harus memisahkan aktivitas lari dari aktivitas olahraga lain.
-- **FR-STR-05:** Sistem harus menyimpan data turunan yang dibutuhkan untuk rekomendasi.
-- **FR-STR-06:** Sistem harus menampilkan waktu sinkronisasi terakhir.
-- **FR-STR-07:** Sistem harus menyediakan sinkronisasi ulang.
-- **FR-STR-08:** Sistem harus menangani token yang kedaluwarsa.
-- **FR-STR-09:** Sistem harus memungkinkan pengguna mencabut akses.
-- **FR-STR-10:** Sistem harus menangani kegagalan API secara informatif.
+- **FR-FIT-01:** Sistem harus menyediakan metode sinkronisasi kebugaran serbaguna (Upload GPX/CSV, Formulir Penilaian Mandiri, Preset Persona Simulator).
+- **FR-FIT-02:** Sistem harus dapat mem-parse file GPX dan CSV untuk mengekstrak metrik aktivitas lari (jarak, moving time, pace, tanggal).
+- **FR-FIT-03:** Sistem harus menyediakan formulir penilaian mandiri cepat bagi pengguna yang tidak memiliki file rekaman jam olahraga.
+- **FR-FIT-04:** Sistem harus menyediakan simulasi persona pelari untuk demonstrasi dan evaluasi kesiapan sistem (Pemula 5K, Rekreasi 10K, Half Marathoner, Marathoner).
+- **FR-FIT-05:** Sistem harus memvalidasi integritas data dan memisahkan aktivitas lari dari aktivitas olahraga lain.
+- **FR-FIT-06:** Sistem harus menyimpan ringkasan metrik latihan turunan ke basis data pengguna (`user_fitness_sync` dan `runner_profiles`).
+- **FR-FIT-07:** Sistem harus menampilkan sumber sinkronisasi, jumlah sesi aktivitas, dan waktu sinkronisasi terakhir.
+- **FR-FIT-08:** Sistem harus memungkinkan pengguna mereset atau memperbarui data kebugaran kapan saja secara mandiri.
+- **FR-FIT-09:** Sistem harus menangani file yang rusak atau format tidak didukung dengan pesan kesalahan yang jelas.
+- **FR-FIT-10:** Sistem dapat mendukung koneksi OAuth eksternal (Strava) sebagai opsi tambahan jika kredensial API tersedia.
 
 ### 10.5 Smart Distance Recommendation
 
@@ -659,11 +659,11 @@ Integrasi Strava sebaiknya bersifat **opsional**, bukan syarat wajib untuk membe
 
 ### 11.3 Privacy
 
-- Pengguna harus memberikan persetujuan sebelum data Strava diakses.
-- Sistem hanya mengambil data yang diperlukan.
-- Pengguna dapat memutus koneksi Strava.
-- Pengguna dapat meminta penghapusan data aktivitas tersimpan.
-- Sistem harus menjelaskan penggunaan data untuk rekomendasi.
+- Pengguna harus memberikan persetujuan sebelum data kebugaran atau file aktivitas diproses.
+- Sistem hanya mengambil data yang diperlukan untuk kalkulasi metrik lari.
+- Pengguna dapat mereset atau memperbarui data kebugaran tersimpan kapan saja.
+- Pengguna dapat meminta penghapusan riwayat data aktivitas tersimpan.
+- Sistem harus menjelaskan penggunaan data untuk rekomendasi secara transparan.
 - Riwayat percakapan chatbot harus dapat dihapus.
 - Data kesehatan dan kebugaran tidak boleh digunakan sebagai diagnosis.
 
@@ -730,15 +730,15 @@ MVP ditargetkan mendukung:
 - E-ticket dan QR Code.
 - Riwayat tiket.
 
-#### Modul Strava dan Rekomendasi
+#### Modul Universal Fitness Sync dan Rekomendasi
 
-- Connect Strava.
-- Sinkronisasi aktivitas lari.
+- Universal Fitness Sync (Upload GPX/CSV, Formulir Mandiri, Preset Persona).
+- Sinkronisasi dan ekstraksi aktivitas lari.
 - Perhitungan indikator latihan.
-- Smart Distance Recommendation.
-- Penjelasan rekomendasi.
+- Rule-Based Smart Distance Recommendation.
+- LLM Explanation Layer (penjelasan narasi rekomendasi).
 - Confidence level.
-- Safety warning.
+- Safety warning dan acknowledgment.
 - Riwayat rekomendasi sederhana.
 
 #### Modul Chatbot
@@ -796,7 +796,7 @@ MVP ditargetkan mendukung:
 4. Penyediaan asuransi perlombaan.
 5. Prediksi medis mengenai risiko individual.
 6. Program latihan adaptif jangka panjang.
-7. Integrasi wearable selain Strava.
+7. Integrasi API wearable proprietary berbayar (misalnya Strava API Subscriber program).
 8. Social feed dan jejaring komunitas.
 9. Marketplace perlengkapan lari.
 10. Ticket resale.
@@ -873,7 +873,7 @@ MVP ditargetkan mendukung:
 
 **Kondisi Data Tidak Cukup:**
 
-> Data aktivitas belum cukup untuk menghasilkan rekomendasi personal. Lakukan dan rekam beberapa aktivitas lari terlebih dahulu, lalu sinkronkan kembali akun Strava.
+> Data aktivitas belum cukup untuk menghasilkan rekomendasi personal (< 3 sesi lari). Rekam dan upload minimal 3 sesi lari (file GPX/CSV) atau lengkapi formulir penilaian mandiri untuk mengaktifkan analisis rekomendasi.
 
 Sebagai alternatif, sistem dapat menampilkan panduan kategori umum tanpa menyebutnya sebagai rekomendasi personal.
 
@@ -946,21 +946,21 @@ Dengan pendekatan ini, LLM berperan sebagai **AI Running Assistant dan explanati
 
 ### 15.2 Alur Rekomendasi
 
-1. Pengguna menghubungkan Strava.
-2. Sistem memperoleh token akses.
-3. Backend mengambil aktivitas lari.
-4. Sistem menyaring aktivitas non-lari.
-5. Sistem melakukan normalisasi data.
-6. Sistem menghitung jarak rata-rata, long run, frekuensi, total jarak mingguan, pace, konsistensi, dan recency.
-7. Sistem memeriksa kecukupan data.
-8. Scoring engine menghitung skor untuk setiap kategori.
-9. Sistem memilih kategori dengan skor paling sesuai.
-10. Sistem menghitung confidence level.
-11. LLM menerima data ringkasan, bukan seluruh data mentah.
-12. LLM menghasilkan penjelasan.
-13. Safety layer memeriksa output.
-14. Sistem menyimpan hasil rekomendasi.
-15. Antarmuka menampilkan lencana pada kategori tiket.
+1. Pengguna menyinkronkan data aktivitas via **Universal Fitness Sync** (Upload file GPX/CSV, Formulir Penilaian Mandiri Cepat, atau Preset Persona Simulator).
+2. Sistem mem-parse, memvalidasi, dan mengekstrak metrik aktivitas lari.
+3. Backend menyimpan ringkasan metrik ke tabel `user_fitness_sync` dan `runner_profiles`.
+4. Sistem menyaring aktivitas non-lari jika terdapat data multiolehraga.
+5. Sistem melakukan normalisasi unit (meter ke kilometer, detik ke menit/km).
+6. Sistem menghitung jarak rata-rata, long run, frekuensi mingguan, total volume, pace rata-rata, konsistensi, dan recency.
+7. Sistem memeriksa kecukupan data (minimal 3 sesi lari untuk status data cukup).
+8. Rule-Based Scoring Engine menghitung skor kesiapan untuk setiap kategori (5K, 10K, Half Marathon, Full Marathon).
+9. Sistem memilih kategori rekomendasi utama berdasarkan kriteria ambang batas keselamatan.
+10. Sistem menghitung confidence level (Low, Medium, High).
+11. LLM Explanation Layer (Groq Cloud API) menerima objek JSON ringkasan metrik untuk menyusun narasi penjelasan dan catatan keselamatan.
+12. LLM menghasilkan penjelasan ramah dan objektif tanpa mengubah hasil hitungan engine.
+13. Safety layer memverifikasi keluaran LLM.
+14. Sistem menyimpan riwayat hasil rekomendasi ke tabel `event_recommendations`.
+15. Antarmuka menampilkan lencana **Recommended for You** pada kategori tiket event.
 
 ### 15.3 Status Rekomendasi
 
@@ -994,7 +994,7 @@ Confidence level harus dihitung dari faktor yang dapat dijelaskan, misalnya:
 
 Contoh klasifikasi:
 
-- **Low:** data terbatas atau tidak konsisten.
+- **Low:** data terbatas (< 3 sesi) atau tidak konsisten.
 - **Medium:** data cukup, tetapi terdapat kesenjangan aktivitas.
 - **High:** data cukup lengkap, konsisten, dan terbaru.
 
@@ -1002,52 +1002,62 @@ Hindari menggunakan angka confidence yang dibuat langsung oleh LLM tanpa dasar p
 
 ---
 
-## 16. Strava API Integration Flow
+## 16. Universal Fitness Sync Flow (GPX, CSV, Manual & Persona)
 
-### 16.1 Alur Otorisasi
+### 16.1 Arsitektur Universal Fitness Sync
 
-1. Pengguna memilih **Connect Strava**.
-2. Sistem mengarahkan pengguna ke halaman otorisasi Strava.
-3. Pengguna menyetujui ruang lingkup akses.
-4. Strava mengarahkan pengguna kembali ke callback URL.
-5. Backend menerima authorization code.
-6. Backend menukarkan code dengan access token.
-7. Token disimpan secara aman.
-8. Sistem mengambil profil dan aktivitas yang diizinkan.
-9. Sistem memperbarui status koneksi pengguna.
+Untuk mengatasi kendala ketergantungan pada API berbayar pihak ketiga (seperti pendaftaran Strava API v3 yang kini berbayar), StrideTix menerapkan pendekatan **Universal Fitness Sync** yang mencakup 4 metode pengumpulan data aktivitas lari:
 
-### 16.2 Data Processing
+1. **Metode 1: Upload File GPX (GPS Exchange Format)**
+   - Mendukung file `.gpx` standar yang diekspor dari smartwatch olahraga (Garmin, Coros, Suunto, Apple Watch) atau aplikasi lari (Strava, Nike Run Club).
+   - Parser membaca tag XML `<trkpt>`, menghitung jarak kumulatif antar-koordinat menggunakan formula Haversine, mengekstrak total moving time, elevasi, dan menghitung pace rata-rata secara presisi.
 
-1. Ambil aktivitas sesuai periode analisis.
-2. Pilih aktivitas bertipe lari.
-3. Hilangkan aktivitas duplikat.
-4. Konversi unit ke format internal.
-5. Hitung indikator latihan.
-6. Simpan ringkasan indikator.
-7. Kirim ringkasan ke recommendation engine.
+2. **Metode 2: Upload File CSV (Activity Log)**
+   - Mendukung file spreadsheet ringkasan aktivitas `.csv` dengan kolom tanggal, jarak (km), moving time, dan pace.
+   - Sistem memvalidasi header kolom dan baris data agar sesuai skema.
 
-### 16.3 Penanganan Error
+3. **Metode 3: Formulir Penilaian Mandiri Cepat (Self-Assessment Form)**
+   - Formulir 3 pertanyaan sederhana bagi pelari yang tidak memiliki file rekaman jam olahraga: jarak long run terjauh dalam 4–8 minggu terakhir, frekuensi lari mingguan, dan estimasi pace rata-rata.
+   - Sistem secara deterministik menghitung metrik kebugaran sintetis yang realistis.
 
-Sistem harus menangani:
+4. **Metode 4: Preset Persona Simulator**
+   - Profil terkalibrasi untuk keperluan pengujian dan demonstrasi sidang:
+     * *Pelari Pemula (5K Ready)*: Long run 4.5 km, frekuensi 2x/minggu, pace 6.8 min/km.
+     * *Pelari Rekreasi (10K Ready)*: Long run 9.5 km, frekuensi 3x/minggu, pace 5.6 min/km.
+     * *Pelari Half Marathon (HM Ready)*: Long run 16.0 km, frekuensi 4x/minggu, pace 5.2 min/km.
+     * *Pelari Marathon (FM Ready)*: Long run 32.0 km, frekuensi 5x/minggu, pace 4.9 min/km.
 
-- Pengguna menolak otorisasi.
-- Authorization code tidak valid.
-- Access token kedaluwarsa.
-- Refresh token gagal.
-- API tidak tersedia.
-- Rate limit tercapai.
-- Aktivitas kosong.
-- Data aktivitas tidak lengkap.
-- Akun sudah terhubung ke pengguna lain.
+5. **Metode 5: Integrasi OAuth Eksternal (Strava API v3 - Opsi Tambahan/Legacy)**
+   - Tetap dipertahankan sebagai opsi integrasi langsung jika kredensial `client_id` dan `client_secret` resmi tersedia.
+
+### 16.2 Data Processing & Storage
+
+1. Data dari file GPX/CSV atau formulir mandiri divalidasi integritasnya di backend server.
+2. Aktivitas bertipe non-lari difilter keluar.
+3. Unit distandarisasi ke kilometer dan menit/kilometer.
+4. Metrik dihitung dan disimpan ke tabel PostgreSQL:
+   - `public.user_fitness_sync`: Status koneksi, sumber sync, jumlah aktivitas, tanggal sinkronisasi.
+   - `public.runner_profiles`: Ringkasan metrik fisik (jarak mingguan, long run, pace, frekuensi, konsistensi).
+   - `public.raw_fitness_activities`: Rincian per sesi lari individual.
+5. Ringkasan metrik dikirim ke Rule-Based Scoring Engine.
+
+### 16.3 Penanganan Error & Validasi
+
+Sistem menangani:
+
+- Format file tidak didukung (bukan `.gpx` atau `.csv`).
+- File GPX rusak (*malformed XML*).
+- Struktur kolom CSV tidak sesuai standar.
+- Ukuran file melebihi batas upload (maksimal 10 MB).
+- Input angka pada formulir mandiri di luar batas wajar (misal pace negatif atau long run > 100 km).
+- Sesi autentikasi pengguna tidak valid saat menyimpan data.
 
 ### 16.4 Prinsip Privasi
 
-- Jangan meminta data yang tidak diperlukan.
-- Jangan mengirim access token ke frontend.
-- Jangan mengirim token ke LLM.
-- Kirim hanya ringkasan data yang relevan ke modul AI.
-- Sediakan tombol disconnect.
-- Hapus atau anonimisasi data sesuai permintaan pengguna.
+- Data aktivitas hanya digunakan untuk keperluan kalkulasi rekomendasi jarak dan kontekstualisasi chatbot.
+- File GPX tidak dipublikasikan ke publik.
+- Pengguna memiliki kontrol penuh untuk mereset atau memperbarui data kebugaran kapan saja.
+- Data kebugaran tidak pernah dibagikan kepada pihak ketiga untuk keperluan komersial.
 
 ---
 
@@ -1055,7 +1065,7 @@ Sistem harus menangani:
 
 ### 17.1 Alur Pembelian dengan Rekomendasi
 
-**Home** → Daftar event → Filter event → Detail event → Login/registrasi → Connect Strava → Sinkronisasi aktivitas → Proses rekomendasi → Tampilkan kategori yang direkomendasikan → Pilih kategori → Isi data peserta → Review pesanan → Pembayaran → Pembayaran berhasil → E-ticket diterbitkan → Tiket tersimpan pada akun.
+**Home** → Daftar event → Filter event → Detail event → Login/registrasi → Universal Fitness Sync (GPX/CSV/Manual Form/Persona) → Proses rekomendasi → Tampilkan kategori yang direkomendasikan → Pilih kategori → Isi data peserta → Review pesanan → Pembayaran → Pembayaran berhasil → E-ticket diterbitkan → Tiket tersimpan pada akun.
 
 ### 17.2 Alur Pemilihan di Atas Rekomendasi
 
@@ -1067,7 +1077,7 @@ Organizer login → Pilih event → Buka fitur check-in → Pindai QR Code → V
 
 ### 17.4 Alur Chatbot
 
-Pengguna membuka chatbot → Sistem memeriksa status login → Pengguna mengirim pertanyaan → Sistem menambahkan konteks yang diizinkan → Modul AI membuat respons → Safety layer memeriksa respons → Tampilkan jawaban → Simpan riwayat jika diizinkan.
+Pengguna membuka chatbot → Sistem memeriksa status login → Pengguna mengirim pertanyaan → Sistem menambahkan konteks yang diizinkan (profil kebugaran pelari dan daftar event aktif dari DB) → Modul AI membuat respons terstruktur → Tampilkan jawaban → Simpan riwayat jika diizinkan.
 
 ---
 
@@ -1075,29 +1085,28 @@ Pengguna membuka chatbot → Sistem memeriksa status login → Pengguna mengirim
 
 ### 18.1 Asumsi
 
-1. Pengguna memiliki akun Strava jika ingin menggunakan rekomendasi personal.
-2. Pengguna memberikan izin akses secara sukarela.
-3. Data aktivitas yang tercatat cukup merepresentasikan latihan pengguna.
-4. Event organizer mengisi data event dengan benar.
-5. Admin meninjau organizer dan event.
-6. Pengguna memiliki perangkat yang dapat membuka web dan QR Code.
+1. Pengguna memiliki file aktivitas lari (GPX/CSV) atau bersedia mengisi formulir penilaian mandiri untuk mengaktifkan rekomendasi personal.
+2. Pengguna memberikan izin pemrosesan data secara sukarela.
+3. Data aktivitas yang diinput cukup merepresentasikan latihan fisik pengguna.
+4. Event organizer mengisi data event dan kategori lomba dengan benar.
+5. Admin meninjau organizer dan memoderasi event.
+6. Pengguna memiliki perangkat yang dapat membuka web dan menampilkan QR Code.
 7. Pembayaran dapat menggunakan sandbox atau simulasi untuk kebutuhan akademik.
-8. Modul AI dapat diakses melalui API atau layanan yang tersedia selama pengembangan.
+8. Modul AI Groq dapat diakses melalui API LPU yang tersedia selama pengembangan.
 9. Rekomendasi bersifat informatif dan tidak wajib diikuti.
-10. Pengguna tetap dapat membeli tiket tanpa menghubungkan Strava.
+10. Pengguna tetap dapat membeli tiket tanpa melakukan sinkronisasi kebugaran.
 
 ### 18.2 Constraints
 
-1. Ketersediaan sistem bergantung pada API eksternal.
-2. API dapat memiliki rate limit.
-3. Biaya penggunaan LLM dapat membatasi jumlah interaksi.
-4. Data Strava pengguna dapat tidak lengkap.
-5. Pace dapat dipengaruhi elevasi, cuaca, permukaan, dan kondisi lain yang tidak tersedia.
-6. Riwayat aktivitas tidak selalu menggambarkan kondisi fisik terkini.
-7. Tim pengembang memiliki waktu dan sumber daya terbatas.
-8. Sistem rekomendasi belum divalidasi untuk penggunaan medis.
-9. Implementasi payment gateway produksi dapat memerlukan verifikasi bisnis.
-10. Full Marathon memiliki risiko dan persyaratan lebih kompleks sehingga rekomendasinya perlu aturan lebih ketat.
+1. Ketersediaan inferensi AI bergantung pada koneksi internet dan API Groq Cloud.
+2. API pihak ketiga dapat memiliki rate limit atau batasan kuota.
+3. Kualitas rekomendasi bergantung pada kejujuran input formulir mandiri atau akurasi file GPX/CSV.
+4. Elevasi lintasan, cuaca ekstrem, dan kondisi kesehatan personal dapat memengaruhi performa lari aktual di hari perlombaan.
+5. Riwayat aktivitas tidak selalu menggambarkan kondisi fisik terkini (misal sedang demam atau cedera mendadak).
+6. Tim pengembang memiliki waktu dan sumber daya terbatas dalam lingkup skripsi/tugas akhir.
+7. Sistem rekomendasi belum divalidasi sebagai alat penentu kelayakan medis.
+8. Implementasi payment gateway produksi dapat memerlukan badan usaha legal.
+9. Full Marathon memiliki risiko dan persyaratan lebih kompleks sehingga rekomendasinya perlu aturan lebih ketat.
 
 ---
 
@@ -1130,14 +1139,13 @@ Pengguna membuka chatbot → Sistem memeriksa status login → Pengguna mengirim
 
 ### 19.3 Pengembangan Integrasi
 
-- Garmin Connect.
-- Fitbit.
-- Coros.
-- Apple Health.
-- Google Health Connect.
-- Sistem race timing.
+- Garmin Connect Cloud API.
+- Fitbit Web API.
+- Coros Cloud API.
+- Apple HealthKit / Google Health Connect.
+- Sistem race timing profesional.
 - Kalender pengguna.
-- Peta dan rute event.
+- Peta interaktif rute event.
 
 ### 19.4 Pengembangan Komunitas
 
@@ -1155,20 +1163,21 @@ Pengguna membuka chatbot → Sistem memeriksa status login → Pengguna mengirim
 
 | Risiko | Dampak | Kemungkinan | Mitigasi |
 |---|---|---|---|
-| Data Strava tidak cukup | Rekomendasi tidak akurat | Tinggi | Terapkan minimum data dan status insufficient data |
-| API Strava tidak tersedia | Sinkronisasi gagal | Sedang | Retry, caching, dan pesan error yang jelas |
-| Token pengguna bocor | Pelanggaran keamanan | Rendah–Sedang | Enkripsi, HTTPS, backend-only storage |
-| LLM menghasilkan informasi keliru | Pengguna menerima saran tidak tepat | Sedang | Batasi konteks, gunakan safety layer, dan tampilkan disclaimer |
-| LLM menentukan kategori secara tidak konsisten | Hasil berubah-ubah | Tinggi | Gunakan scoring engine untuk keputusan dan LLM hanya untuk penjelasan |
-| Pengguna menganggap rekomendasi sebagai diagnosis | Risiko kesalahpahaman | Sedang | Gunakan label informatif dan jelaskan keterbatasan |
-| Pengguna memilih jarak ekstrem | Risiko keselamatan | Sedang | Safety warning dan acknowledgment |
-| Pembayaran gagal tetapi kuota berkurang | Ketidaksesuaian transaksi | Sedang | Gunakan status reservasi dan timeout |
-| QR Code digunakan dua kali | Penyalahgunaan tiket | Sedang | Validasi server dan status checked-in |
-| Organizer melihat data yang tidak diperlukan | Pelanggaran privasi | Sedang | Batasi data berdasarkan role |
-| Biaya API AI meningkat | Operasional terganggu | Sedang | Rate limiting, caching, dan kuota harian |
-| Event palsu dipublikasikan | Kerugian pengguna | Sedang | Verifikasi organizer dan moderasi event |
-| Pengguna tidak memiliki Strava | Fitur utama tidak dapat digunakan | Tinggi | Ticketing tetap dapat digunakan tanpa rekomendasi |
-| Jadwal tugas akhir terbatas | MVP tidak selesai | Tinggi | Prioritaskan fungsi inti dan batasi fitur tambahan |
+| Data aktivitas tidak cukup (< 3 sesi) | Rekomendasi kurang akurat | Tinggi | Terapkan status insufficient data dan anjurkan kategori 5K |
+| File GPX/CSV rusak atau format salah | Ekstraksi data gagal | Sedang | Validasi skema, pesan error informatif, dan sediakan formulir mandiri |
+| Pengguna tidak memiliki smartwatch | Fitur rekomendasi tidak terpakai | Sedang | Sediakan Formulir Penilaian Mandiri Cepat dan simulasi persona |
+| Token API AI bocor | Pembobolan kuota | Rendah | Backend-only Groq API key, isolasi server-side environment |
+| LLM menghasilkan informasi keliru | Pengguna menerima saran tidak tepat | Sedang | Batasi konteks, kunci guardrails PRD, dan terapkan penolakan diagnosis medis |
+| LLM menentukan kategori secara acak | Hasil berubah-ubah | Tinggi | Gunakan Rule-Based Scoring Engine untuk keputusan dan LLM hanya untuk narasi penjelasan |
+| Pengguna menganggap rekomendasi sebagai vonis medis | Risiko salah paham | Sedang | Tampilkan medical disclaimer permanen pada UI |
+| Pengguna memilih jarak ekstrem | Risiko keselamatan | Sedang | Safety warning dan modal konfirmasi tanggung jawab mandiri |
+| Pembayaran gagal tetapi kuota berkurang | Ketidaksesuaian transaksi | Sedang | Gunakan status reservasi dan timeout 2 jam |
+| QR Code digunakan dua kali | Penyalahgunaan tiket | Sedang | Validasi server dan penanda status checked-in sekali pakai |
+| Organizer melihat data yang tidak diperlukan | Pelanggaran privasi | Sedang | Batasi data berdasarkan role via Supabase RLS |
+| Biaya API AI meningkat | Operasional terganggu | Sedang | Optimasi model Groq, token limit, dan kuota interaksi |
+| Event palsu dipublikasikan | Kerugian pengguna | Sedang | Verifikasi organizer dan moderasi event oleh admin |
+| Pengguna tidak ingin mengisi data kebugaran | Transaksi terhambat | Rendah | Sinkronisasi bersifat opsional, pengguna tetap bisa beli tiket langsung |
+| Jadwal tugas akhir terbatas | MVP tidak selesai | Tinggi | Prioritaskan fungsi inti ticketing, scoring engine, dan AI explainer |
 
 ---
 
@@ -1184,14 +1193,14 @@ Pengguna membuka chatbot → Sistem memeriksa status login → Pengguna mengirim
 - Pemesanan tiket.
 - Simulasi pembayaran.
 - E-ticket.
-- QR Code.
-- Validasi tiket.
-- Connect Strava.
-- Pengambilan aktivitas lari.
-- Perhitungan indikator.
-- Smart Distance Recommendation.
+- QR Code unik.
+- Validasi tiket scanner.
+- Universal Fitness Sync (Upload GPX/CSV, Formulir Mandiri, Persona Simulator).
+- Ekstraksi metrik aktivitas lari.
+- Perhitungan indikator latihan.
+- Rule-Based Smart Distance Recommendation.
 - Safety warning.
-- Chatbot dasar.
+- Chatbot AI dengan PRD Guardrails & Medical Refusal.
 - Dashboard organizer.
 - Dashboard admin.
 
@@ -1266,10 +1275,10 @@ Pengguna membuka chatbot → Sistem memeriksa status login → Pengguna mengirim
 - Backend dan database.
 - Dashboard organizer.
 - Dashboard admin.
-- Integrasi Strava.
-- Recommendation engine.
-- Integrasi LLM.
-- QR Code.
+- Universal Fitness Sync (GPX/CSV/Manual Assessment/Persona).
+- Recommendation engine (Rule-Based Scoring).
+- Integrasi LLM (Groq Cloud API Explainer & Chatbot).
+- QR Code dan tiket digital.
 - Simulasi pembayaran.
 
 ### Tahap 4: Pengujian
