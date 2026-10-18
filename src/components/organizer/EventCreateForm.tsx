@@ -40,7 +40,7 @@ export function EventCreateForm() {
   const [locationCity, setLocationCity] = useState("");
   const [locationVenue, setLocationVenue] = useState("");
   const [eventDate, setEventDate] = useState("");
-  const [startTime, setStartTime] = useState("");
+  const [startTime, setStartTime] = useState("05:30 WIB");
   const [registrationDeadline, setRegistrationDeadline] = useState("");
   const [bannerImage, setBannerImage] = useState(INTERNAL_BANNER_PRESETS[0].url);
   const [rules, setRules] = useState("");
@@ -117,7 +117,7 @@ export function EventCreateForm() {
         locationCity: locationCity.trim() || "Indonesia",
         locationVenue,
         eventDate,
-        startTime: startTime.trim() || "05:30 AM",
+        startTime: startTime.trim() || "05:30 WIB",
         registrationDeadline: registrationDeadline.trim() || eventDate,
         bannerImage: finalBannerUrl.trim() || INTERNAL_BANNER_PRESETS[0].url,
         status: targetStatus,

@@ -44,7 +44,7 @@ function mapRowToRunningEvent(row: any): RunningEvent {
     locationCity: row.city || "",
     locationVenue: row.location || "",
     eventDate: row.event_date || "",
-    startTime: row.start_time || "05:30 AM",
+    startTime: row.start_time || "05:30 WIB",
     registrationDeadline: row.event_date || "",
     bannerImage: row.banner_url || "/images/hero-landingpage.jpg",
     status: (row.status || "published") as EventStatus,

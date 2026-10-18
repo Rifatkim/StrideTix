@@ -99,7 +99,7 @@ export function EventCreateSummarySidebar({
         <div className="p-4 space-y-3 text-xs">
           <div className="flex items-center gap-1.5 text-espresso-secondary">
             <Calendar className="w-3.5 h-3.5 text-brand" />
-            <span>{eventDate || "Tanggal"} • {startTime}</span>
+            <span>{eventDate || "Tanggal"} • {startTime || "05:30 WIB"}</span>
           </div>
           <div className="flex items-center gap-1.5 text-espresso-secondary">
             <MapPin className="w-3.5 h-3.5 text-brand" />

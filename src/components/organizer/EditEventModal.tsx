@@ -30,7 +30,7 @@ interface EditEventModalProps {
 export function EditEventModal({ event, isOpen, onClose, onSaved }: EditEventModalProps) {
   const [title, setTitle] = useState(event.title);
   const [eventDate, setEventDate] = useState(event.eventDate);
-  const [startTime, setStartTime] = useState(event.startTime || "05:30 AM");
+  const [startTime, setStartTime] = useState(event.startTime || "05:30 WIB");
   const [locationCity, setLocationCity] = useState(event.locationCity);
   const [locationVenue, setLocationVenue] = useState(event.locationVenue);
   const [description, setDescription] = useState(event.description || "");
@@ -127,7 +127,7 @@ export function EditEventModal({ event, isOpen, onClose, onSaved }: EditEventMod
           description: description.trim(),
           bannerImage: finalBanner.trim() || "/images/events/city-marathon.jpg",
           status,
-          startTime: startTime.trim() || "05:30 AM",
+          startTime: startTime.trim() || "05:30 WIB",
         },
         categories
       );
