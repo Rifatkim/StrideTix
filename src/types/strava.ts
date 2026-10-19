@@ -32,7 +32,7 @@ export interface StravaActivitySummary {
   lastRunDate: string;
 }
 
-export type SimulatedProfileId = "beginner" | "intermediate" | "marathoner" | "empty";
+export type SimulatedProfileId = "beginner" | "intermediate" | "marathoner" | "empty" | "live_fitness";
 
 export interface SimulatedRunnerProfile {
   id: SimulatedProfileId;

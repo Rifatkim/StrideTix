@@ -75,40 +75,60 @@ export function ChatMessageContent({ content, isUser = false }: ChatMessageConte
 
   const flushTable = (keyIdx: number) => {
     if (tableHeader.length > 0 || tableRows.length > 0) {
-      renderedElements.push(
-        <div
-          key={`table-${keyIdx}`}
-          className="my-2.5 overflow-x-auto rounded-lg border border-sand-border shadow-xs"
-        >
-          <table className="min-w-full text-[11px] divide-y divide-sand-border">
-            {tableHeader.length > 0 && (
-              <thead className="bg-sand-subtle text-espresso font-bold">
-                <tr>
-                  {tableHeader.map((h, i) => (
-                    <th key={i} className="px-2.5 py-1.5 text-left font-semibold">
-                      {renderInlineFormatted(h.trim())}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-            )}
-            <tbody className="divide-y divide-sand-border bg-white">
-              {tableRows.map((row, rIdx) => (
-                <tr
-                  key={rIdx}
-                  className={rIdx % 2 === 0 ? "bg-white" : "bg-surface-soft/60"}
-                >
-                  {row.map((cell, cIdx) => (
-                    <td key={cIdx} className="px-2.5 py-1.5 align-top text-espresso">
-                      {renderInlineFormatted(cell.trim())}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
+      // 1. Jika 2 kolom (Key-Value summary, misal: Item | Nilai)
+      if (tableHeader.length === 2) {
+        renderedElements.push(
+          <div
+            key={`kv-table-${keyIdx}`}
+            className="my-2.5 p-2.5 rounded-lg border border-sand-border bg-white shadow-2xs divide-y divide-sand-border/60 text-[11px]"
+          >
+            {tableRows.map((row, rIdx) => (
+              <div
+                key={rIdx}
+                className="py-1.5 first:pt-0 last:pb-0 flex items-center justify-between gap-2"
+              >
+                <span className="font-semibold text-espresso-muted">
+                  {renderInlineFormatted(row[0] || "")}
+                </span>
+                <span className="font-bold text-espresso text-right">
+                  {renderInlineFormatted(row[1] || "")}
+                </span>
+              </div>
+            ))}
+          </div>
+        );
+      } else {
+        // 2. Jika 3+ kolom (Jadwal latihan / multi-kolom), ubah jadi kartu responsif agar tidak terpotong
+        renderedElements.push(
+          <div key={`card-table-${keyIdx}`} className="my-2.5 space-y-2">
+            {tableRows.map((row, rIdx) => (
+              <div
+                key={rIdx}
+                className="p-2.5 rounded-lg border border-sand-border bg-white shadow-2xs text-[11px] space-y-1.5"
+              >
+                {row.map((cell, cIdx) => {
+                  const headerTitle = tableHeader[cIdx] ? tableHeader[cIdx].trim() : "";
+                  const cellText = cell.trim();
+                  if (!cellText) return null;
+
+                  return (
+                    <div key={cIdx} className="flex items-start gap-1.5 leading-snug">
+                      {headerTitle && (
+                        <span className="font-bold text-brand text-[10px] uppercase tracking-wider shrink-0 min-w-[70px] pt-0.5">
+                          {headerTitle}:
+                        </span>
+                      )}
+                      <span className="text-espresso flex-1">
+                        {renderInlineFormatted(cellText)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        );
+      }
     }
     inTable = false;
     tableHeader = [];

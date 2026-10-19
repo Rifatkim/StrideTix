@@ -79,7 +79,7 @@ export function CheckInValidator({ initialCode = "" }: CheckInValidatorProps) {
           <div>
             <h3 className="text-xs font-bold text-espresso">Live Camera QR Scanner</h3>
             <p className="text-[11px] text-espresso-secondary">
-              Arahkan kamera ke QR Code e-ticket peserta atau gunakan simulasi scan cepat
+              Arahkan kamera ke QR Code e-ticket peserta untuk verifikasi gate instan
             </p>
           </div>
         </div>
@@ -143,33 +143,6 @@ export function CheckInValidator({ initialCode = "" }: CheckInValidatorProps) {
             <span>{isProcessing ? "Memeriksa Tiket..." : "Verifikasi & Check-in Tiket"}</span>
           </button>
         </form>
-
-        {/* Quick Testing Shortcuts */}
-        <div className="pt-3 border-t border-sand-border space-y-2">
-          <span className="text-[10px] uppercase font-bold tracking-wider text-espresso-muted block">
-            Shortcut Uji Coba Cepat (Tiket Live):
-          </span>
-          <div className="flex flex-wrap gap-2 text-xs">
-            <button
-              onClick={() => {
-                setTicketCodeInput("STX-2026-YOG-6041");
-                handleVerify("STX-2026-YOG-6041");
-              }}
-              className="px-2.5 py-1.5 rounded-btn bg-surface-main hover:bg-brand-50 border border-sand-border text-espresso font-semibold transition-colors"
-            >
-              Uji Tiket (Bams): STX-2026-YOG-6041
-            </button>
-            <button
-              onClick={() => {
-                setTicketCodeInput("STX-2026-YOG-6942");
-                handleVerify("STX-2026-YOG-6942");
-              }}
-              className="px-2.5 py-1.5 rounded-btn bg-surface-main hover:bg-brand-50 border border-sand-border text-espresso font-semibold transition-colors"
-            >
-              Uji Tiket 2: STX-2026-YOG-6942
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Verification Result Feedback Box */}

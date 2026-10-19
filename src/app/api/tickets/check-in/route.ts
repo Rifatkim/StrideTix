@@ -7,6 +7,8 @@ import { ETicket, TicketStatus } from "@/types";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
+export const dynamic = "force-dynamic";
+
 function extractCleanCode(raw: string): string {
   const trimmed = (raw || "").trim();
   const matchToken = trimmed.match(/STRIDETIX-TOKEN-([A-Z0-9-]+)-VERIFIED/i);
@@ -117,7 +119,7 @@ export async function POST(request: Request) {
       .eq("id", callerUser.id)
       .single();
 
-    const callerRole = callerProfile?.role || callerUser.user_metadata?.role || "organizer";
+    const callerRole = callerProfile?.role || callerUser.user_metadata?.role || "runner";
 
     if (callerRole !== "admin" && callerRole !== "organizer") {
       return NextResponse.json(
@@ -129,14 +131,19 @@ export async function POST(request: Request) {
       );
     }
 
-    // TC-ORG-01: Multi-event isolation check
+    // TC-ORG-01: Multi-event isolation check (OWASP A01: Broken Access Control)
     if (
       eventOrganizerId &&
       eventOrganizerId !== callerUser.id &&
       callerRole !== "admin"
     ) {
-      // In development / demo prototype, if organizer is checking seeded sample events, allow or inform
-      console.warn(`Notice: Organizer ${callerUser.id} validating ticket for event owned by ${eventOrganizerId}`);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Akses ditolak: Anda tidak memiliki izin untuk memvalidasi tiket event milik penyelenggara lain.",
+        },
+        { status: 403 }
+      );
     }
 
     // 4. Duplicate Check-in Prevention (TC-ORG-02)

@@ -144,7 +144,7 @@ export function CheckoutFlowContainer({
             >
               {currentStep > 2 ? "✓" : "2"}
             </span>
-            <span>Simulasi Bayar</span>
+            <span>Pembayaran</span>
           </span>
 
           <ChevronRight className="w-3.5 h-3.5 text-espresso-muted" />
@@ -219,7 +219,7 @@ export function CheckoutFlowContainer({
       {currentStep === 3 && issuedTicket && (
         <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
           {/* Success Banner */}
-          <div className="max-w-2xl mx-auto p-5 sm:p-6 rounded-card bg-emerald-50 border border-emerald-200 text-center space-y-2 shadow-xs">
+          <div className="max-w-2xl mx-auto p-5 sm:p-6 rounded-card bg-emerald-50 border border-emerald-200 text-center space-y-2 shadow-xs no-print">
             <div className="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-sm">
               <CheckCircle2 className="w-7 h-7" />
             </div>
@@ -235,7 +235,7 @@ export function CheckoutFlowContainer({
           <ETicketCard ticket={issuedTicket} />
 
           {/* Bottom Actions */}
-          <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+          <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 no-print">
             <Link
               href="/dashboard"
               className="w-full sm:w-auto px-6 py-3 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-xs shadow-warm transition-all flex items-center justify-center gap-2"

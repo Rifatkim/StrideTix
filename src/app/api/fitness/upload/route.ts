@@ -7,6 +7,8 @@ import { calculateFitnessSummaryFromActivities } from "@/lib/fitness/fitnessMetr
 import { calculateDistanceRecommendation } from "@/lib/scoring/engine";
 import { FitnessActivity } from "@/types/fitness";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -22,10 +24,32 @@ export async function POST(request: Request) {
       );
     }
 
+    // OWASP A04/A05: Input caps to prevent Denial of Service (DoS)
+    const MAX_FILES = 10;
+    const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB per file
+
+    if (allUploadedFiles.length > MAX_FILES) {
+      return NextResponse.json(
+        { success: false, error: `Batas maksimal upload adalah ${MAX_FILES} file sekaligus.` },
+        { status: 400 }
+      );
+    }
+
     const parsedActivities: FitnessActivity[] = [];
 
     for (const file of allUploadedFiles) {
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        return NextResponse.json(
+          { success: false, error: `Ukuran file "${file.name}" melebihi batas maksimal 5 MB.` },
+          { status: 413 }
+        );
+      }
+
       const fileName = file.name.toLowerCase();
+      if (!fileName.endsWith(".gpx") && !fileName.endsWith(".csv")) {
+        continue;
+      }
+
       const content = await file.text();
 
       if (fileName.endsWith(".gpx")) {
@@ -62,52 +86,91 @@ export async function POST(request: Request) {
       } = await supabase.auth.getUser();
 
       if (user) {
-        // Simpan / update status sync di Supabase
-        await supabase.from("user_fitness_sync").upsert({
-          user_id: user.id,
-          sync_source: allUploadedFiles[0].name.endsWith(".gpx") ? "gpx_upload" : "csv_upload",
-          athlete_name: user.user_metadata?.full_name || "Pelari StrideTix",
-          device_or_app: allUploadedFiles.length === 1 ? allUploadedFiles[0].name : `${allUploadedFiles.length} File GPX/CSV`,
-          total_activities_synced: parsedActivities.length,
-          is_sync_active: true,
-          last_synced_at: new Date().toISOString(),
-        });
-
-        // Simpan aktivitas ke raw_fitness_activities
-        const activityRows = parsedActivities.slice(0, 50).map((act) => ({
-          user_id: user.id,
-          activity_name: act.name,
-          activity_type: act.type,
-          distance_meters: act.distanceKm * 1000,
-          moving_time_seconds: act.movingTimeSeconds,
-          average_speed_mps: (act.distanceKm * 1000) / Math.max(1, act.movingTimeSeconds),
-          start_date: act.startDate,
-          source: act.source === "gpx_upload" ? "gpx" : "csv",
-          raw_payload: {
-            paceMinPerKm: act.averagePaceMinPerKm,
-            rawFileName: act.rawFileName,
-          },
-        }));
-
-        await supabase.from("raw_fitness_activities").insert(activityRows);
-
-        // Update runner_profiles
+        // 1. Simpan metrik ke runner_profiles (Tabel Inti Kebugaran)
         if (summary) {
-          await supabase.from("runner_profiles").upsert({
+          try {
+            await supabase.from("runner_profiles").upsert({
+              user_id: user.id,
+              avg_weekly_distance_km: Number(
+                (summary.averageDistanceKm * summary.weeklyFrequency).toFixed(2)
+              ),
+              longest_run_km: summary.longestRunKm,
+              avg_pace_minutes_per_km: summary.averagePaceMinPerKm,
+              weekly_frequency: Math.round(summary.weeklyFrequency),
+              consistency_score: summary.consistencyScore,
+              last_calculated_at: new Date().toISOString(),
+            });
+          } catch (profErr) {
+            console.error("[Fitness Upload] Gagal upsert runner_profiles:", profErr);
+          }
+
+          // 2. Simpan rekomendasi resmi ke event_recommendations
+          if (recommendation) {
+            try {
+              await supabase.from("event_recommendations").upsert({
+                user_id: user.id,
+                recommended_category: recommendation.recommendedCategory,
+                readiness_level: recommendation.readiness,
+                confidence_level: `${recommendation.confidencePercentage}%`,
+                ai_explanation: recommendation.reasons.join(". "),
+                calculated_metrics: {
+                  longestRunKm: summary.longestRunKm,
+                  totalRuns: summary.totalRuns,
+                  averagePaceMinPerKm: summary.averagePaceMinPerKm,
+                  consistencyScore: summary.consistencyScore,
+                  totalDistanceKm: summary.totalDistanceKm,
+                },
+                created_at: new Date().toISOString(),
+              });
+            } catch (recErr) {
+              console.warn("[Fitness Upload] Gagal upsert event_recommendations:", recErr);
+            }
+          }
+        }
+
+        // 3. Simpan status sync di user_strava_sync
+        try {
+          await supabase.from("user_strava_sync").upsert({
             user_id: user.id,
-            avg_weekly_distance_km: summary.averageDistanceKm * summary.weeklyFrequency,
-            longest_run_km: summary.longestRunKm,
-            avg_pace_minutes_per_km: summary.averagePaceMinPerKm,
-            weekly_frequency: Math.round(summary.weeklyFrequency),
-            consistency_score: summary.consistencyScore,
-            total_runs: summary.totalRuns,
-            sync_source: "gpx_upload",
-            last_calculated_at: new Date().toISOString(),
+            strava_athlete_id: user.user_metadata?.full_name || "Pelari StrideTix",
+            access_token: allUploadedFiles[0].name.toLowerCase().endsWith(".gpx")
+              ? "gpx_upload"
+              : "csv_upload",
+            is_sync_active: true,
+            last_synced_at: new Date().toISOString(),
           });
+        } catch (syncErr) {
+          console.warn("[Fitness Upload] Gagal update user_strava_sync:", syncErr);
+        }
+
+        // 4. Simpan riwayat aktivitas ke raw_strava_activities
+        try {
+          const activityRows = parsedActivities.slice(0, 30).map((act, idx) => ({
+            strava_activity_id: `upload_${Date.now()}_${idx}`,
+            user_id: user.id,
+            distance_meters: Math.round(act.distanceKm * 1000),
+            moving_time_seconds: Math.round(act.movingTimeSeconds),
+            average_speed: Number(
+              ((act.distanceKm * 1000) / Math.max(1, act.movingTimeSeconds)).toFixed(2)
+            ),
+            start_date: act.startDate || new Date().toISOString(),
+            raw_payload: {
+              name: act.name,
+              paceMinPerKm: act.averagePaceMinPerKm,
+              type: act.type,
+              source: act.source,
+            },
+          }));
+
+          if (activityRows.length > 0) {
+            await supabase.from("raw_strava_activities").insert(activityRows);
+          }
+        } catch (rawErr) {
+          console.warn("[Fitness Upload] Gagal insert raw_strava_activities:", rawErr);
         }
       }
-    } catch {
-      // Abaikan error database jika berjalan offline/sandbox
+    } catch (dbErr) {
+      console.warn("[Fitness Upload DB Warning]:", dbErr);
     }
 
     return NextResponse.json({

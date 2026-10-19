@@ -180,7 +180,7 @@ export function CheckoutForm({
           disabled={!agreedToTerms}
           className="w-full py-4 px-6 rounded-btn bg-brand hover:bg-brand-800 text-white font-extrabold text-sm shadow-warm transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <span>Lanjutkan ke Simulasi Pembayaran</span>
+          <span>Lanjutkan ke Pembayaran</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </button>
         {!agreedToTerms && (

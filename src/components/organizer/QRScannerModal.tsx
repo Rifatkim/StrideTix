@@ -2,14 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Html5Qrcode } from "html5-qrcode";
-import { getAllUserTickets } from "@/services/ticketService";
-import { ETicket } from "@/types";
 import {
   Camera,
   X,
   QrCode,
   AlertCircle,
-  Sparkles,
   RefreshCw,
 } from "lucide-react";
 
@@ -68,29 +65,24 @@ export function QRScannerModal({
 }: QRScannerModalProps) {
   const [hasCamera, setHasCamera] = useState<boolean | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [sampleTickets, setSampleTickets] = useState<ETicket[]>([]);
   const [isScanning, setIsScanning] = useState(false);
   const scannerInstanceRef = useRef<Html5Qrcode | null>(null);
 
-  // Ambil daftar tiket nyata dari database untuk simulasi uji coba instan
-  useEffect(() => {
-    if (isOpen) {
-      getAllUserTickets().then((tix) => setSampleTickets(tix.slice(0, 5)));
-    }
-  }, [isOpen]);
+  const handleCodeDetected = React.useCallback(
+    (code: string) => {
+      if (isScanning) return;
+      setIsScanning(true);
+      playScannerBeep(true);
 
-  const handleCodeDetected = (code: string) => {
-    if (isScanning) return;
-    setIsScanning(true);
-    playScannerBeep(true);
-
-    const cleanCode = extractTicketCode(code);
-    setTimeout(() => {
-      setIsScanning(false);
-      onScanSuccess(cleanCode);
-      onClose();
-    }, 300);
-  };
+      const cleanCode = extractTicketCode(code);
+      setTimeout(() => {
+        setIsScanning(false);
+        onScanSuccess(cleanCode);
+        onClose();
+      }, 300);
+    },
+    [isScanning, onScanSuccess, onClose]
+  );
 
   // Inisialisasi Html5Qrcode Scanner ke kamera fisik
   useEffect(() => {
@@ -158,7 +150,7 @@ export function QRScannerModal({
       }
       scannerInstanceRef.current = null;
     };
-  }, [isOpen]);
+  }, [isOpen, handleCodeDetected]);
 
   if (!isOpen) return null;
 
@@ -197,10 +189,10 @@ export function QRScannerModal({
             <div className="absolute inset-0 z-10 px-6 flex flex-col items-center justify-center text-center text-white space-y-2 bg-espresso/90">
               <AlertCircle className="w-8 h-8 text-amber-400 mx-auto" />
               <p className="text-xs font-semibold">
-                Kamera tidak aktif ({cameraError || "Izin diblokir"})
+                Kamera tidak aktif ({cameraError || "Izin kamera diperlukan"})
               </p>
               <p className="text-[11px] text-white/70">
-                Gunakan tombol <strong>Simulasi Scan Cepat</strong> di bawah atau input manual kode tiket.
+                Izinkan akses kamera browser Anda untuk memindai QR e-ticket peserta, atau gunakan pencarian manual kode tiket di terminal check-in.
               </p>
             </div>
           )}
@@ -214,61 +206,15 @@ export function QRScannerModal({
           )}
         </div>
 
-        {/* Bagian Simulasi Cepat (1-Click Test) untuk Pengujian Langsung */}
-        <div className="p-4 sm:p-5 space-y-3 bg-surface-main overflow-y-auto">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase font-bold tracking-wider text-espresso-muted flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-brand" />
-              <span>Simulasi Scan QR Tiket Peserta (1-Click Test):</span>
-            </span>
-            <span className="text-[10px] text-espresso-muted">Pilih untuk scan instan</span>
-          </div>
-
-          <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-1">
-            {sampleTickets.length > 0 ? (
-              sampleTickets.map((t) => (
-                <button
-                  key={t.ticketCode}
-                  type="button"
-                  onClick={() => handleCodeDetected(t.ticketCode)}
-                  className="w-full text-left p-2.5 rounded-btn bg-white hover:bg-brand-50 border border-sand-border text-xs flex items-center justify-between gap-3 transition-colors shadow-sm group"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-brand-50 text-brand flex items-center justify-center shrink-0 group-hover:bg-brand group-hover:text-white transition-colors">
-                      <QrCode className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="font-bold text-espresso block font-mono text-[11px]">
-                        {t.ticketCode}
-                      </span>
-                      <span className="text-[10px] text-espresso-secondary">
-                        {t.participantName} • {t.categoryName} ({t.bibName})
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="text-right shrink-0">
-                    <span
-                      className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        t.status === "checked_in"
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-emerald-100 text-emerald-800"
-                      }`}
-                    >
-                      {t.status === "checked_in" ? "Sudah Check-in" : "Siap Masuk"}
-                    </span>
-                    <span className="text-[10px] text-brand block font-semibold mt-0.5">
-                      Scan Ini →
-                    </span>
-                  </div>
-                </button>
-              ))
-            ) : (
-              <div className="p-3 text-center text-xs text-espresso-muted bg-white rounded-btn border border-sand-border">
-                Belum ada tiket yang terbit di database. Silakan beli tiket terlebih dahulu melalui katalog event.
-              </div>
-            )}
-          </div>
+        {/* Petunjuk Operasional Gate */}
+        <div className="p-4 bg-surface-main text-xs text-espresso-secondary space-y-1.5 border-t border-sand-border">
+          <p className="font-bold text-espresso text-[11px] flex items-center gap-1.5">
+            <QrCode className="w-3.5 h-3.5 text-brand" />
+            <span>Petunjuk Petugas Gate:</span>
+          </p>
+          <p className="text-[11px] leading-relaxed">
+            Arahkan kamera tepat ke tengah QR Code e-ticket peserta. Setelah QR terbaca, sistem akan secara otomatis memverifikasi keabsahan data tiket ke database panitia lomba.
+          </p>
         </div>
 
         {/* Footer Modal */}

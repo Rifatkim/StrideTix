@@ -29,22 +29,22 @@ interface RunnerProfileData {
 
 const STORAGE_KEY = "stridetix_runner_profile";
 
-const DEFAULT_PROFILE: RunnerProfileData = {
-  fullName: "Budi Pratama",
-  email: "runner@stridetix.com",
-  phoneNumber: "0812-3456-7890",
-  city: "Jakarta Selatan",
-  emergencyName: "Dewi Anggraini",
-  emergencyRelation: "Istri",
-  emergencyPhone: "0819-8765-4321",
+const EMPTY_PROFILE: RunnerProfileData = {
+  fullName: "",
+  email: "",
+  phoneNumber: "",
+  city: "",
+  emergencyName: "",
+  emergencyRelation: "",
+  emergencyPhone: "",
   bloodType: "O",
   jerseySize: "M",
-  medicalNotes: "Tidak ada riwayat asma atau alergi obat berat.",
+  medicalNotes: "",
 };
 
 export function RunnerProfileTab() {
   const { currentUser } = useAuth();
-  const [profile, setProfile] = useState<RunnerProfileData>(DEFAULT_PROFILE);
+  const [profile, setProfile] = useState<RunnerProfileData>(EMPTY_PROFILE);
   const [isSaved, setIsSaved] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -53,12 +53,17 @@ export function RunnerProfileTab() {
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
-          setProfile(JSON.parse(stored));
+          const parsed = JSON.parse(stored);
+          setProfile({
+            ...parsed,
+            fullName: parsed.fullName || currentUser?.name || "",
+            email: parsed.email || currentUser?.email || "",
+          });
         } else if (currentUser) {
           setProfile((prev) => ({
             ...prev,
-            fullName: currentUser.name || prev.fullName,
-            email: currentUser.email || prev.email,
+            fullName: currentUser.name || "",
+            email: currentUser.email || "",
           }));
         }
       } catch {

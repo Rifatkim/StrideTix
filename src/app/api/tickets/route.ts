@@ -4,6 +4,8 @@ import { createClient as createServerSupabase } from "@/utils/supabase/server";
 import { createClient } from "@supabase/supabase-js";
 import { ETicket, TicketStatus } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
@@ -47,7 +49,24 @@ export async function GET(request: Request) {
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // If querying single ticket by code
+    // 1. Mandatory Authentication (OWASP A01: Broken Access Control)
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Akses ditolak. Silakan login untuk melihat tiket." },
+        { status: 401 }
+      );
+    }
+
+    // Check user role
+    const { data: profile } = await adminClient
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    const role = profile?.role || user.user_metadata?.role || "runner";
+
+    // 2. Querying single ticket by code (BOLA Protection)
     if (code) {
       const cleanCode = code.trim().toUpperCase();
       const { data: ticket, error } = await adminClient
@@ -60,11 +79,38 @@ export async function GET(request: Request) {
         return NextResponse.json({ success: false, ticket: null }, { status: 404 });
       }
 
+      // Authorization Check: Must be ticket owner OR event organizer OR platform admin
+      const isOwner = ticket.user_id === user.id;
+      const eventOrganizerId = ticket.event_categories?.running_events?.organizer_id;
+      const isEventOrganizer = eventOrganizerId && eventOrganizerId === user.id;
+      const isAdminOrOrganizer = role === "admin" || (role === "organizer" && isEventOrganizer);
+
+      if (!isOwner && !isAdminOrOrganizer && role !== "admin") {
+        return NextResponse.json(
+          { success: false, error: "Akses ditolak. Anda tidak memiliki izin melihat tiket ini." },
+          { status: 403 }
+        );
+      }
+
       return NextResponse.json({ success: true, ticket: mapRowToETicket(ticket, ticket.users) });
     }
 
-    // If querying tickets by eventId
+    // 3. Querying tickets by eventId (Multi-tenant isolation)
     if (eventId) {
+      // Must be event organizer or admin
+      const { data: eventData } = await adminClient
+        .from("running_events")
+        .select("organizer_id")
+        .eq("id", eventId)
+        .single();
+
+      if (role !== "admin" && eventData?.organizer_id !== user.id) {
+        return NextResponse.json(
+          { success: false, error: "Akses ditolak: Anda bukan penyelenggara event ini." },
+          { status: 403 }
+        );
+      }
+
       const { data: tickets, error } = await adminClient
         .from("tickets")
         .select("*, event_categories!inner(*, running_events!inner(*)), users(*)")
@@ -81,26 +127,19 @@ export async function GET(request: Request) {
       });
     }
 
-    // Default: return user tickets or organizer managed event tickets
-    if (!user) {
-      return NextResponse.json({ success: true, tickets: [] });
-    }
-
-    // Check user role
-    const { data: profile } = await adminClient
-      .from("users")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    const role = profile?.role || user.user_metadata?.role || "runner";
-
+    // 4. Default list tickets
     if (role === "organizer" || role === "admin") {
-      // Return tickets for organizer's events or recent tickets
-      const { data: tickets } = await adminClient
+      // Return tickets only for events owned by this organizer (or all if admin)
+      let query = adminClient
         .from("tickets")
-        .select("*, event_categories(*, running_events(*)), users(*)")
-        .limit(30);
+        .select("*, event_categories!inner(*, running_events!inner(*)), users(*)")
+        .order("created_at", { ascending: false });
+
+      if (role !== "admin") {
+        query = query.eq("event_categories.running_events.organizer_id", user.id);
+      }
+
+      const { data: tickets } = await query.limit(50);
 
       return NextResponse.json({
         success: true,
@@ -108,11 +147,12 @@ export async function GET(request: Request) {
       });
     }
 
-    // Runner role: return runner's own tickets
+    // Runner role: return runner's own tickets strictly
     const { data: tickets } = await adminClient
       .from("tickets")
       .select("*, event_categories(*, running_events(*)), users(*)")
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
 
     return NextResponse.json({
       success: true,
@@ -120,6 +160,6 @@ export async function GET(request: Request) {
     });
   } catch (err: any) {
     console.error("GET /api/tickets error:", err);
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Terjadi kesalahan internal server." }, { status: 500 });
   }
 }

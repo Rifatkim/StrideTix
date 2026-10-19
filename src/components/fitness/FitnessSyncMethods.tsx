@@ -2,7 +2,6 @@
 
 import React, { useState, useRef } from "react";
 import { useRunner } from "@/context/RunnerContext";
-import { SimulatedProfileId } from "@/types";
 import {
   UploadCloud,
   FileText,
@@ -11,19 +10,17 @@ import {
   AlertCircle,
   Loader2,
   Sparkles,
-  UserCheck,
 } from "lucide-react";
 
 export function FitnessSyncMethods() {
   const {
     uploadFitnessFiles,
     submitManualAssessment,
-    setProfileById,
     isLoading,
     syncErrorMessage,
   } = useRunner();
 
-  const [activeTab, setActiveTab] = useState<"upload" | "manual" | "preset">("upload");
+  const [activeTab, setActiveTab] = useState<"upload" | "manual">("upload");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
 
@@ -63,10 +60,6 @@ export function FitnessSyncMethods() {
     }
   };
 
-  const handlePresetSelect = (personaId: SimulatedProfileId) => {
-    setProfileById(personaId);
-    setUploadSuccess("Profil simulasi berhasil diaktifkan.");
-  };
 
   return (
     <div className="bg-white rounded-card p-6 sm:p-8 border border-sand-border shadow-warm space-y-6 max-w-xl mx-auto">
@@ -84,7 +77,7 @@ export function FitnessSyncMethods() {
         </p>
       </div>
 
-      {/* 3 Tab Selector */}
+      {/* 2 Tab Selector: Upload File & Formulir Manual */}
       <div className="flex rounded-btn bg-surface-soft p-1 border border-sand-border text-xs font-bold text-espresso">
         <button
           type="button"
@@ -99,7 +92,7 @@ export function FitnessSyncMethods() {
           }`}
         >
           <UploadCloud className="w-3.5 h-3.5" />
-          <span>Upload File</span>
+          <span>Upload File (GPX/CSV)</span>
         </button>
         <button
           type="button"
@@ -114,22 +107,7 @@ export function FitnessSyncMethods() {
           }`}
         >
           <Sliders className="w-3.5 h-3.5" />
-          <span>Formulir Cepat</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setActiveTab("preset");
-            setUploadSuccess(null);
-          }}
-          className={`flex-1 py-2 rounded-btn transition-all flex items-center justify-center gap-1.5 ${
-            activeTab === "preset"
-              ? "bg-white text-brand shadow-sm"
-              : "text-espresso-muted hover:text-espresso"
-          }`}
-        >
-          <UserCheck className="w-3.5 h-3.5" />
-          <span>Demo Persona</span>
+          <span>Input Manual Data Lari</span>
         </button>
       </div>
 
@@ -275,64 +253,6 @@ export function FitnessSyncMethods() {
             )}
           </button>
         </form>
-      )}
-
-      {/* --- TAB 3: DEMO PERSONA --- */}
-      {activeTab === "preset" && (
-        <div className="space-y-2.5">
-          <p className="text-[11px] text-espresso-muted text-center pb-1">
-            Pilih persona latihan siap pakai untuk demonstrasi langsung saat presentasi:
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-            <button
-              type="button"
-              onClick={() => handlePresetSelect("beginner")}
-              className="p-3 rounded-btn border border-sand-border hover:border-brand/60 bg-surface-main text-left space-y-1 hover:bg-brand-50/30 transition-all"
-            >
-              <div className="font-extrabold text-espresso flex items-center justify-between">
-                <span>Pelari Pemula</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">5K Ready</span>
-              </div>
-              <p className="text-[10px] text-espresso-muted">Long run 5 km, latihan 2x/minggu.</p>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handlePresetSelect("intermediate")}
-              className="p-3 rounded-btn border border-sand-border hover:border-brand/60 bg-surface-main text-left space-y-1 hover:bg-brand-50/30 transition-all"
-            >
-              <div className="font-extrabold text-espresso flex items-center justify-between">
-                <span>Pelari Menengah</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">10K Ready</span>
-              </div>
-              <p className="text-[10px] text-espresso-muted">Long run 12 km, latihan 3.5x/minggu.</p>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handlePresetSelect("marathoner")}
-              className="p-3 rounded-btn border border-sand-border hover:border-brand/60 bg-surface-main text-left space-y-1 hover:bg-brand-50/30 transition-all"
-            >
-              <div className="font-extrabold text-espresso flex items-center justify-between">
-                <span>Pelari Marathon</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">FM Ready</span>
-              </div>
-              <p className="text-[10px] text-espresso-muted">Long run 32 km, latihan 4.5x/minggu.</p>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handlePresetSelect("empty")}
-              className="p-3 rounded-btn border border-sand-border hover:border-brand/60 bg-surface-main text-left space-y-1 hover:bg-brand-50/30 transition-all"
-            >
-              <div className="font-extrabold text-espresso flex items-center justify-between">
-                <span>Pelari Baru (Kosong)</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">Data Sedikit</span>
-              </div>
-              <p className="text-[10px] text-espresso-muted">Simulasi peringatan &quot;Data Belum Cukup&quot;.</p>
-            </button>
-          </div>
-        </div>
       )}
     </div>
   );

@@ -83,15 +83,15 @@ export function PaymentSimulationStep({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-sand-border pb-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200 mb-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            <span>Sandbox Simulator</span>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-brand-50 text-brand border border-brand-200 mb-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-brand" />
+            <span>Gateway Pembayaran</span>
           </div>
           <h3 className="text-xl font-extrabold text-espresso">
-            Simulasi Pembayaran Tiket
+            Pembayaran Tiket Lomba
           </h3>
           <p className="text-xs text-espresso-muted">
-            Pilih metode pembayaran simulasi dan klik tombol bayar untuk menerbitkan tiket.
+            Pilih metode pembayaran dan selesaikan transaksi untuk menerbitkan e-ticket resmi Anda.
           </p>
         </div>
 
@@ -228,11 +228,11 @@ export function PaymentSimulationStep({
         </div>
       )}
 
-      {/* Sandbox Notice Alert */}
+      {/* Payment Security Notice */}
       <div className="p-3.5 rounded-btn bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-start gap-2.5">
         <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
         <span className="leading-relaxed">
-          <strong>Mode Simulasi:</strong> Anda tidak perlu melakukan transfer riil. Cukup klik tombol <strong>&ldquo;Simulasikan Pembayaran Berhasil&rdquo;</strong> di bawah untuk langsung menerbitkan tiket dan QR Code resmi.
+          <strong>Sistem Terverifikasi:</strong> Silakan selesaikan pembayaran melalui QRIS atau Virtual Account di atas. Setelah selesai, klik tombol <strong>&ldquo;Konfirmasi Pembayaran (Bayar Sekarang)&rdquo;</strong> untuk menerbitkan e-ticket resmi Anda.
         </span>
       </div>
 
@@ -253,7 +253,7 @@ export function PaymentSimulationStep({
           ) : (
             <>
               <CreditCard className="w-4 h-4" />
-              <span>Simulasikan Pembayaran Berhasil (Bayar Sekarang)</span>
+              <span>Konfirmasi Pembayaran (Bayar Sekarang)</span>
             </>
           )}
         </button>

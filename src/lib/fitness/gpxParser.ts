@@ -30,9 +30,28 @@ export function parseGpxContent(
   gpxXmlText: string,
   fileName: string = "activity.gpx"
 ): FitnessActivity {
-  // 1. Ekstrak nama aktivitas
+  // Guard input length to prevent ReDoS / CPU exhaustion
+  if (!gpxXmlText || gpxXmlText.length > 10 * 1024 * 1024) {
+    return {
+      id: `gpx-invalid-${Date.now()}`,
+      name: "Invalid GPX",
+      type: "Run",
+      distanceKm: 0,
+      movingTimeSeconds: 0,
+      averagePaceMinPerKm: 0,
+      startDate: new Date().toISOString(),
+      source: "gpx_upload",
+    };
+  }
+
+  // 1. Ekstrak nama aktivitas & sanitasi
   const nameMatch = gpxXmlText.match(/<name>(.*?)<\/name>/i);
   const rawName = nameMatch ? nameMatch[1].trim() : fileName.replace(/\.[^/.]+$/, "");
+  const sanitizedName = rawName
+    .replace(/[\r\n\t\x00-\x1F\x7F]/g, " ")
+    .replace(/system\s*prompt|ignore\s*previous|you\s*are\s*now/gi, "[filtered]")
+    .trim()
+    .slice(0, 50);
 
   // 2. Ekstrak tipe aktivitas
   const typeMatch = gpxXmlText.match(/<type>(.*?)<\/type>/i);

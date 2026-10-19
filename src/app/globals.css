@@ -74,3 +74,42 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #CDBEAE;
 }
+
+/* Print Styles: Isolates the e-ticket card and hides site navigation, footer, & buttons */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+  }
+
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide everything except the ticket container */
+  header,
+  nav,
+  footer,
+  .no-print,
+  button,
+  .bottom-navbar,
+  [role="navigation"] {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .ticket-print-target {
+    box-shadow: none !important;
+    border: 1.5px solid #241C17 !important;
+    page-break-inside: avoid !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+  }
+}

@@ -6,6 +6,8 @@ import { RUNNING_ASSISTANT_SYSTEM_PROMPT } from "@/lib/ai/prompts";
 import { AIChatMessage, ChatRequestBody } from "@/types/ai";
 import { fetchRunnerFitnessContext, fetchActiveEventsContext } from "@/lib/ai/eventContext";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
     // 1. Verifikasi Autentikasi Pelari (FR-CHAT-01)
@@ -23,6 +25,20 @@ export async function POST(request: Request) {
           error: "Akses ditolak. Fitur AI Running Assistant hanya tersedia untuk pengguna yang telah masuk.",
         },
         { status: 401 }
+      );
+    }
+
+    // Rate Limiting per user (OWASP LLM10 / DoS Guard)
+    const { checkRateLimit } = await import("@/lib/security/rateLimit");
+    const rateCheck = checkRateLimit(`chat_${user.id}`, 15, 60 * 1000); // 15 requests/minute
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Batas frekuensi chat terlampaui. Mohon tunggu beberapa detik sebelum mengajukan pertanyaan lagi.",
+          reply: "Terlalu banyak pesan terkirim dalam waktu singkat. Mohon istirahat sejenak sebelum bertanya kembali.",
+        },
+        { status: 429 }
       );
     }
 
@@ -54,8 +70,8 @@ export async function POST(request: Request) {
 
     // 3. Eksekusi Inferensi AI Groq
     const { text, modelUsed } = await executeGroqChatCompletion(fullMessages, {
-      temperature: 0.4,
-      maxTokens: 1500,
+      temperature: 0.35,
+      maxTokens: 2500,
     });
 
     return NextResponse.json({

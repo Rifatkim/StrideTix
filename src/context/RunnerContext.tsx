@@ -11,7 +11,6 @@ import {
   FitnessSyncSource,
   ManualFitnessAssessmentInput,
 } from "@/types/fitness";
-import { MOCK_RUNNER_PROFILES } from "@/lib/mock-data/athletes";
 import { calculateDistanceRecommendation } from "@/lib/scoring/engine";
 
 interface RunnerContextValue {
@@ -73,31 +72,25 @@ export function RunnerProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // Profil aktif
+  // Profil aktif (murni bersumber dari backend Supabase via live fitness / sinkronisasi riil)
   const currentProfile = useMemo<SimulatedRunnerProfile | null>(() => {
-    if (selectedProfileId === "disconnected") return null;
+    if (selectedProfileId === "disconnected" || !liveProfile) return null;
 
-    if (selectedProfileId === "live_fitness" && liveProfile) {
-      return {
-        id: "intermediate", // Fallback ID untuk tipe
-        label: `${liveProfile.athleteName} (${liveProfile.deviceOrApp})`,
-        description: `Sinkronisasi data kebugaran via ${liveProfile.syncSource.replace("_", " ").toUpperCase()}`,
-        athlete: {
-          id: 10005,
-          username: "live_runner",
-          firstname: liveProfile.athleteName.split(" ")[0] || "Pelari",
-          lastname: liveProfile.athleteName.split(" ").slice(1).join(" ") || "StrideTix",
-          city: "Indonesia",
-          country: "ID",
-          profileMedium: "",
-        },
-        summary: liveProfile.summary,
-      };
-    }
-
-    return (
-      MOCK_RUNNER_PROFILES.find((p) => p.id === selectedProfileId) || null
-    );
+    return {
+      id: "live_fitness",
+      label: `${liveProfile.athleteName} (${liveProfile.deviceOrApp})`,
+      description: `Sinkronisasi data kebugaran via ${liveProfile.syncSource.replace("_", " ").toUpperCase()}`,
+      athlete: {
+        id: 10005,
+        username: "live_runner",
+        firstname: liveProfile.athleteName.split(" ")[0] || "Pelari",
+        lastname: liveProfile.athleteName.split(" ").slice(1).join(" ") || "StrideTix",
+        city: "Indonesia",
+        country: "ID",
+        profileMedium: "",
+      },
+      summary: liveProfile.summary,
+    };
   }, [selectedProfileId, liveProfile]);
 
   // Rekomendasi deterministik

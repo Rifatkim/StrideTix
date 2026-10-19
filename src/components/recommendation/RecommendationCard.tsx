@@ -67,7 +67,7 @@ export function RecommendationCard() {
     return () => {
       isMounted = false;
     };
-  }, [currentProfile?.id, currentProfile?.summary?.longestRunKm, recommendation?.recommendedCategory]);
+  }, [currentProfile, recommendation]);
 
   // 1. Jika belum login, tampilkan banner ajakan login sebagai pelari
   if (!currentUser) {

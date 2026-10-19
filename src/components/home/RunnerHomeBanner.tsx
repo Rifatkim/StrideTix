@@ -1,8 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useRunner } from "@/context/RunnerContext";
+import { getAllUserTickets } from "@/services/ticketService";
+import { formatPace } from "@/lib/utils";
+import { ETicket } from "@/types";
 import { Container } from "@/components/layout/Container";
 import { RunningStrideIcon } from "@/components/brand/RunningStrideIcon";
 import {
@@ -15,6 +19,28 @@ import {
 
 export function RunnerHomeBanner() {
   const { currentUser } = useAuth();
+  const { currentProfile, recommendation } = useRunner();
+  const [tickets, setTickets] = useState<ETicket[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (currentUser) {
+      getAllUserTickets()
+        .then((data) => {
+          if (isMounted) setTickets(data);
+        })
+        .catch(() => {
+          // Fallback empty
+        });
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [currentUser]);
+
+  const readyToCheckInCount = tickets.filter(
+    (t) => t.status !== "checked_in"
+  ).length;
 
   return (
     <section className="bg-gradient-to-b from-brand-50/50 via-sand-warm/40 to-surface-main border-b border-sand-border pt-5 pb-7 sm:pt-6 sm:pb-8">
@@ -31,7 +57,7 @@ export function RunnerHomeBanner() {
               />
             </h1>
             <p className="text-xs sm:text-sm text-espresso-secondary max-w-3xl leading-relaxed">
-              Temukan race lari terkurasi dan gunakan analitik kebugaran Strava Anda untuk memilih kategori jarak yang paling realistis dan aman.
+              Temukan race lari terkurasi dan gunakan analitik kebugaran Anda untuk memilih kategori jarak yang paling realistis dan aman.
             </p>
           </div>
 
@@ -56,18 +82,32 @@ export function RunnerHomeBanner() {
           </div>
         </div>
 
-        {/* 2. Statistic Cards: Grid 3-Kolom Penuh Memanfaatkan Lebar Layar */}
+        {/* 2. Statistic Cards: Grid 3-Kolom Penuh Berdasarkan Data Backend */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
-          {/* Card 1: Status Strava */}
+          {/* Card 1: Status Kebugaran / Strava */}
           <div className="bg-white rounded-card p-4 sm:p-5 border border-sand-border shadow-warm flex items-center gap-3.5 hover:shadow-warm-hover transition-all">
             <div className="w-12 h-12 rounded-xl bg-orange-50 text-accent-strava flex items-center justify-center shrink-0 border border-orange-200/60">
               <Activity className="w-6 h-6" />
             </div>
-            <div className="min-w-0">
-              <span className="text-[11px] uppercase font-bold text-espresso-muted block">Status Strava</span>
-              <p className="text-sm font-bold text-espresso truncate">Terkoneksi • Pace 5:20/km</p>
-              <span className="text-[10px] text-espresso-muted">Volume 32.5 km minggu ini</span>
-            </div>
+            {currentProfile ? (
+              <div className="min-w-0">
+                <span className="text-[11px] uppercase font-bold text-espresso-muted block">Status Kebugaran</span>
+                <p className="text-sm font-bold text-espresso truncate">
+                  Terkoneksi • Pace {formatPace(currentProfile.summary.averagePaceMinPerKm)}
+                </p>
+                <span className="text-[10px] text-espresso-muted">
+                  Long Run {currentProfile.summary.longestRunKm.toFixed(1)} km • {currentProfile.summary.weeklyFrequency}x/minggu
+                </span>
+              </div>
+            ) : (
+              <div className="min-w-0">
+                <span className="text-[11px] uppercase font-bold text-espresso-muted block">Status Kebugaran</span>
+                <p className="text-sm font-bold text-espresso truncate">Belum Terhubung</p>
+                <Link href="/dashboard?tab=strava" className="text-[10px] text-accent-strava font-bold hover:underline block truncate">
+                  Sinkronkan GPX / CSV / Manual →
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Card 2: Event Terdaftar */}
@@ -75,11 +115,23 @@ export function RunnerHomeBanner() {
             <div className="w-12 h-12 rounded-xl bg-brand-50 text-brand flex items-center justify-center shrink-0 border border-brand/20">
               <CalendarCheck2 className="w-6 h-6" />
             </div>
-            <div className="min-w-0">
-              <span className="text-[11px] uppercase font-bold text-espresso-muted block">Event Terdaftar</span>
-              <p className="text-sm font-bold text-espresso truncate">2 Race Aktif</p>
-              <span className="text-[10px] text-espresso-muted">1 Race siap check-in (E-Ticket)</span>
-            </div>
+            {tickets.length > 0 ? (
+              <div className="min-w-0">
+                <span className="text-[11px] uppercase font-bold text-espresso-muted block">Event Terdaftar</span>
+                <p className="text-sm font-bold text-espresso truncate">{tickets.length} Race Aktif</p>
+                <span className="text-[10px] text-espresso-muted">
+                  {readyToCheckInCount} Race siap check-in (E-Ticket)
+                </span>
+              </div>
+            ) : (
+              <div className="min-w-0">
+                <span className="text-[11px] uppercase font-bold text-espresso-muted block">Event Terdaftar</span>
+                <p className="text-sm font-bold text-espresso truncate">0 Race Aktif</p>
+                <Link href="/#events" className="text-[10px] text-brand font-bold hover:underline block truncate">
+                  Jelajahi Event Lari →
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Card 3: Target Rekomendasi */}
@@ -87,11 +139,25 @@ export function RunnerHomeBanner() {
             <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200/60">
               <Award className="w-6 h-6" />
             </div>
-            <div className="min-w-0">
-              <span className="text-[11px] uppercase font-bold text-espresso-muted block">Target Rekomendasi</span>
-              <p className="text-sm font-bold text-emerald-700 truncate">Half Marathon (21K)</p>
-              <span className="text-[10px] text-espresso-muted">Kesiapan fisiologis 86% • Aman</span>
-            </div>
+            {recommendation ? (
+              <div className="min-w-0">
+                <span className="text-[11px] uppercase font-bold text-espresso-muted block">Target Rekomendasi</span>
+                <p className="text-sm font-bold text-emerald-700 truncate">
+                  {recommendation.recommendedCategory || "Belum Ditentukan"} ({recommendation.confidencePercentage}%)
+                </p>
+                <span className="text-[10px] text-espresso-muted truncate block">
+                  Kesiapan: {recommendation.readiness}
+                </span>
+              </div>
+            ) : (
+              <div className="min-w-0">
+                <span className="text-[11px] uppercase font-bold text-espresso-muted block">Target Rekomendasi</span>
+                <p className="text-sm font-bold text-espresso-secondary truncate">Belum Dianalisis</p>
+                <Link href="/dashboard?tab=strava" className="text-[10px] text-brand font-bold hover:underline block truncate">
+                  Dapatkan Rekomendasi AI →
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </Container>

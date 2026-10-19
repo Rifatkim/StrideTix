@@ -7,6 +7,8 @@ import { ETicket, ParticipantData } from "@/types";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
     const cookieStore = cookies();
@@ -52,28 +54,36 @@ export async function POST(request: Request) {
     // Use admin client with service_role to insert order and ticket safely bypassing client RLS
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // 1. Guard against sold-out categories (TC-RUN-01)
+    // 1. Guard against sold-out categories and verify server-side price (OWASP A04)
     const { data: currentCat, error: catError } = await adminClient
       .from("event_categories")
-      .select("id, remaining_quota, category_name")
+      .select("id, remaining_quota, category_name, price, event_id")
       .eq("id", category.id)
       .single();
 
-    if (catError || !currentCat) {
-      console.warn("Category lookup failed in DB, proceeding with client verification:", catError);
-    } else if (typeof currentCat.remaining_quota === "number" && currentCat.remaining_quota <= 0) {
-      return NextResponse.json(
-        { error: `Maaf, kuota pendaftaran untuk kategori ${currentCat.category_name} telah habis terjual (Sold Out).` },
-        { status: 400 }
-      );
+    let verifiedPrice = Number(category.price) || 0;
+
+    if (currentCat) {
+      if (typeof currentCat.remaining_quota === "number" && currentCat.remaining_quota <= 0) {
+        return NextResponse.json(
+          { error: `Maaf, kuota pendaftaran untuk kategori ${currentCat.category_name} telah habis terjual (Sold Out).` },
+          { status: 400 }
+        );
+      }
+      // Kunci harga dari database resmi (cegah client-side price tampering)
+      if (typeof currentCat.price === "number") {
+        verifiedPrice = currentCat.price;
+      }
+    } else {
+      console.warn("Category lookup in DB returned null/error, proceeding with client verification:", catError);
     }
 
-    // 2. Insert into orders table
+    // 2. Insert into orders table with verified server-side price
     const { data: order, error: orderError } = await adminClient
       .from("orders")
       .insert({
         user_id: user.id,
-        total_amount: category.price,
+        total_amount: verifiedPrice,
         status: "paid",
       })
       .select()

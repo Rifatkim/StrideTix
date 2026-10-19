@@ -48,18 +48,18 @@ export async function fetchRunnerFitnessContext(
   };
 
   try {
-    // 1. Ambil dari runner_profiles
+    // 1. Ambil dari runner_profiles (Prioritas Utama)
     const { data: dbProfile } = await supabase
       .from("runner_profiles")
       .select("longest_run_km, weekly_frequency, avg_pace_minutes_per_km, consistency_score")
       .eq("user_id", userId)
       .maybeSingle();
 
-    if (dbProfile) {
-      profile.longestRunKm = dbProfile.longest_run_km || profile.longestRunKm;
-      profile.weeklyFrequency = dbProfile.weekly_frequency || profile.weeklyFrequency;
-      profile.averagePaceMinPerKm = dbProfile.avg_pace_minutes_per_km || profile.averagePaceMinPerKm;
-      profile.consistencyScore = dbProfile.consistency_score || profile.consistencyScore;
+    if (dbProfile && (dbProfile.longest_run_km > 0 || dbProfile.weekly_frequency > 0)) {
+      profile.longestRunKm = dbProfile.longest_run_km;
+      profile.weeklyFrequency = dbProfile.weekly_frequency;
+      profile.averagePaceMinPerKm = dbProfile.avg_pace_minutes_per_km;
+      profile.consistencyScore = dbProfile.consistency_score;
     }
 
     // 2. Ambil rekomendasi resmi terbaru dari event_recommendations
@@ -75,25 +75,57 @@ export async function fetchRunnerFitnessContext(
       profile.targetCategory = dbRec.recommended_category || profile.targetCategory;
       profile.readinessLevel = dbRec.readiness_level || profile.readinessLevel;
     }
-  } catch (err) {
-    console.warn("[EventContext] Gagal mengambil data kebugaran pelari dari DB:", err);
-  }
 
-  // Jika belum ada data sama sekali
-  if (!profile.longestRunKm && !profile.targetCategory) {
-    return `STATUS KEBUGARAN PELARI:
+    // 3. Ambil 5 aktivitas lari terbaru dari raw_strava_activities
+    const { data: dbRecentActivities } = await supabase
+      .from("raw_strava_activities")
+      .select("distance_meters, moving_time_seconds, start_date, raw_payload")
+      .eq("user_id", userId)
+      .order("start_date", { ascending: false })
+      .limit(5);
+
+    let recentRunsText = "";
+    if (dbRecentActivities && dbRecentActivities.length > 0) {
+      recentRunsText =
+        "\n- Riwayat Sesi Lari Terakhir (Real Data StrideTix):\n" +
+        dbRecentActivities
+          .map((act, i) => {
+            const distKm = (act.distance_meters / 1000).toFixed(2);
+            const pace =
+              act.distance_meters > 0
+                ? (act.moving_time_seconds / 60 / (act.distance_meters / 1000)).toFixed(2)
+                : "-";
+            const dateStr = act.start_date ? act.start_date.split("T")[0] : "-";
+            const payload = (act.raw_payload as Record<string, unknown>) || {};
+            const actName = (payload.name as string) || `Sesi Lari #${i + 1}`;
+            return `  ${i + 1}. ${actName}: ${distKm} km (Pace ${pace} min/km, Tgl ${dateStr})`;
+          })
+          .join("\n");
+    }
+
+    // Jika belum ada data sama sekali
+    if (!profile.longestRunKm && !profile.targetCategory && !recentRunsText) {
+      return `STATUS KEBUGARAN PELARI:
 - Data riwayat latihan: Belum mengisi atau belum menyinkronkan aktivitas lari (< 3 sesi).
 - Anjuran: Sarankan pelari untuk melengkapi penilaian mandiri di dashboard atau merekomendasikan kategori 5K Fun Run yang aman untuk pemula.`;
-  }
+    }
 
-  return `STATUS & RIWAYAT LATIHAN PELARI SAAT INI (DARI DATABASE STRIDETIX):
+    return `STATUS & RIWAYAT LATIHAN RESMI PELARI (REAL DATA DARI DATABASE STRIDETIX):
 - Kategori Rekomendasi Resmi: ${profile.targetCategory || "5K (Pemula)"}
 - Tingkat Kesiapan: ${profile.readinessLevel || "Dalam proses latihan"}
 - Long Run Terjauh: ${profile.longestRunKm ? `${profile.longestRunKm} km` : "Belum tercatat"}
 - Frekuensi Lari Mingguan: ${profile.weeklyFrequency ? `${profile.weeklyFrequency}x per minggu` : "Belum tercatat"}
 - Pace Rata-rata: ${profile.averagePaceMinPerKm ? `${profile.averagePaceMinPerKm} min/km` : "Belum tercatat"}
-- Skor Konsistensi: ${profile.consistencyScore ? `${profile.consistencyScore}%` : "Cukup"}
-Gunakan data ini untuk mencocokkan event dan kategori jarak lomba yang paling aman dan proporsional.`;
+- Skor Konsistensi: ${profile.consistencyScore ? `${profile.consistencyScore}%` : "Cukup"}${recentRunsText}
+
+PERINGATAN INTEGRITAS DATA UNTUK ASISTEN AI:
+Data di atas adalah riwayat latihan nyata pelari dari database StrideTix.
+Anda WAJIB menyebutkan angka yang sesuai dengan data di atas persis apa adanya (misal Long Run Terjauh: ${profile.longestRunKm} km).
+DILARANG KERAS mengarang, mengasumsikan, atau mengubah angka jarak terjauh pelari (misal jangan menyebut 12 km atau angka fiktif lainnya).`;
+  } catch (err) {
+    console.warn("[EventContext] Gagal mengambil data kebugaran pelari dari DB:", err);
+    return `STATUS KEBUGARAN PELARI: Terjadi kesalahan saat membaca data kebugaran. Rekomendasikan kategori 5K untuk pemula.`;
+  }
 }
 
 /**
