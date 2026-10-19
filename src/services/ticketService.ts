@@ -40,6 +40,19 @@ function mapRowToETicket(row: any, user?: any): ETicket {
 
 export async function getAllUserTickets(): Promise<ETicket[]> {
   clearLegacyMockStorage();
+
+  try {
+    const res = await fetch("/api/tickets");
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && Array.isArray(data.tickets) && data.tickets.length > 0) {
+        return data.tickets;
+      }
+    }
+  } catch {
+    // Fall back to direct supabase client query
+  }
+
   const supabase = createClient();
 
   try {
@@ -75,9 +88,21 @@ export async function getAllUserTickets(): Promise<ETicket[]> {
 }
 
 export async function getTicketByCode(ticketCode: string): Promise<ETicket | null> {
-  const supabase = createClient();
   const cleanCode = ticketCode.trim().toUpperCase();
 
+  try {
+    const res = await fetch(`/api/tickets?code=${encodeURIComponent(cleanCode)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.ticket) {
+        return data.ticket;
+      }
+    }
+  } catch {
+    // Fall back to direct supabase client query
+  }
+
+  const supabase = createClient();
   try {
     const { data: ticket, error } = await supabase
       .from("tickets")
@@ -131,8 +156,19 @@ export async function createTicket(params: {
 export const createTicketOrder = createTicket;
 
 export async function getParticipantsByEvent(eventId: string): Promise<ETicket[]> {
-  const supabase = createClient();
+  try {
+    const res = await fetch(`/api/tickets?eventId=${encodeURIComponent(eventId)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && Array.isArray(data.tickets)) {
+        return data.tickets;
+      }
+    }
+  } catch {
+    // Fall back to direct supabase client query
+  }
 
+  const supabase = createClient();
   try {
     const { data: tickets, error } = await supabase
       .from("tickets")
@@ -153,71 +189,33 @@ export async function checkInTicket(ticketCode: string): Promise<{
   success: boolean;
   message: string;
   ticket?: ETicket;
+  isDuplicate?: boolean;
 }> {
-  const supabase = createClient();
   const cleanCode = ticketCode.trim().toUpperCase();
 
-  const existing = await getTicketByCode(cleanCode);
+  try {
+    const res = await fetch("/api/tickets/check-in", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ticketCode: cleanCode }),
+    });
 
-  if (!existing) {
+    const data = await res.json();
+    return {
+      success: !!data.success,
+      message: data.message || (data.success ? "Check-in berhasil!" : "Validasi tiket gagal."),
+      ticket: data.ticket,
+      isDuplicate: data.isDuplicate,
+    };
+  } catch (err: any) {
+    console.error("Check-in request failed:", err);
     return {
       success: false,
-      message: `Tiket dengan kode "${cleanCode}" tidak ditemukan dalam sistem database.`,
+      message: "Terjadi kesalahan koneksi saat memverifikasi tiket.",
     };
   }
-
-  if (existing.status === "checked_in") {
-    return {
-      success: false,
-      message: `Tiket ini SUDAH DIGUNAKAN untuk check-in pada ${
-        existing.checkedInAt
-          ? new Date(existing.checkedInAt).toLocaleTimeString("id-ID")
-          : "sebelumnya"
-      }.`,
-      ticket: existing,
-    };
-  }
-
-  // Verify organizer ownership and check for cross-event checkin (TC-ORG-01)
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: updatedRows, error } = await supabase
-    .from("tickets")
-    .update({
-      status: "checked_in",
-      checked_in_at: new Date().toISOString(),
-    })
-    .eq("ticket_code", cleanCode)
-    .select();
-
-  if (error) {
-    return {
-      success: false,
-      message: "Gagal memperbarui status tiket: " + error.message,
-    };
-  }
-
-  // If 0 rows were updated, RLS prevented the update (user is not the event owner)
-  if (!updatedRows || updatedRows.length === 0) {
-    return {
-      success: false,
-      message: `Akses ditolak: Tiket ini terdaftar untuk "${existing.eventTitle}". Anda hanya dapat memvalidasi tiket event yang Anda kelola.`,
-    };
-  }
-
-  const updatedTicket: ETicket = {
-    ...existing,
-    status: "checked_in",
-    checkedInAt: new Date().toISOString(),
-  };
-
-  return {
-    success: true,
-    message: `Check-in berhasil! Selamat berlari, ${existing.participantName}.`,
-    ticket: updatedTicket,
-  };
 }
 
 export async function toggleTicketCheckIn(ticketCode: string): Promise<ETicket | null> {
@@ -226,20 +224,30 @@ export async function toggleTicketCheckIn(ticketCode: string): Promise<ETicket |
   const existing = await getTicketByCode(cleanCode);
   if (!existing) return null;
 
-  const newStatus: TicketStatus = existing.status === "checked_in" ? "issued" : "checked_in";
-  const checkedInAt = newStatus === "checked_in" ? new Date().toISOString() : null;
+  const isCurrentlyCheckedIn = existing.status === "checked_in";
 
-  await supabase
+  if (!isCurrentlyCheckedIn) {
+    const res = await checkInTicket(cleanCode);
+    return res.success && res.ticket ? res.ticket : null;
+  }
+
+  // Rollback status to valid / issued
+  const { error } = await supabase
     .from("tickets")
     .update({
-      status: newStatus === "issued" ? "valid" : "checked_in",
-      checked_in_at: checkedInAt,
+      status: "valid",
+      checked_in_at: null,
     })
     .eq("ticket_code", cleanCode);
 
+  if (error) {
+    console.error("Rollback check-in error:", error);
+    return null;
+  }
+
   return {
     ...existing,
-    status: newStatus,
-    checkedInAt: checkedInAt || undefined,
+    status: "issued",
+    checkedInAt: undefined,
   };
 }

@@ -147,26 +147,26 @@ export function CheckInValidator({ initialCode = "" }: CheckInValidatorProps) {
         {/* Quick Testing Shortcuts */}
         <div className="pt-3 border-t border-sand-border space-y-2">
           <span className="text-[10px] uppercase font-bold tracking-wider text-espresso-muted block">
-            Shortcut Uji Coba Cepat:
+            Shortcut Uji Coba Cepat (Tiket Live):
           </span>
           <div className="flex flex-wrap gap-2 text-xs">
             <button
               onClick={() => {
-                setTicketCodeInput("STX-2026-JKT-8492");
-                handleVerify("STX-2026-JKT-8492");
+                setTicketCodeInput("STX-2026-YOG-6041");
+                handleVerify("STX-2026-YOG-6041");
               }}
               className="px-2.5 py-1.5 rounded-btn bg-surface-main hover:bg-brand-50 border border-sand-border text-espresso font-semibold transition-colors"
             >
-              Uji Tiket Baru: STX-2026-JKT-8492
+              Uji Tiket (Bams): STX-2026-YOG-6041
             </button>
             <button
               onClick={() => {
-                setTicketCodeInput("STX-2026-BORO-3104");
-                handleVerify("STX-2026-BORO-3104");
+                setTicketCodeInput("STX-2026-YOG-6942");
+                handleVerify("STX-2026-YOG-6942");
               }}
-              className="px-2.5 py-1.5 rounded-btn bg-surface-main hover:bg-accent-error/10 border border-sand-border text-accent-error font-semibold transition-colors"
+              className="px-2.5 py-1.5 rounded-btn bg-surface-main hover:bg-brand-50 border border-sand-border text-espresso font-semibold transition-colors"
             >
-              Uji Tiket Bekas (Sudah Check-in): STX-2026-BORO-3104
+              Uji Tiket 2: STX-2026-YOG-6942
             </button>
           </div>
         </div>
