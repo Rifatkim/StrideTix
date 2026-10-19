@@ -178,18 +178,32 @@ export async function checkInTicket(ticketCode: string): Promise<{
     };
   }
 
-  const { error } = await supabase
+  // Verify organizer ownership and check for cross-event checkin (TC-ORG-01)
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: updatedRows, error } = await supabase
     .from("tickets")
     .update({
       status: "checked_in",
       checked_in_at: new Date().toISOString(),
     })
-    .eq("ticket_code", cleanCode);
+    .eq("ticket_code", cleanCode)
+    .select();
 
   if (error) {
     return {
       success: false,
       message: "Gagal memperbarui status tiket: " + error.message,
+    };
+  }
+
+  // If 0 rows were updated, RLS prevented the update (user is not the event owner)
+  if (!updatedRows || updatedRows.length === 0) {
+    return {
+      success: false,
+      message: `Akses ditolak: Tiket ini terdaftar untuk "${existing.eventTitle}". Anda hanya dapat memvalidasi tiket event yang Anda kelola.`,
     };
   }
 

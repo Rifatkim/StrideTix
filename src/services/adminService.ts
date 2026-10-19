@@ -60,8 +60,44 @@ export function addAuditLog(entry: Omit<AuditLogEntry, "id" | "timestamp">): voi
 }
 
 export async function getOrganizerApplications(): Promise<OrganizerApplication[]> {
-  await new Promise((resolve) => setTimeout(resolve, 60));
-  return getStoredOrganizers();
+  const localOrgs = getStoredOrganizers();
+
+  try {
+    const { createClient } = await import("@/utils/supabase/client");
+    const supabase = createClient();
+    const { data: dbUsers, error } = await supabase
+      .from("users")
+      .select("id, email, full_name, role, created_at")
+      .eq("role", "organizer");
+
+    if (!error && dbUsers && dbUsers.length > 0) {
+      // Merge DB organizer users with local verification state
+      const merged: OrganizerApplication[] = dbUsers.map((u) => {
+        const local = localOrgs.find((lo) => lo.id === u.id || lo.email === u.email);
+        if (local) return local;
+
+        return {
+          id: u.id,
+          name: u.full_name || "Penyelenggara Lomba",
+          picName: u.full_name || "PIC Penyelenggara",
+          email: u.email,
+          phone: "+62 812-3456-7890",
+          city: "Indonesia",
+          portfolio: "Penyelenggara Lomba Resmi StrideTix",
+          documentType: "NIB & Akta Legal",
+          submittedAt: u.created_at || new Date().toISOString(),
+          status: "verified",
+          verifiedAt: u.created_at || new Date().toISOString(),
+        };
+      });
+
+      return merged;
+    }
+  } catch (err) {
+    console.warn("Failed to fetch organizers from Supabase, fallback to local:", err);
+  }
+
+  return localOrgs;
 }
 
 export async function approveOrganizer(id: string): Promise<OrganizerApplication | null> {

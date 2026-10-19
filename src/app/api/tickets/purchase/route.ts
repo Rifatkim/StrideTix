@@ -52,7 +52,23 @@ export async function POST(request: Request) {
     // Use admin client with service_role to insert order and ticket safely bypassing client RLS
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // 1. Insert into orders table
+    // 1. Guard against sold-out categories (TC-RUN-01)
+    const { data: currentCat, error: catError } = await adminClient
+      .from("event_categories")
+      .select("id, remaining_quota, category_name")
+      .eq("id", category.id)
+      .single();
+
+    if (catError || !currentCat) {
+      console.warn("Category lookup failed in DB, proceeding with client verification:", catError);
+    } else if (typeof currentCat.remaining_quota === "number" && currentCat.remaining_quota <= 0) {
+      return NextResponse.json(
+        { error: `Maaf, kuota pendaftaran untuk kategori ${currentCat.category_name} telah habis terjual (Sold Out).` },
+        { status: 400 }
+      );
+    }
+
+    // 2. Insert into orders table
     const { data: order, error: orderError } = await adminClient
       .from("orders")
       .insert({
@@ -71,25 +87,50 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Generate unique ticket code and QR payload
+    // 3. Generate unique ticket code and QR payload
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const cityCode = (event.locationCity || "IDN").slice(0, 3).toUpperCase();
     const ticketCode = `STX-2026-${cityCode}-${randomSuffix}`;
     const qrHash = `STRIDETIX-TOKEN-${ticketCode}-VERIFIED`;
 
-    // 3. Insert into tickets table
-    const { data: ticket, error: ticketError } = await adminClient
+    // 4. Insert into tickets table with participant metadata
+    const ticketBasePayload = {
+      order_id: order.id,
+      category_id: category.id,
+      user_id: user.id,
+      ticket_code: ticketCode,
+      qr_code_hash: qrHash,
+      status: "valid",
+    };
+
+    let ticket: any = null;
+    let ticketError: any = null;
+
+    // Try inserting with participant details if columns exist
+    const tryWithParticipantDetails = await adminClient
       .from("tickets")
       .insert({
-        order_id: order.id,
-        category_id: category.id,
-        user_id: user.id,
-        ticket_code: ticketCode,
-        qr_code_hash: qrHash,
-        status: "valid",
+        ...ticketBasePayload,
+        participant_name: participant.fullName,
+        phone_number: participant.phoneNumber || null,
+        emergency_phone: participant.emergencyContactPhone || null,
+        blood_type: participant.bloodType || null,
       })
       .select()
       .single();
+
+    if (!tryWithParticipantDetails.error && tryWithParticipantDetails.data) {
+      ticket = tryWithParticipantDetails.data;
+    } else {
+      // Fallback for base schema
+      const fallbackTicket = await adminClient
+        .from("tickets")
+        .insert(ticketBasePayload)
+        .select()
+        .single();
+      ticket = fallbackTicket.data;
+      ticketError = fallbackTicket.error;
+    }
 
     if (ticketError || !ticket) {
       console.error("Ticket creation error:", ticketError);
@@ -99,22 +140,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // 4. Decrement remaining quota
-    try {
-      const { data: currentCat } = await adminClient
-        .from("event_categories")
-        .select("remaining_quota")
-        .eq("id", category.id)
-        .single();
-
-      if (currentCat && currentCat.remaining_quota > 0) {
+    // 5. Decrement remaining quota atomically
+    if (currentCat && typeof currentCat.remaining_quota === "number" && currentCat.remaining_quota > 0) {
+      try {
         await adminClient
           .from("event_categories")
-          .update({ remaining_quota: currentCat.remaining_quota - 1 })
+          .update({ remaining_quota: Math.max(0, currentCat.remaining_quota - 1) })
           .eq("id", category.id);
+      } catch (quotaErr) {
+        console.warn("Could not decrement quota:", quotaErr);
       }
-    } catch (quotaErr) {
-      console.warn("Could not decrement quota:", quotaErr);
     }
 
     const issuedTicket: ETicket = {

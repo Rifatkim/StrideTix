@@ -73,6 +73,35 @@ export function EventCreateForm() {
       return;
     }
 
+    // Date validations (TC-ORG-02)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedEventDate = new Date(eventDate);
+    if (selectedEventDate < today) {
+      alert("Tanggal pelaksanaan lomba harus di masa depan (minimal hari ini).");
+      return;
+    }
+
+    if (registrationDeadline.trim()) {
+      const selectedDeadline = new Date(registrationDeadline);
+      if (selectedDeadline > selectedEventDate) {
+        alert("Tenggat registrasi pendaftaran tidak boleh melewati tanggal hari H perlombaan.");
+        return;
+      }
+    }
+
+    // Validate prices and quotas
+    for (const cat of categories) {
+      if ((cat.price || 0) < 0) {
+        alert(`Harga tiket untuk kategori ${cat.name} tidak boleh bernilai negatif.`);
+        return;
+      }
+      if ((cat.quota || 0) < 0) {
+        alert(`Kuota peserta untuk kategori ${cat.name} tidak boleh bernilai negatif.`);
+        return;
+      }
+    }
+
     const validCategories = categories.filter((c) => (c.quota || 0) > 0);
     if (validCategories.length === 0) {
       alert("Harap tentukan minimal satu kategori dengan kuota peserta (> 0).");

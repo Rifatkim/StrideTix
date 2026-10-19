@@ -31,7 +31,7 @@ export function calculateDistanceRecommendation(
       confidencePercentage: 25,
       confidenceLevel: "Low",
       reasons: [
-        "Aktivitas lari yang terekam pada akun Strava Anda belum mencukupi ambang batas analisis (minimal 3 aktivitas lari).",
+        "Riwayat aktivitas lari pada profil Anda belum mencukupi ambang batas analisis (minimal 3 aktivitas lari).",
         "Rekomendasi personal membutuhkan data latihan rutin minimal dalam 4–8 minggu terakhir.",
       ],
       safetyNotes:
@@ -41,7 +41,7 @@ export function calculateDistanceRecommendation(
         isRecommended: false,
         isAboveRecommendation: false,
         warningMessage:
-          "Data Strava belum cukup untuk memverifikasi kesiapan jarak ini. Pastikan Anda berlatih bertahap sebelum hari perlombaan.",
+          "Data latihan belum cukup untuk memverifikasi kesiapan jarak ini. Pastikan Anda berlatih bertahap sebelum hari perlombaan.",
       }),
     };
   }
