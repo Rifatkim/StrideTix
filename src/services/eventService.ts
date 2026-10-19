@@ -169,20 +169,43 @@ export async function createEvent(
     console.warn("Could not upsert public.users:", upsertErr);
   }
 
-  const { data: eventData, error: eventError } = await supabase
+  const basePayload = {
+    organizer_id: organizerId,
+    title: payload.title,
+    description: payload.description,
+    location: payload.locationVenue,
+    city: payload.locationCity,
+    event_date: payload.eventDate,
+    banner_url: payload.bannerImage,
+    status: payload.status || "published",
+  };
+
+  let eventData: any = null;
+  let eventError: any = null;
+
+  // Coba simpan dengan kolom start_time & organizer_name jika DDL sudah diterapkan
+  const tryWithNewCols = await supabase
     .from("running_events")
     .insert({
-      organizer_id: organizerId,
-      title: payload.title,
-      description: payload.description,
-      location: payload.locationVenue,
-      city: payload.locationCity,
-      event_date: payload.eventDate,
-      banner_url: payload.bannerImage,
-      status: payload.status || "published",
+      ...basePayload,
+      start_time: payload.startTime || "05:30 WIB",
+      organizer_name: payload.organizerName || "Stride Organizer",
     })
     .select()
     .single();
+
+  if (!tryWithNewCols.error && tryWithNewCols.data) {
+    eventData = tryWithNewCols.data;
+  } else {
+    // Fallback ke schema dasar jika DDL migration belum dieksekusi di database remote
+    const fallbackInsert = await supabase
+      .from("running_events")
+      .insert(basePayload)
+      .select()
+      .single();
+    eventData = fallbackInsert.data;
+    eventError = fallbackInsert.error;
+  }
 
   if (eventError || !eventData) {
     throw new Error(eventError?.message || "Gagal membuat event.");
