@@ -128,32 +128,35 @@ export async function POST(request: Request) {
           }
         }
 
-        // 3. Simpan status sync di user_strava_sync
+        // 3. Simpan status sync di user_fitness_sync (PRD Section 16.2)
         try {
-          await supabase.from("user_strava_sync").upsert({
+          const isGpx = allUploadedFiles[0].name.toLowerCase().endsWith(".gpx");
+          await supabase.from("user_fitness_sync").upsert({
             user_id: user.id,
-            strava_athlete_id: user.user_metadata?.full_name || "Pelari StrideTix",
-            access_token: allUploadedFiles[0].name.toLowerCase().endsWith(".gpx")
-              ? "gpx_upload"
-              : "csv_upload",
+            sync_source: isGpx ? "gpx_upload" : "csv_upload",
+            athlete_name: user.user_metadata?.full_name || "Pelari StrideTix",
+            device_or_app: isGpx ? "Smartwatch (GPX)" : "Aplikasi Lari (CSV)",
+            total_activities_synced: parsedActivities.length,
             is_sync_active: true,
             last_synced_at: new Date().toISOString(),
           });
         } catch (syncErr) {
-          console.warn("[Fitness Upload] Gagal update user_strava_sync:", syncErr);
+          console.warn("[Fitness Upload] Gagal update user_fitness_sync:", syncErr);
         }
 
-        // 4. Simpan riwayat aktivitas ke raw_strava_activities
+        // 4. Simpan riwayat aktivitas ke raw_fitness_activities (PRD Section 16.2)
         try {
-          const activityRows = parsedActivities.slice(0, 30).map((act, idx) => ({
-            strava_activity_id: `upload_${Date.now()}_${idx}`,
+          const activityRows = parsedActivities.slice(0, 30).map((act) => ({
             user_id: user.id,
+            activity_name: act.name || "Aktivitas Lari",
+            activity_type: act.type || "Run",
             distance_meters: Math.round(act.distanceKm * 1000),
             moving_time_seconds: Math.round(act.movingTimeSeconds),
-            average_speed: Number(
+            average_speed_mps: Number(
               ((act.distanceKm * 1000) / Math.max(1, act.movingTimeSeconds)).toFixed(2)
             ),
             start_date: act.startDate || new Date().toISOString(),
+            source: act.source === "csv_upload" ? "csv" : "gpx",
             raw_payload: {
               name: act.name,
               paceMinPerKm: act.averagePaceMinPerKm,
@@ -163,10 +166,10 @@ export async function POST(request: Request) {
           }));
 
           if (activityRows.length > 0) {
-            await supabase.from("raw_strava_activities").insert(activityRows);
+            await supabase.from("raw_fitness_activities").insert(activityRows);
           }
         } catch (rawErr) {
-          console.warn("[Fitness Upload] Gagal insert raw_strava_activities:", rawErr);
+          console.warn("[Fitness Upload] Gagal insert raw_fitness_activities:", rawErr);
         }
       }
     } catch (dbErr) {

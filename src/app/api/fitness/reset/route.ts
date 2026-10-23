@@ -20,10 +20,16 @@ export async function POST() {
       );
     }
 
-    // Reset status sinkronisasi di user_strava_sync
+    // Reset status sinkronisasi di user_fitness_sync (PRD Section 16.2 & 16.4)
     await supabase
-      .from("user_strava_sync")
+      .from("user_fitness_sync")
       .update({ is_sync_active: false })
+      .eq("user_id", user.id);
+
+    // Bersihkan sesi aktivitas individual di raw_fitness_activities
+    await supabase
+      .from("raw_fitness_activities")
+      .delete()
       .eq("user_id", user.id);
 
     // Reset nilai metrik di runner_profiles

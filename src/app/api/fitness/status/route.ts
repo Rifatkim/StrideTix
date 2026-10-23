@@ -33,7 +33,7 @@ export async function GET() {
       .maybeSingle();
 
     const { data: syncData } = await supabase
-      .from("user_strava_sync")
+      .from("user_fitness_sync")
       .select("*")
       .eq("user_id", user.id)
       .maybeSingle();
@@ -48,10 +48,10 @@ export async function GET() {
 
     if (!profileData || (profileData.longest_run_km === 0 && profileData.avg_weekly_distance_km === 0)) {
       return NextResponse.json({
-        isConnected: false,
-        syncSource: syncData?.access_token || "manual",
-        athleteName: syncData?.strava_athlete_id || user.user_metadata?.full_name || "Pelari StrideTix",
-        totalActivities: 0,
+        isConnected: Boolean(syncData?.is_sync_active),
+        syncSource: syncData?.sync_source || "manual",
+        athleteName: syncData?.athlete_name || user.user_metadata?.full_name || "Pelari StrideTix",
+        totalActivities: syncData?.total_activities_synced || 0,
         lastSyncedAt: syncData?.last_synced_at || null,
         summary: null,
         recommendation: null,
@@ -93,11 +93,11 @@ export async function GET() {
       : calculateDistanceRecommendation(summary);
 
     return NextResponse.json({
-      isConnected: true,
-      syncSource: syncData?.access_token || "csv_upload",
-      athleteName: syncData?.strava_athlete_id || user.user_metadata?.full_name || "Pelari StrideTix",
-      deviceOrApp: syncData?.access_token === "gpx_upload" ? "GPX Activity" : "Strava CSV Export",
-      totalActivities: totalRuns,
+      isConnected: syncData ? syncData.is_sync_active : true,
+      syncSource: syncData?.sync_source || "csv_upload",
+      athleteName: syncData?.athlete_name || user.user_metadata?.full_name || "Pelari StrideTix",
+      deviceOrApp: syncData?.device_or_app || (syncData?.sync_source === "gpx_upload" ? "GPX Tracker" : "Aplikasi Lari (CSV)"),
+      totalActivities: syncData?.total_activities_synced || totalRuns,
       lastSyncedAt: syncData?.last_synced_at || profileData.last_calculated_at,
       summary,
       recommendation,

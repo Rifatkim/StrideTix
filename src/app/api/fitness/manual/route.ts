@@ -80,11 +80,13 @@ export async function POST(request: Request) {
           });
         }
 
-        // 3. user_strava_sync
-        await supabase.from("user_strava_sync").upsert({
+        // 3. user_fitness_sync (PRD Section 16.2)
+        await supabase.from("user_fitness_sync").upsert({
           user_id: user.id,
-          strava_athlete_id: user.user_metadata?.full_name || "Pelari StrideTix",
-          access_token: "manual",
+          sync_source: "manual",
+          athlete_name: user.user_metadata?.full_name || "Pelari StrideTix",
+          device_or_app: "Formulir Penilaian Mandiri",
+          total_activities_synced: summary.totalRuns,
           is_sync_active: true,
           last_synced_at: new Date().toISOString(),
         });

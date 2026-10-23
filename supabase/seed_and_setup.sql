@@ -37,27 +37,31 @@ CREATE TABLE IF NOT EXISTS public.event_recommendations (
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 
--- 4. USER_STRAVA_SYNC TABLE
-CREATE TABLE IF NOT EXISTS public.user_strava_sync (
+-- 4. USER_FITNESS_SYNC TABLE
+CREATE TABLE IF NOT EXISTS public.user_fitness_sync (
     user_id UUID PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
-    strava_athlete_id TEXT,
-    access_token TEXT,
-    refresh_token TEXT,
-    token_expires_at TIMESTAMPTZ,
-    is_sync_active BOOLEAN DEFAULT false,
-    last_synced_at TIMESTAMPTZ
+    sync_source TEXT NOT NULL DEFAULT 'manual' CHECK (sync_source IN ('manual', 'gpx_upload', 'csv_upload', 'strava', 'preset_persona')),
+    athlete_name TEXT DEFAULT 'Pelari StrideTix',
+    device_or_app TEXT DEFAULT 'Manual Assessment',
+    total_activities_synced INTEGER DEFAULT 0,
+    is_sync_active BOOLEAN DEFAULT true,
+    last_synced_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 
--- 5. RAW_STRAVA_ACTIVITIES TABLE
-CREATE TABLE IF NOT EXISTS public.raw_strava_activities (
-    strava_activity_id TEXT NOT NULL,
+-- 5. RAW_FITNESS_ACTIVITIES TABLE
+CREATE TABLE IF NOT EXISTS public.raw_fitness_activities (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-    distance_meters DOUBLE PRECISION DEFAULT 0,
-    moving_time_seconds INTEGER DEFAULT 0,
-    average_speed DOUBLE PRECISION DEFAULT 0,
-    start_date TIMESTAMPTZ NOT NULL,
+    activity_name TEXT NOT NULL DEFAULT 'Aktivitas Lari',
+    activity_type TEXT NOT NULL DEFAULT 'Run',
+    distance_meters DOUBLE PRECISION NOT NULL DEFAULT 0,
+    moving_time_seconds INTEGER NOT NULL DEFAULT 0,
+    average_speed_mps DOUBLE PRECISION DEFAULT 0,
+    start_date TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    source TEXT NOT NULL DEFAULT 'manual' CHECK (source IN ('manual', 'gpx', 'csv', 'strava', 'preset')),
     raw_payload JSONB DEFAULT '{}'::jsonb,
-    PRIMARY KEY (strava_activity_id, user_id)
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 
 -- 6. RUNNING_EVENTS TABLE
@@ -150,8 +154,8 @@ CREATE TRIGGER on_auth_user_created
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.runner_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_recommendations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.user_strava_sync ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.raw_strava_activities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_fitness_sync ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.raw_fitness_activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.running_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
@@ -179,6 +183,10 @@ CREATE POLICY "Anyone view categories" ON public.event_categories FOR SELECT TO 
 CREATE POLICY "Organizers manage categories" ON public.event_categories FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.running_events WHERE id = event_categories.event_id AND organizer_id = (select auth.uid())));
 CREATE POLICY "Users view tickets" ON public.tickets FOR SELECT TO authenticated USING ((select auth.uid()) = user_id OR EXISTS (SELECT 1 FROM public.event_categories ec JOIN public.running_events re ON re.id = ec.event_id WHERE ec.id = tickets.category_id AND re.organizer_id = (select auth.uid())));
 CREATE POLICY "Users view runner profile" ON public.runner_profiles FOR ALL TO authenticated USING ((select auth.uid()) = user_id);
+CREATE POLICY "Users manage own fitness sync" ON public.user_fitness_sync FOR ALL TO authenticated USING ((select auth.uid()) = user_id) WITH CHECK ((select auth.uid()) = user_id);
+CREATE POLICY "Users view and manage fitness activities" ON public.raw_fitness_activities FOR ALL TO authenticated USING ((select auth.uid()) = user_id) WITH CHECK ((select auth.uid()) = user_id);
+CREATE POLICY "Users manage own fitness sync" ON public.user_fitness_sync FOR ALL TO authenticated USING ((select auth.uid()) = user_id) WITH CHECK ((select auth.uid()) = user_id);
+CREATE POLICY "Users view and manage fitness activities" ON public.raw_fitness_activities FOR ALL TO authenticated USING ((select auth.uid()) = user_id) WITH CHECK ((select auth.uid()) = user_id);
 
 -- ==============================================================================
 -- SEED USERS & SAMPLE EVENTS

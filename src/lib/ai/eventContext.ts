@@ -76,10 +76,10 @@ export async function fetchRunnerFitnessContext(
       profile.readinessLevel = dbRec.readiness_level || profile.readinessLevel;
     }
 
-    // 3. Ambil 5 aktivitas lari terbaru dari raw_strava_activities
+    // 3. Ambil 5 aktivitas lari terbaru dari raw_fitness_activities (PRD Section 16.2)
     const { data: dbRecentActivities } = await supabase
-      .from("raw_strava_activities")
-      .select("distance_meters, moving_time_seconds, start_date, raw_payload")
+      .from("raw_fitness_activities")
+      .select("activity_name, distance_meters, moving_time_seconds, start_date, raw_payload")
       .eq("user_id", userId)
       .order("start_date", { ascending: false })
       .limit(5);
@@ -97,7 +97,7 @@ export async function fetchRunnerFitnessContext(
                 : "-";
             const dateStr = act.start_date ? act.start_date.split("T")[0] : "-";
             const payload = (act.raw_payload as Record<string, unknown>) || {};
-            const actName = (payload.name as string) || `Sesi Lari #${i + 1}`;
+            const actName = act.activity_name || (payload.name as string) || `Sesi Lari #${i + 1}`;
             return `  ${i + 1}. ${actName}: ${distKm} km (Pace ${pace} min/km, Tgl ${dateStr})`;
           })
           .join("\n");
