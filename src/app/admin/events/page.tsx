@@ -19,7 +19,7 @@ export default function AdminEventsPage() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
   const loadData = async () => {
-    const data = await getEvents();
+    const data = await getEvents(undefined, { includePast: true });
     setEvents(data);
     setIsLoading(false);
   };

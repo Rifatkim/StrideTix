@@ -37,7 +37,7 @@ export function AdminLandingHome({ events: initialEvents }: AdminLandingHomeProp
     async function loadData() {
       const [orgs, evts, tix] = await Promise.all([
         getOrganizerApplications(),
-        getEvents(),
+        getEvents(undefined, { includePast: true }),
         getAllUserTickets(),
       ]);
       setOrganizers(orgs);

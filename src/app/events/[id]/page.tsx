@@ -1,5 +1,6 @@
 import React from "react";
 import { notFound } from "next/navigation";
+import { isEventPast, formatDateIndonesian } from "@/lib/utils";
 import { getEventById, getEvents } from "@/services/eventService";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -26,11 +27,28 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     notFound();
   }
 
+  const isPast = isEventPast(event.eventDate);
+
   return (
     <div className="min-h-screen flex flex-col bg-surface-main">
       <Navbar />
 
-      <Container as="main" className="flex-1 pt-6 pb-36 sm:pt-8 sm:pb-40 space-y-10">
+      <Container as="main" className="flex-1 pt-6 pb-36 sm:pt-8 sm:pb-40 space-y-8">
+        {/* Past Event Notice */}
+        {isPast && (
+          <div className="p-4 rounded-card bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-3 shadow-sm animate-in fade-in">
+            <span className="text-xl shrink-0">🏁</span>
+            <div>
+              <h3 className="text-sm font-bold text-amber-950">
+                Event ini telah selesai berlangsung pada {formatDateIndonesian(event.eventDate)}
+              </h3>
+              <p className="text-xs text-amber-800 mt-0.5">
+                Pendaftaran lomba dan pembelian tiket untuk event ini telah resmi ditutup.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Header Section */}
         <EventDetailHeader event={event} />
 

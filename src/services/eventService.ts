@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/client";
+import { isEventPast } from "@/lib/utils";
 import {
   DistanceCategory,
   EventFilterCriteria,
@@ -49,7 +50,10 @@ function mapRowToRunningEvent(row: any): RunningEvent {
   };
 }
 
-export async function getEvents(criteria?: EventFilterCriteria): Promise<RunningEvent[]> {
+export async function getEvents(
+  criteria?: EventFilterCriteria,
+  options?: { includePast?: boolean }
+): Promise<RunningEvent[]> {
   const supabase = getSupabase();
   if (!supabase) return [];
 
@@ -59,6 +63,13 @@ export async function getEvents(criteria?: EventFilterCriteria): Promise<Running
       .select("*, categories:event_categories(*)")
       .eq("status", "published")
       .order("event_date", { ascending: true });
+
+    // Jika includePast tidak diaktifkan (default: pengguna publik/pelari), filter hanya event yang belum lewat
+    if (!options?.includePast) {
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+      query = query.gte("event_date", todayStr);
+    }
 
     if (criteria?.city && criteria.city !== "all") {
       query = query.ilike("city", `%${criteria.city}%`);
@@ -76,6 +87,11 @@ export async function getEvents(criteria?: EventFilterCriteria): Promise<Running
     }
 
     let events = (data || []).map(mapRowToRunningEvent);
+
+    // Filter tambahan di level JS untuk memastikan event yang tanggalnya sudah lewat tidak tampil untuk publik
+    if (!options?.includePast) {
+      events = events.filter((e) => !isEventPast(e.eventDate));
+    }
 
     if (criteria?.category && criteria.category !== "all") {
       events = events.filter((e) =>

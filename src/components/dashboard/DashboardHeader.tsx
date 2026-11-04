@@ -1,128 +1,110 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { useRunner } from "@/context/RunnerContext";
 import {
-  Activity,
-  CheckCircle2,
+  ChevronRight,
   MapPin,
-  ShieldAlert,
-  Sparkles,
-  Ticket,
-  Flame,
+  Activity,
 } from "lucide-react";
 
 interface DashboardHeaderProps {
-  ticketCount: number;
+  onEdit?: () => void;
+  className?: string;
 }
 
-export function DashboardHeader({ ticketCount }: DashboardHeaderProps) {
+export function DashboardHeader({ onEdit, className = "" }: DashboardHeaderProps) {
   const { currentUser } = useAuth();
-  const { currentProfile, isConnectedToStrava, recommendation } = useRunner();
+  const { currentProfile, isConnectedToStrava } = useRunner();
+  const [imgError, setImgError] = useState(false);
 
-  const totalKm = currentProfile
-    ? currentProfile.summary.totalDistanceKm.toFixed(1)
-    : "0";
+  const photoUrl =
+    currentUser?.avatarUrl ||
+    currentProfile?.athlete.profileMedium ||
+    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80";
+
+  const initials = (currentUser?.name || "Pelari StrideTix")
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (onEdit) {
+      e.preventDefault();
+      onEdit();
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner & Profile Overview */}
-      <div className="bg-white rounded-card border border-sand-border p-6 shadow-warm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-start gap-4">
-            <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-brand/20 bg-soft-cream shrink-0">
-              <Image
-                src={
-                  currentUser?.avatarUrl ||
-                  currentProfile?.athlete.profileMedium ||
-                  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
-                }
-                alt={currentUser?.name || "Pelari"}
-                fill
-                className="object-cover"
-              />
+    <a
+      href="#data-pelari"
+      onClick={handleClick}
+      className={`bg-white rounded-2xl border border-stone-200/80 p-4 sm:p-5 shadow-[0_1px_3px_rgba(43,30,22,0.03)] flex items-center justify-between gap-3 sm:gap-4 hover:bg-stone-50/60 transition-all group ${className}`}
+    >
+      <div className="flex items-center gap-3.5 sm:gap-4 min-w-0 flex-1">
+        {/* Avatar Bulat Bersih */}
+        <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 border-brand/20 bg-stone-100 shrink-0 shadow-sm flex items-center justify-center">
+          {!imgError && photoUrl ? (
+            <Image
+              src={photoUrl}
+              alt={currentUser?.name || "Pelari"}
+              fill
+              sizes="(max-width: 640px) 56px, 64px"
+              className="object-cover"
+              onError={() => setImgError(true)}
+              unoptimized
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-brand to-brand-800 text-white font-extrabold text-base sm:text-lg flex items-center justify-center">
+              {initials}
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl font-black text-espresso">
-                  {currentUser?.name || (currentProfile ? `${currentProfile.athlete.firstname} ${currentProfile.athlete.lastname}` : "Pelari StrideTix")}
-                </h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-50 text-brand border border-brand/20 uppercase tracking-wider">
-                  Runner
-                </span>
-                {isConnectedToStrava ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-50 text-accent-strava border border-orange-200">
-                    <Activity className="w-3 h-3" />
-                    Strava Synced
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-stone-100 text-espresso-muted">
-                    Strava Offline
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-espresso-secondary mt-1 flex items-center gap-1">
-                <span>{currentUser?.email || "runner@stridetix.com"}</span>
-                <span>•</span>
-                <span className="inline-flex items-center gap-1">
-                  <MapPin className="w-3 h-3 text-espresso-muted" />
-                  {currentProfile?.athlete.city || "Jakarta"}, Indonesia
-                </span>
-              </p>
-              <p className="text-[11px] text-espresso-muted mt-2">
-                Selamat datang di portal pelari. Pantau kesiapan jarak lomba Anda, unduh E-Ticket dengan QR aman, dan kelola data profil race.
-              </p>
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* Quick Metric Chips Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-sand-border">
-          <div className="bg-sand-warm/60 rounded-btn p-3 border border-sand-border/80">
-            <div className="flex items-center justify-between text-espresso-secondary mb-1">
-              <span className="text-[11px] font-medium">Tiket Saya</span>
-              <Ticket className="w-4 h-4 text-brand" />
-            </div>
-            <div className="text-xl font-black text-espresso">{ticketCount}</div>
-            <div className="text-[10px] text-espresso-muted">Lomba terdaftar</div>
+        {/* Info Pelari - 3 Baris Rapi & Sejajar */}
+        <div className="min-w-0 flex-1">
+          {/* Baris 1: Nama & Badge Runner */}
+          <div className="flex items-center gap-2 min-w-0">
+            <h1 className="text-base sm:text-lg font-bold text-espresso tracking-tight truncate">
+              {currentUser?.name || "Pelari StrideTix"}
+            </h1>
+            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-brand-50 text-brand border border-brand/20 uppercase tracking-wider shrink-0">
+              Runner
+            </span>
           </div>
 
-          <div className="bg-sand-warm/60 rounded-btn p-3 border border-sand-border/80">
-            <div className="flex items-center justify-between text-espresso-secondary mb-1">
-              <span className="text-[11px] font-medium">Jarak Rekomendasi</span>
-              <Sparkles className="w-4 h-4 text-accent-strava" />
-            </div>
-            <div className="text-xl font-black text-espresso">
-              {recommendation ? recommendation.recommendedCategory : "10K"}
-            </div>
-            <div className="text-[10px] text-accent-success font-medium">
-              {recommendation ? `${Math.round(recommendation.confidencePercentage)}% Kesiapan` : "Siap Lari"}
-            </div>
-          </div>
+          {/* Baris 2: Email */}
+          <p className="text-xs text-stone-500 truncate mt-0.5">
+            {currentUser?.email || "runner@stridetix.com"}
+          </p>
 
-          <div className="bg-sand-warm/60 rounded-btn p-3 border border-sand-border/80">
-            <div className="flex items-center justify-between text-espresso-secondary mb-1">
-              <span className="text-[11px] font-medium">Volume Latihan</span>
-              <Flame className="w-4 h-4 text-orange-500" />
-            </div>
-            <div className="text-xl font-black text-espresso">{totalKm} <span className="text-xs font-normal text-espresso-muted">km</span></div>
-            <div className="text-[10px] text-espresso-muted">Total histori Strava</div>
-          </div>
-
-          <div className="bg-sand-warm/60 rounded-btn p-3 border border-sand-border/80">
-            <div className="flex items-center justify-between text-espresso-secondary mb-1">
-              <span className="text-[11px] font-medium">Long Run Terjauh</span>
-              <Activity className="w-4 h-4 text-blue-500" />
-            </div>
-            <div className="text-xl font-black text-espresso">
-              {currentProfile?.summary.longestRunKm || 7.5} <span className="text-xs font-normal text-espresso-muted">km</span>
-            </div>
-            <div className="text-[10px] text-espresso-muted">Single session max</div>
+          {/* Baris 3: Lokasi & Status Strava */}
+          <div className="flex items-center gap-2 mt-1 text-[11px] text-stone-500">
+            <span className="inline-flex items-center gap-1 shrink-0">
+              <MapPin className="w-3 h-3 text-stone-400" />
+              <span>{currentProfile?.athlete.city || "Jakarta"}, ID</span>
+            </span>
+            <span className="text-stone-300">•</span>
+            <span
+              className={`inline-flex items-center gap-1 font-medium shrink-0 ${
+                isConnectedToStrava ? "text-brand" : "text-stone-400"
+              }`}
+            >
+              <Activity className="w-3 h-3" />
+              <span>{isConnectedToStrava ? "Strava Sync" : "Offline"}</span>
+            </span>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Aksi Kanan - Minimalis iOS Chevron */}
+      <div className="flex items-center text-stone-300 group-hover:text-brand transition-colors shrink-0 pl-1">
+        <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
+      </div>
+    </a>
   );
 }

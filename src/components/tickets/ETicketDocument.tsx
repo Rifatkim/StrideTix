@@ -277,6 +277,11 @@ export function ETicketDocument({ ticket, qrDataUrl }: ETicketDocumentProps) {
     year: "numeric",
   });
 
+  // Nomor dada (BIB) mengikuti 4 digit belakang kode tiket / QRIS
+  const bibNumber = ticket.ticketCode
+    ? ticket.ticketCode.split("-").pop() || ticket.ticketCode.slice(-4)
+    : "0000";
+
   return (
     <Document title={`StrideTix-Pass-${ticket.ticketCode}`}>
       <Page size="A4" style={styles.page}>
@@ -292,16 +297,16 @@ export function ETicketDocument({ ticket, qrDataUrl }: ETicketDocumentProps) {
 
         {/* Ticket Container */}
         <View style={styles.ticketContainer}>
-          {/* Ticket Header */}
+          {/* Ticket Header: Minimalis */}
           <View style={styles.ticketHeader}>
             <Text style={styles.ticketBrandTitle}>
               Stride<Text style={styles.ticketBrandSubtitle}>Tix</Text> Pass
             </Text>
-            <View style={styles.statusBadge}>
-              <Text style={styles.statusBadgeText}>
-                {ticket.status === "checked_in" ? "SUDAH CHECK-IN" : "TIKET RESMI • ISSUED"}
-              </Text>
-            </View>
+            {ticket.status === "checked_in" && (
+              <View style={styles.statusBadge}>
+                <Text style={styles.statusBadgeText}>SUDAH CHECK-IN</Text>
+              </View>
+            )}
           </View>
 
           {/* Event Section */}
@@ -334,10 +339,13 @@ export function ETicketDocument({ ticket, qrDataUrl }: ETicketDocumentProps) {
 
           {/* Stub Section */}
           <View style={styles.stubSection}>
-            {/* Participant info */}
+            {/* Participant info (Nomor Dada mengikuti 4 digit belakang QRIS) */}
             <View style={styles.participantCol}>
-              <Text style={styles.bibLabel}>NOMOR DADA (BIB NAME)</Text>
-              <Text style={styles.bibValue}>{ticket.bibName}</Text>
+              <Text style={styles.bibLabel}>NOMOR DADA (BIB)</Text>
+              <Text style={styles.bibValue}>
+                {bibNumber}
+                {ticket.bibName && ticket.bibName !== bibNumber ? ` • ${ticket.bibName}` : ""}
+              </Text>
 
               <Text style={styles.participantLabel}>NAMA PESERTA</Text>
               <Text style={styles.participantName}>{ticket.participantName}</Text>

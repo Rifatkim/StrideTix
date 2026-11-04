@@ -55,13 +55,14 @@ export function Navbar() {
           }`}
         >
           {/* Logo StrideTix */}
-          <Link href={homeHref} className="flex items-center gap-2 sm:gap-2.5 group shrink-0" aria-label="StrideTix Homepage">
+          <Link href={homeHref} className="flex items-center gap-1.5 sm:gap-2 group shrink-0" aria-label="StrideTix Homepage">
             <div
-              className={`rounded-btn bg-brand flex items-center justify-center text-white shadow-warm group-hover:bg-brand-800 transition-all active:scale-95 ${isScrolled ? "w-8 h-8 sm:w-8.5 sm:h-8.5" : "w-9 h-9 sm:w-10 sm:h-10"
-                }`}
+              className={`rounded-lg bg-brand flex items-center justify-center text-white shadow-warm group-hover:bg-brand-800 transition-all active:scale-95 ${
+                isScrolled ? "w-7 h-7 sm:w-8 sm:h-8" : "w-8 h-8 sm:w-9 sm:h-9"
+              }`}
             >
               <StrideTixSymbol
-                size={isScrolled ? 18 : 22}
+                size={isScrolled ? 15 : 18}
                 color="#FFFFFF"
                 className="group-hover:scale-105 transition-transform"
               />
@@ -69,8 +70,9 @@ export function Navbar() {
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 leading-none">
                 <span
-                  className={`font-black tracking-tight text-espresso leading-none transition-all ${isScrolled ? "text-lg sm:text-xl" : "text-xl sm:text-2xl"
-                    }`}
+                  className={`font-black tracking-tight text-espresso leading-none transition-all ${
+                    isScrolled ? "text-sm sm:text-base" : "text-base sm:text-lg"
+                  }`}
                 >
                   Stride<span className="text-brand">Tix</span>
                 </span>
@@ -103,7 +105,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation - Preserved Completely Across Both States! */}
-          <nav className="hidden md:flex items-center gap-1 sm:gap-1.5 lg:gap-2">
+          <nav className="hidden md:flex items-center gap-1 sm:gap-1.5 lg:gap-2 whitespace-nowrap">
             {/* 1. GUEST DESKTOP: Kalender Lomba (Top section) -> Jelajahi Event (Lower section) -> Tentang Smart AI */}
             {!currentUser && (
               <>
@@ -184,40 +186,66 @@ export function Navbar() {
                     }
                   }}
                   aria-current={pathname === "/" ? "page" : undefined}
-                  className={`px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${pathname === "/"
+                  className={`px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${
+                    pathname === "/"
                       ? "bg-[#FFF7ED] text-brand font-bold shadow-xs border border-brand/20"
                       : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
-                    }`}
+                  }`}
                 >
                   <Compass
-                    className={`w-4 h-4 ${pathname === "/" ? "text-brand" : "text-espresso-muted"
-                      }`}
+                    className={`w-4 h-4 ${
+                      pathname === "/" ? "text-brand" : "text-espresso-muted"
+                    }`}
                   />
-                  <span>Cari Event</span>
+                  <span>Event</span>
                 </Link>
+
                 <Link
-                  href="/dashboard"
-                  className={`px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${isActive("/dashboard")
+                  href="/tickets"
+                  className={`px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${
+                    isActive("/tickets", false)
                       ? "bg-[#FFF7ED] text-brand font-bold shadow-xs border border-brand/20"
                       : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
+                  }`}
+                >
+                  <Ticket
+                    className={`w-4 h-4 ${
+                      isActive("/tickets", false) ? "text-brand" : "text-espresso-muted"
                     }`}
-                >
-                  <Ticket className="w-4 h-4 text-brand" />
-                  <span>Tiket Saya</span>
+                  />
+                  <span>Tiket</span>
                 </Link>
+
+                <Link
+                  href="/smart-ai"
+                  className={`px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${
+                    isActive("/smart-ai", false)
+                      ? "bg-[#FFF7ED] text-brand font-bold shadow-xs border border-brand/20"
+                      : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
+                  }`}
+                >
+                  <Activity
+                    className={`w-4 h-4 ${
+                      isActive("/smart-ai", false) ? "text-brand" : "text-espresso-muted"
+                    }`}
+                  />
+                  <span>Smart AI</span>
+                </Link>
+
                 <Link
                   href="/dashboard"
-                  className="px-3 py-1.5 rounded-full text-xs sm:text-sm text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold transition-all flex items-center gap-1.5"
+                  className={`px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${
+                    pathname === "/dashboard"
+                      ? "bg-[#FFF7ED] text-brand font-bold shadow-xs border border-brand/20"
+                      : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
+                  }`}
                 >
-                  <Activity className="w-4 h-4 text-accent-strava" />
-                  <span>Smart Distance AI</span>
-                </Link>
-                <Link
-                  href="/dashboard"
-                  className="px-3 py-1.5 rounded-full text-xs sm:text-sm text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold transition-all flex items-center gap-1.5"
-                >
-                  <LayoutDashboard className="w-4 h-4 text-espresso-muted" />
-                  <span>Dashboard Pelari</span>
+                  <LayoutDashboard
+                    className={`w-4 h-4 ${
+                      pathname === "/dashboard" ? "text-brand" : "text-espresso-muted"
+                    }`}
+                  />
+                  <span>Dashboard</span>
                 </Link>
               </>
             )}

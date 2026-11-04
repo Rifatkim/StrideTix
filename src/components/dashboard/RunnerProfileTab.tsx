@@ -2,19 +2,24 @@
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useRunner } from "@/context/RunnerContext";
 import {
   User,
+  Mail,
   Phone,
+  MapPin,
   HeartHandshake,
-  AlertCircle,
-  CheckCircle2,
-  Save,
   Shirt,
   Droplet,
   ShieldCheck,
+  CheckCircle2,
+  Users,
+  Save,
 } from "lucide-react";
+import { ProfileFieldItem } from "./ProfileFieldItem";
+import { RunnerProfileHeader } from "./RunnerProfileHeader";
 
-interface RunnerProfileData {
+export interface RunnerProfileData {
   fullName: string;
   email: string;
   phoneNumber: string;
@@ -35,7 +40,7 @@ const EMPTY_PROFILE: RunnerProfileData = {
   phoneNumber: "",
   city: "",
   emergencyName: "",
-  emergencyRelation: "",
+  emergencyRelation: "Pasangan",
   emergencyPhone: "",
   bloodType: "O",
   jerseySize: "M",
@@ -44,9 +49,13 @@ const EMPTY_PROFILE: RunnerProfileData = {
 
 export function RunnerProfileTab() {
   const { currentUser } = useAuth();
+  const { currentProfile, isConnectedToStrava } = useRunner();
+
   const [profile, setProfile] = useState<RunnerProfileData>(EMPTY_PROFILE);
+  const [formData, setFormData] = useState<RunnerProfileData>(EMPTY_PROFILE);
+  const [activeSection, setActiveSection] = useState<number | null>(null);
   const [isSaved, setIsSaved] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [savedLabel, setSavedLabel] = useState("");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -54,17 +63,22 @@ export function RunnerProfileTab() {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
-          setProfile({
+          const fullData = {
+            ...EMPTY_PROFILE,
             ...parsed,
             fullName: parsed.fullName || currentUser?.name || "",
             email: parsed.email || currentUser?.email || "",
-          });
+          };
+          setProfile(fullData);
+          setFormData(fullData);
         } else if (currentUser) {
-          setProfile((prev) => ({
-            ...prev,
+          const initial = {
+            ...EMPTY_PROFILE,
             fullName: currentUser.name || "",
             email: currentUser.email || "",
-          }));
+          };
+          setProfile(initial);
+          setFormData(initial);
         }
       } catch {
         // Fallback default
@@ -72,229 +86,378 @@ export function RunnerProfileTab() {
     }
   }, [currentUser]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setTimeout(() => {
-      if (typeof window !== "undefined") {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-      }
-      setIsSubmitting(false);
-      setIsSaved(true);
-      setTimeout(() => setIsSaved(false), 3500);
-    }, 400);
+  const photoUrl =
+    currentUser?.avatarUrl ||
+    currentProfile?.athlete.profileMedium ||
+    null;
+
+  const startEditSection = (sectionNumber: number) => {
+    setFormData({ ...profile });
+    setActiveSection(sectionNumber);
+  };
+
+  const cancelEditSection = () => {
+    setFormData({ ...profile });
+    setActiveSection(null);
+  };
+
+  const saveSection = (sectionNumber: number, label: string) => {
+    setProfile(formData);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+    }
+    setActiveSection(null);
+    setSavedLabel(label);
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2500);
+  };
+
+  const getChestSize = (size: string) => {
+    switch (size) {
+      case "XS":
+        return "90cm";
+      case "S":
+        return "94cm";
+      case "M":
+        return "98cm";
+      case "L":
+        return "104cm";
+      case "XL":
+        return "110cm";
+      case "XXL":
+        return "116cm";
+      default:
+        return "98cm";
+    }
   };
 
   return (
-    <div className="bg-white rounded-card border border-sand-border p-6 shadow-warm w-full">
-      <div className="border-b border-sand-border pb-4 mb-6">
-        <h2 className="text-base font-bold text-espresso">Data Diri & Kontak Darurat</h2>
-        <p className="text-xs text-espresso-secondary mt-1">
-          Informasi ini digunakan oleh pihak race management untuk administrasi BIB e-ticket dan penanganan medis darurat jika diperlukan.
-        </p>
-      </div>
-
+    <div id="data-pelari" className="space-y-4 scroll-mt-24">
+      {/* Toast Notifikasi Berhasil Simpan */}
       {isSaved && (
-        <div className="mb-6 p-4 rounded-card bg-accent-success/10 border border-accent-success/30 flex items-center gap-3 text-xs text-accent-success font-semibold animate-in fade-in duration-200">
-          <CheckCircle2 className="w-5 h-5 shrink-0" />
-          <span>Profil berhasil disimpan! Data Anda telah disinkronkan ke sesi race lokal.</span>
+        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-semibold flex items-center gap-2.5 animate-in fade-in duration-200 shadow-xs">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>{savedLabel} berhasil diperbarui.</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Section 1: Identitas Pribadi */}
-        <div>
-          <h3 className="text-xs font-bold text-espresso uppercase tracking-wider mb-3 flex items-center gap-2">
-            <User className="w-4 h-4 text-brand" />
-            1. Identitas Pelari
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[11px] font-bold text-espresso mb-1">
-                Nama Lengkap (Sesuai KTP)
-              </label>
-              <input
-                type="text"
-                required
-                value={profile.fullName}
-                onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
-              />
-            </div>
+      {/* SATU CARD TERPADU: PROFIL & SELURUH DATA PENTING PELARI */}
+      <div className="bg-white rounded-2xl border border-stone-200/80 shadow-[0_1px_3px_rgba(43,30,22,0.04)] overflow-hidden">
+        {/* 1. Header Profil Terintegrasi (Avatar + Nama + Status) */}
+        <RunnerProfileHeader
+          name={profile.fullName || currentUser?.name || "Pelari StrideTix"}
+          email={profile.email || currentUser?.email || "runner@stridetix.com"}
+          city={profile.city || currentProfile?.athlete.city || "Indonesia"}
+          avatarUrl={photoUrl}
+          isConnectedToStrava={isConnectedToStrava}
+        />
 
-            <div>
-              <label className="block text-[11px] font-bold text-espresso mb-1">
-                Alamat Email
-              </label>
-              <input
-                type="email"
-                required
-                value={profile.email}
-                onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
-              />
-            </div>
+        {/* 2. Kategori 1: Identitas Pelari */}
+        <div className="p-4 sm:p-5">
+          <div className="flex items-center justify-between mb-3.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500">
+              1. Identitas Pelari
+            </h3>
+            {activeSection === 1 ? (
+              <div className="flex items-center gap-2 animate-in fade-in duration-150">
+                <button
+                  type="button"
+                  onClick={cancelEditSection}
+                  className="px-2.5 py-1 rounded-lg border border-stone-200 bg-white hover:bg-stone-100 text-xs font-semibold text-stone-600 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={() => saveSection(1, "Identitas Pelari")}
+                  className="px-3 py-1 rounded-lg bg-brand hover:bg-brand-800 text-xs font-bold text-white shadow-xs transition-colors flex items-center gap-1.5"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Simpan</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => startEditSection(1)}
+                className="text-xs font-bold text-brand hover:text-brand-800 transition-colors px-2 py-1 rounded-md hover:bg-orange-50"
+              >
+                Edit
+              </button>
+            )}
+          </div>
 
-            <div>
-              <label className="block text-[11px] font-bold text-espresso mb-1">
-                Nomor WhatsApp Aktif
-              </label>
-              <div className="relative">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+            <ProfileFieldItem
+              label="Nama Lengkap"
+              icon={<User className="w-3.5 h-3.5" />}
+              displayValue={profile.fullName || currentUser?.name || "Pelari StrideTix"}
+              isEditing={activeSection === 1}
+              onBoxClick={() => startEditSection(1)}
+              renderInput={() => (
+                <input
+                  type="text"
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white border border-brand/60 text-sm text-espresso font-medium focus:outline-none focus:ring-2 focus:ring-brand shadow-xs"
+                  placeholder="Masukkan nama lengkap"
+                />
+              )}
+            />
+
+            <ProfileFieldItem
+              label="Alamat Email"
+              icon={<Mail className="w-3.5 h-3.5" />}
+              displayValue={profile.email || currentUser?.email || "runner@stridetix.com"}
+              isEditing={activeSection === 1}
+              onBoxClick={() => startEditSection(1)}
+              renderInput={() => (
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white border border-brand/60 text-sm text-espresso font-medium focus:outline-none focus:ring-2 focus:ring-brand shadow-xs"
+                  placeholder="nama@email.com"
+                />
+              )}
+            />
+
+            <ProfileFieldItem
+              label="Nomor WhatsApp"
+              icon={<Phone className="w-3.5 h-3.5" />}
+              displayValue={profile.phoneNumber || "Belum diatur"}
+              isEditing={activeSection === 1}
+              onBoxClick={() => startEditSection(1)}
+              renderInput={() => (
                 <input
                   type="tel"
-                  required
-                  value={profile.phoneNumber}
-                  onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
+                  value={formData.phoneNumber}
+                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                  className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white border border-brand/60 text-sm text-espresso font-medium focus:outline-none focus:ring-2 focus:ring-brand shadow-xs"
                   placeholder="08xxxxxxxxxx"
-                  className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:outline-none focus:ring-2 focus:ring-brand pl-8"
                 />
-                <Phone className="w-3.5 h-3.5 text-espresso-muted absolute left-3 top-3.5" />
-              </div>
-            </div>
+              )}
+            />
 
-            <div>
-              <label className="block text-[11px] font-bold text-espresso mb-1">
-                Kota Domisili
-              </label>
-              <input
-                type="text"
-                value={profile.city}
-                onChange={(e) => setProfile({ ...profile, city: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
-              />
-            </div>
+            <ProfileFieldItem
+              label="Kota Domisili"
+              icon={<MapPin className="w-3.5 h-3.5" />}
+              displayValue={profile.city || "Jakarta, ID"}
+              isEditing={activeSection === 1}
+              onBoxClick={() => startEditSection(1)}
+              renderInput={() => (
+                <input
+                  type="text"
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white border border-brand/60 text-sm text-espresso font-medium focus:outline-none focus:ring-2 focus:ring-brand shadow-xs"
+                  placeholder="Contoh: Jakarta, ID"
+                />
+              )}
+            />
           </div>
         </div>
 
-        {/* Section 2: Kontak Darurat */}
-        <div className="pt-4 border-t border-sand-border">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-bold text-espresso uppercase tracking-wider flex items-center gap-2">
-              <HeartHandshake className="w-4 h-4 text-brand" />
-              2. Kontak Darurat (Emergency Contact)
+        <div className="border-t border-stone-100" />
+
+        {/* 3. Kategori 2: Kontak Darurat */}
+        <div className="p-4 sm:p-5">
+          <div className="flex items-center justify-between mb-3.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500">
+              2. Kontak Darurat
             </h3>
-            <span className="text-[10px] text-brand bg-brand-50 px-2 py-0.5 rounded-full font-bold">
-              Wajib untuk Race Safety
-            </span>
+            {activeSection === 2 ? (
+              <div className="flex items-center gap-2 animate-in fade-in duration-150">
+                <button
+                  type="button"
+                  onClick={cancelEditSection}
+                  className="px-2.5 py-1 rounded-lg border border-stone-200 bg-white hover:bg-stone-100 text-xs font-semibold text-stone-600 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={() => saveSection(2, "Kontak Darurat")}
+                  className="px-3 py-1 rounded-lg bg-brand hover:bg-brand-800 text-xs font-bold text-white shadow-xs transition-colors flex items-center gap-1.5"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Simpan</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => startEditSection(2)}
+                className="text-xs font-bold text-brand hover:text-brand-800 transition-colors px-2 py-1 rounded-md hover:bg-orange-50"
+              >
+                Edit
+              </button>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-[11px] font-bold text-espresso mb-1">
-                Nama Kontak Darurat
-              </label>
-              <input
-                type="text"
-                required
-                value={profile.emergencyName}
-                onChange={(e) => setProfile({ ...profile, emergencyName: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
-              />
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+            <ProfileFieldItem
+              label="Nama Kontak Darurat"
+              icon={<HeartHandshake className="w-3.5 h-3.5" />}
+              displayValue={profile.emergencyName || "Belum diatur"}
+              isEditing={activeSection === 2}
+              onBoxClick={() => startEditSection(2)}
+              renderInput={() => (
+                <input
+                  type="text"
+                  value={formData.emergencyName}
+                  onChange={(e) => setFormData({ ...formData, emergencyName: e.target.value })}
+                  className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white border border-brand/60 text-sm text-espresso font-medium focus:outline-none focus:ring-2 focus:ring-brand shadow-xs"
+                  placeholder="Contoh: Siti Rahma"
+                />
+              )}
+            />
 
-            <div>
-              <label className="block text-[11px] font-bold text-espresso mb-1">
-                Hubungan
-              </label>
-              <select
-                value={profile.emergencyRelation}
-                onChange={(e) => setProfile({ ...profile, emergencyRelation: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
-              >
-                <option value="Pasangan">Pasangan (Suami/Istri)</option>
-                <option value="Orang Tua">Orang Tua</option>
-                <option value="Saudara Kandung">Saudara Kandung</option>
-                <option value="Teman/Rekan Kerja">Teman / Rekan Kerja</option>
-              </select>
-            </div>
+            <ProfileFieldItem
+              label="Hubungan Kontak"
+              icon={<Users className="w-3.5 h-3.5" />}
+              displayValue={profile.emergencyRelation || "Pasangan"}
+              isEditing={activeSection === 2}
+              onBoxClick={() => startEditSection(2)}
+              renderInput={() => (
+                <select
+                  value={formData.emergencyRelation}
+                  onChange={(e) => setFormData({ ...formData, emergencyRelation: e.target.value })}
+                  className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white border border-brand/60 text-sm text-espresso font-medium focus:outline-none focus:ring-2 focus:ring-brand shadow-xs"
+                >
+                  <option value="Pasangan">Pasangan (Suami/Istri)</option>
+                  <option value="Orang Tua">Orang Tua</option>
+                  <option value="Saudara Kandung">Saudara Kandung</option>
+                  <option value="Teman/Rekan Kerja">Teman / Rekan Kerja</option>
+                </select>
+              )}
+            />
 
-            <div>
-              <label className="block text-[11px] font-bold text-espresso mb-1">
-                Nomor Telepon Darurat
-              </label>
-              <input
-                type="tel"
-                required
-                value={profile.emergencyPhone}
-                onChange={(e) => setProfile({ ...profile, emergencyPhone: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Section 3: Informasi Fisik & Medis Lomba */}
-        <div className="pt-4 border-t border-sand-border">
-          <h3 className="text-xs font-bold text-espresso uppercase tracking-wider mb-3 flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-brand" />
-            3. Data Medis & Merchandise
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[11px] font-bold text-espresso mb-1 flex items-center gap-1.5">
-                <Shirt className="w-3.5 h-3.5 text-espresso-muted" />
-                Ukuran Jersey Lari
-              </label>
-              <select
-                value={profile.jerseySize}
-                onChange={(e) => setProfile({ ...profile, jerseySize: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
-              >
-                <option value="XS">XS (Dada 90cm)</option>
-                <option value="S">S (Dada 94cm)</option>
-                <option value="M">M (Dada 98cm)</option>
-                <option value="L">L (Dada 104cm)</option>
-                <option value="XL">XL (Dada 110cm)</option>
-                <option value="XXL">XXL (Dada 116cm)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-bold text-espresso mb-1 flex items-center gap-1.5">
-                <Droplet className="w-3.5 h-3.5 text-brand" />
-                Golongan Darah
-              </label>
-              <select
-                value={profile.bloodType}
-                onChange={(e) => setProfile({ ...profile, bloodType: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
-              >
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="AB">AB</option>
-                <option value="O">O</option>
-                <option value="Tidak Tahu">Belum Tahu</option>
-              </select>
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-[11px] font-bold text-espresso mb-1">
-                Catatan Alergi / Kondisi Medis Penting
-              </label>
-              <textarea
-                rows={2}
-                value={profile.medicalNotes}
-                onChange={(e) => setProfile({ ...profile, medicalNotes: e.target.value })}
-                placeholder="Contoh: Alergi penisilin, asma ringan jika cuaca dingin, dll."
-                className="w-full px-3.5 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-xs text-espresso focus:outline-none focus:ring-2 focus:ring-brand resize-none"
-              />
-            </div>
+            <ProfileFieldItem
+              label="Telepon Darurat"
+              icon={<Phone className="w-3.5 h-3.5" />}
+              displayValue={profile.emergencyPhone || "Belum diatur"}
+              isEditing={activeSection === 2}
+              colSpan="col-span-1 sm:col-span-2"
+              onBoxClick={() => startEditSection(2)}
+              renderInput={() => (
+                <input
+                  type="tel"
+                  value={formData.emergencyPhone}
+                  onChange={(e) => setFormData({ ...formData, emergencyPhone: e.target.value })}
+                  className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white border border-brand/60 text-sm text-espresso font-medium focus:outline-none focus:ring-2 focus:ring-brand shadow-xs"
+                  placeholder="08xxxxxxxxxx"
+                />
+              )}
+            />
           </div>
         </div>
 
-        {/* Submit Button */}
-        <div className="pt-4 flex items-center justify-end">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-btn bg-brand text-white font-bold text-xs shadow-warm hover:bg-brand-800 transition-colors disabled:opacity-50"
-          >
-            <Save className="w-4 h-4" />
-            <span>{isSubmitting ? "Menyimpan..." : "Simpan Perubahan Profil"}</span>
-          </button>
+        <div className="border-t border-stone-100" />
+
+        {/* 4. Kategori 3: Data Medis & Merchandise */}
+        <div className="p-4 sm:p-5">
+          <div className="flex items-center justify-between mb-3.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500">
+              3. Data Tambahan
+            </h3>
+            {activeSection === 3 ? (
+              <div className="flex items-center gap-2 animate-in fade-in duration-150">
+                <button
+                  type="button"
+                  onClick={cancelEditSection}
+                  className="px-2.5 py-1 rounded-lg border border-stone-200 bg-white hover:bg-stone-100 text-xs font-semibold text-stone-600 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={() => saveSection(3, "Data Tambahan")}
+                  className="px-3 py-1 rounded-lg bg-brand hover:bg-brand-800 text-xs font-bold text-white shadow-xs transition-colors flex items-center gap-1.5"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Simpan</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => startEditSection(3)}
+                className="text-xs font-bold text-brand hover:text-brand-800 transition-colors px-2 py-1 rounded-md hover:bg-orange-50"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+            <ProfileFieldItem
+              label="Ukuran Jersey Lari"
+              icon={<Shirt className="w-3.5 h-3.5" />}
+              displayValue={`${profile.jerseySize || "M"} (Dada ${getChestSize(profile.jerseySize || "M")})`}
+              isEditing={activeSection === 3}
+              onBoxClick={() => startEditSection(3)}
+              renderInput={() => (
+                <select
+                  value={formData.jerseySize}
+                  onChange={(e) => setFormData({ ...formData, jerseySize: e.target.value })}
+                  className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white border border-brand/60 text-sm text-espresso font-medium focus:outline-none focus:ring-2 focus:ring-brand shadow-xs"
+                >
+                  <option value="XS">XS (Dada 90cm)</option>
+                  <option value="S">S (Dada 94cm)</option>
+                  <option value="M">M (Dada 98cm)</option>
+                  <option value="L">L (Dada 104cm)</option>
+                  <option value="XL">XL (Dada 110cm)</option>
+                  <option value="XXL">XXL (Dada 116cm)</option>
+                </select>
+              )}
+            />
+
+            <ProfileFieldItem
+              label="Golongan Darah"
+              icon={<Droplet className="w-3.5 h-3.5" />}
+              displayValue={profile.bloodType || "O"}
+              isEditing={activeSection === 3}
+              onBoxClick={() => startEditSection(3)}
+              renderInput={() => (
+                <select
+                  value={formData.bloodType}
+                  onChange={(e) => setFormData({ ...formData, bloodType: e.target.value })}
+                  className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white border border-brand/60 text-sm text-espresso font-medium focus:outline-none focus:ring-2 focus:ring-brand shadow-xs"
+                >
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="AB">AB</option>
+                  <option value="O">O</option>
+                  <option value="Tidak Tahu">Belum Tahu</option>
+                </select>
+              )}
+            />
+
+            <ProfileFieldItem
+              label="Catatan Alergi / Medis"
+              icon={<ShieldCheck className="w-3.5 h-3.5" />}
+              displayValue={
+                profile.medicalNotes
+                  ? profile.medicalNotes
+                  : "Tidak ada catatan khusus"
+              }
+              isEditing={activeSection === 3}
+              colSpan="col-span-1 sm:col-span-2"
+              onBoxClick={() => startEditSection(3)}
+              renderInput={() => (
+                <textarea
+                  rows={2}
+                  value={formData.medicalNotes}
+                  onChange={(e) => setFormData({ ...formData, medicalNotes: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl bg-white border border-brand/60 text-sm text-espresso font-medium focus:outline-none focus:ring-2 focus:ring-brand shadow-xs resize-none"
+                  placeholder="Contoh: Alergi obat tertentu, asma ringan jika cuaca dingin, dll."
+                />
+              )}
+            />
+          </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

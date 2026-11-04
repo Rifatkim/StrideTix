@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import {
   MessageSquare,
   X,
@@ -14,6 +15,7 @@ import {
 import { QUICK_PROMPT_STARTERS, AI_ASSISTANT_DISCLAIMER } from "@/lib/mock-data/chatResponses";
 import { useAuth } from "@/context/AuthContext";
 import { useRunner } from "@/context/RunnerContext";
+import { getAllUserTickets } from "@/services/ticketService";
 import { AIChatMessage } from "@/types/ai";
 import { ChatMessageContent } from "./ChatMessageContent";
 
@@ -38,6 +40,28 @@ export function ChatbotWidget() {
   const [isThinking, setIsThinking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isBookingBarActive, setIsBookingBarActive] = useState(false);
+  const [hasTicket, setHasTicket] = useState<boolean | null>(null);
+
+  // Periksa apakah pelari memiliki tiket lomba (Akses Eksklusif Chat AI)
+  useEffect(() => {
+    let isMounted = true;
+    async function checkTicketAccess() {
+      if (!currentUser || role !== "runner") {
+        if (isMounted) setHasTicket(false);
+        return;
+      }
+      try {
+        const tickets = await getAllUserTickets();
+        if (isMounted) setHasTicket(tickets.length > 0);
+      } catch {
+        if (isMounted) setHasTicket(false);
+      }
+    }
+    checkTicketAccess();
+    return () => {
+      isMounted = false;
+    };
+  }, [currentUser, role]);
 
   useEffect(() => {
     const handleToggle = (e: Event) => {
@@ -66,8 +90,19 @@ export function ChatbotWidget() {
     }
   }, [messages, isOpen, isThinking]);
 
+  const pathname = usePathname();
+
+  // Sembunyikan widget AI chat di halaman autentikasi (login, register)
+  if (
+    pathname?.startsWith("/login") ||
+    pathname?.startsWith("/register") ||
+    pathname?.startsWith("/auth")
+  ) {
+    return null;
+  }
+
   // AI Assistant HANYA khusus untuk pelari yang sudah login
-  if (!currentUser || role !== "runner") {
+  if (!currentUser || role !== "runner" || hasTicket !== true) {
     return null;
   }
 

@@ -108,7 +108,7 @@ export function RecommendationCard() {
         </p>
         <div className="flex items-center gap-3 pt-1 flex-wrap">
           <Link
-            href="/dashboard?tab=strava"
+            href="/smart-ai"
             className="px-4 py-2 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-colors"
           >
             <Activity className="w-3.5 h-3.5" />

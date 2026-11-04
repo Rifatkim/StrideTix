@@ -13,7 +13,8 @@ export function FloatingNavRunner() {
   const pathname = usePathname();
 
   const isHomeActive = pathname === "/";
-  const isDashboardActive = pathname === "/dashboard" || pathname.startsWith("/tickets");
+  const isTicketsActive = pathname.startsWith("/tickets");
+  const isSmartAIActive = pathname.startsWith("/smart-ai");
 
   return (
     <div className="w-full flex items-center justify-between gap-2 sm:gap-3">
@@ -33,27 +34,31 @@ export function FloatingNavRunner() {
 
         {/* Tiket Saya with active indicator */}
         <Link
-          href="/dashboard"
+          href="/tickets"
           className={`relative inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shrink-0 ${
-            isDashboardActive
+            isTicketsActive
               ? "bg-[#FFF7ED] text-brand border border-brand/20 shadow-xs"
               : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE]"
           }`}
           title="Tiket Saya"
         >
           <Ticket className="w-3.5 h-3.5 text-brand" />
-          <span className="hidden sm:inline">Tiket Saya</span>
+          <span className="hidden sm:inline">Tiket</span>
           {/* Active Ticket Indicator Dot */}
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
         </Link>
 
         {/* Smart Distance AI */}
         <Link
-          href="/dashboard"
-          className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 transition-all active:scale-95 shrink-0"
+          href="/smart-ai"
+          className={`hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shrink-0 ${
+            isSmartAIActive
+              ? "bg-[#FFF7ED] text-brand border border-brand/20 shadow-xs"
+              : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE]"
+          }`}
           title="Smart Distance AI"
         >
-          <Activity className="w-3.5 h-3.5 text-purple-600" />
+          <Activity className="w-3.5 h-3.5 text-brand" />
           <span>Smart AI</span>
         </Link>
       </div>

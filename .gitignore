@@ -57,3 +57,6 @@ supabase/.temp/
 .temp/
 *.tmp
 
+
+# Scratch scripts
+scratch/

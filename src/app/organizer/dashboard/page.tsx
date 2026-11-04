@@ -12,15 +12,7 @@ import { getEvents } from "@/services/eventService";
 import { getAllUserTickets } from "@/services/ticketService";
 import { RunningEvent, ETicket } from "@/types";
 import { Container } from "@/components/layout/Container";
-import {
-  Calendar,
-  PlusCircle,
-  Building2,
-  CheckCircle2,
-  QrCode,
-  ArrowRight,
-  ShieldAlert,
-} from "lucide-react";
+import { PlusCircle, CheckCircle2, QrCode } from "lucide-react";
 
 export default function OrganizerDashboardPage() {
   const { currentUser, role } = useAuth();
@@ -31,7 +23,7 @@ export default function OrganizerDashboardPage() {
   useEffect(() => {
     async function loadData() {
       const [allEvents, allTickets] = await Promise.all([
-        getEvents(),
+        getEvents(undefined, { includePast: true }),
         getAllUserTickets(),
       ]);
       setEvents(allEvents);
@@ -48,45 +40,37 @@ export default function OrganizerDashboardPage() {
       <Container as="main" className="flex-1 pt-6 pb-28 sm:pt-8 sm:pb-12 space-y-8">
         <AuthGuard allowedRole="organizer">
           {/* Top Header Banner */}
-          <div className="bg-white rounded-card border border-sand-border p-6 shadow-warm flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-card bg-brand-50 text-brand border border-brand/20 flex items-center justify-center shrink-0">
-                <Building2 className="w-7 h-7" />
+          <div className="bg-white rounded-card border border-sand-border p-4 sm:p-6 shadow-warm flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <h1 className="text-lg sm:text-xl font-black text-espresso tracking-tight">
+                  {currentUser?.organizerName || "Danamon Run Management"}
+                </h1>
+                <span title="Terverifikasi" className="inline-flex items-center"><CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /></span>
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-brand-50 text-brand border border-brand/20 uppercase tracking-wider">
+                  EO
+                </span>
               </div>
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-xl font-black text-espresso">
-                    {currentUser?.organizerName || "Danamon Run Management"}
-                  </h1>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-50 text-brand border border-brand/20 uppercase tracking-wider">
-                    Event Organizer
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-accent-success/15 text-accent-success border border-accent-success/30">
-                    <CheckCircle2 className="w-3 h-3" />
-                    Terverifikasi
-                  </span>
-                </div>
-                <p className="text-xs text-espresso-secondary mt-1">
-                  Kelola penjualan tiket, kuota kategori lari, pantau registrasi peserta, dan buka terminal check-in gate.
-                </p>
-              </div>
+              <p className="text-xs text-espresso-secondary leading-relaxed">
+                Kelola penjualan tiket, kuota kategori lari, pantau registrasi peserta, dan buka terminal check-in gate.
+              </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap pt-1 sm:pt-0">
               <Link
                 href="/organizer/check-in"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-btn bg-sand-warm border border-sand-border text-espresso font-bold text-xs hover:border-brand transition-colors"
+                className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-btn bg-sand-warm border border-sand-border text-espresso font-bold text-[11px] sm:text-xs hover:border-brand transition-colors whitespace-nowrap active:scale-95 shadow-2xs"
               >
-                <QrCode className="w-4 h-4 text-brand" />
-                <span>Buka Gate Check-in</span>
+                <QrCode className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand shrink-0" />
+                <span className="whitespace-nowrap">Buka Gate Check-in</span>
               </Link>
 
               <Link
                 href="/organizer/events/new"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-btn bg-brand text-white font-bold text-xs shadow-warm hover:bg-brand-800 transition-colors"
+                className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-btn bg-brand text-white font-bold text-[11px] sm:text-xs shadow-warm hover:bg-brand-800 transition-colors whitespace-nowrap active:scale-95"
               >
-                <PlusCircle className="w-4 h-4" />
-                <span>Buat Event Lari</span>
+                <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                <span className="whitespace-nowrap">Buat</span>
               </Link>
             </div>
           </div>

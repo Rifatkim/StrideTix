@@ -172,11 +172,11 @@ export function FloatingNavMoreMenu({
                 <span>Aktivitas Strava</span>
               </Link>
               <Link
-                href="/dashboard#settings"
+                href="/dashboard?tab=profile"
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-espresso-secondary hover:text-espresso hover:bg-surface-soft transition-colors"
               >
-                <Settings className="w-3.5 h-3.5 text-espresso-muted" />
+                <Settings className="w-3.5 h-3.5 text-brand" />
                 <span>Pengaturan</span>
               </Link>
               <div className="pt-1 border-t border-sand-border/60">

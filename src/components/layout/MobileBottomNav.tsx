@@ -40,7 +40,7 @@ function MobileBottomNavInner() {
       className="fixed bottom-0 inset-x-0 z-40 md:hidden bg-white/95 backdrop-blur-md border-t border-sand-border/80 shadow-[0_-4px_16px_rgba(43,30,22,0.06)] px-2 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-1.5"
       aria-label="Mobile Bottom Navigation"
     >
-      <div className="flex items-center justify-around h-13 max-w-md mx-auto">
+      <div className="flex items-center justify-around h-14 max-w-md mx-auto">
         {/* 1. RUNNER ROLE */}
         {currentUser && role === "runner" && (
           <>
@@ -56,31 +56,31 @@ function MobileBottomNavInner() {
               }`}
             >
               <Compass className={`w-5 h-5 ${isExactActive("/") ? "stroke-[2.5]" : "stroke-[1.75]"}`} />
-              <span className="text-[10px] mt-0.5 tracking-tight font-medium">Cari Event</span>
+              <span className="text-[10px] mt-0.5 tracking-tight font-medium">Event</span>
             </Link>
 
             <Link
-              href="/dashboard?tab=tickets"
+              href="/tickets"
               className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 ${
-                pathname === "/dashboard" && (!tabParam || tabParam === "tickets")
+                pathname.startsWith("/tickets") || (pathname === "/dashboard" && tabParam === "tickets")
                   ? "text-brand font-bold"
                   : "text-espresso-muted hover:text-espresso"
               }`}
             >
               <Ticket
                 className={`w-5 h-5 ${
-                  pathname === "/dashboard" && (!tabParam || tabParam === "tickets")
+                  pathname.startsWith("/tickets") || (pathname === "/dashboard" && tabParam === "tickets")
                     ? "stroke-[2.5]"
                     : "stroke-[1.75]"
                 }`}
               />
-              <span className="text-[10px] mt-0.5 tracking-tight font-medium">Tiket Saya</span>
+              <span className="text-[10px] mt-0.5 tracking-tight font-medium">Tiket</span>
             </Link>
 
             <Link
-              href="/dashboard?tab=strava"
+              href="/smart-ai"
               className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 ${
-                pathname === "/dashboard" && tabParam === "strava"
+                pathname.startsWith("/smart-ai") || (pathname === "/dashboard" && tabParam === "strava")
                   ? "text-accent-strava font-bold"
                   : "text-espresso-muted hover:text-espresso"
               }`}
@@ -88,7 +88,7 @@ function MobileBottomNavInner() {
               <div className="relative">
                 <Activity
                   className={`w-5 h-5 ${
-                    pathname === "/dashboard" && tabParam === "strava"
+                    pathname.startsWith("/smart-ai") || (pathname === "/dashboard" && tabParam === "strava")
                       ? "stroke-[2.5]"
                       : "stroke-[1.75]"
                   }`}
@@ -99,16 +99,16 @@ function MobileBottomNavInner() {
             </Link>
 
             <Link
-              href="/dashboard?tab=profile"
+              href="/dashboard"
               className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 ${
-                pathname === "/dashboard" && tabParam === "profile"
+                pathname === "/dashboard" && (!tabParam || tabParam === "profile")
                   ? "text-brand font-bold"
                   : "text-espresso-muted hover:text-espresso"
               }`}
             >
               <User
                 className={`w-5 h-5 ${
-                  pathname === "/dashboard" && tabParam === "profile"
+                  pathname === "/dashboard" && (!tabParam || tabParam === "profile")
                     ? "stroke-[2.5]"
                     : "stroke-[1.75]"
                 }`}

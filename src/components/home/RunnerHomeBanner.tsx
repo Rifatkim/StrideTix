@@ -64,7 +64,7 @@ export function RunnerHomeBanner() {
           {/* Kolom Kanan (~38%): Aksi Cepat Tiket & Strava AI, Rata Kanan di Desktop */}
           <div className="lg:w-[38%] flex flex-wrap sm:flex-nowrap items-center lg:justify-end gap-3 shrink-0">
             <Link
-              href="/dashboard?tab=tickets"
+              href="/tickets"
               className="w-full sm:w-auto px-5 py-3 rounded-btn bg-brand text-white font-bold text-xs sm:text-sm shadow-warm hover:bg-brand-800 transition-all flex items-center justify-center gap-2 active:scale-95"
             >
               <Ticket className="w-4 h-4" />
@@ -73,11 +73,11 @@ export function RunnerHomeBanner() {
             </Link>
 
             <Link
-              href="/dashboard?tab=strava"
+              href="/smart-ai"
               className="w-full sm:w-auto px-5 py-3 rounded-btn bg-white text-accent-strava font-bold text-xs sm:text-sm border border-sand-border shadow-sm hover:border-accent-strava/40 hover:bg-orange-50/50 transition-all flex items-center justify-center gap-2 active:scale-95"
             >
               <Activity className="w-4 h-4 text-accent-strava" />
-              <span>Analisis Strava AI</span>
+              <span>Smart Distance AI</span>
             </Link>
           </div>
         </div>
@@ -103,7 +103,7 @@ export function RunnerHomeBanner() {
               <div className="min-w-0">
                 <span className="text-[11px] uppercase font-bold text-espresso-muted block">Status Kebugaran</span>
                 <p className="text-sm font-bold text-espresso truncate">Belum Terhubung</p>
-                <Link href="/dashboard?tab=strava" className="text-[10px] text-accent-strava font-bold hover:underline block truncate">
+                <Link href="/smart-ai" className="text-[10px] text-accent-strava font-bold hover:underline block truncate">
                   Sinkronkan GPX / CSV / Manual →
                 </Link>
               </div>
@@ -153,7 +153,7 @@ export function RunnerHomeBanner() {
               <div className="min-w-0">
                 <span className="text-[11px] uppercase font-bold text-espresso-muted block">Target Rekomendasi</span>
                 <p className="text-sm font-bold text-espresso-secondary truncate">Belum Dianalisis</p>
-                <Link href="/dashboard?tab=strava" className="text-[10px] text-brand font-bold hover:underline block truncate">
+                <Link href="/smart-ai" className="text-[10px] text-brand font-bold hover:underline block truncate">
                   Dapatkan Rekomendasi AI →
                 </Link>
               </div>

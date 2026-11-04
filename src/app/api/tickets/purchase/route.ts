@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import { createClient as createServerSupabase } from "@/utils/supabase/server";
 import { createClient } from "@supabase/supabase-js";
 import { ETicket, ParticipantData } from "@/types";
+import { sendTicketConfirmationEmail } from "@/services/emailService";
+import { isEventPast } from "@/lib/utils";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -47,6 +49,14 @@ export async function POST(request: Request) {
     if (!category?.id || !event?.id) {
       return NextResponse.json(
         { error: "Data event atau kategori tiket tidak valid." },
+        { status: 400 }
+      );
+    }
+
+    // Guard: Pastikan event lomba belum lewat tanggalnya
+    if (event?.eventDate && isEventPast(event.eventDate)) {
+      return NextResponse.json(
+        { error: "Event ini telah selesai berlangsung. Pembelian tiket telah ditutup." },
         { status: 400 }
       );
     }
@@ -180,6 +190,24 @@ export async function POST(request: Request) {
       qrPayload: qrHash,
       issuedAt: new Date().toISOString(),
     };
+
+    // Kirim E-Ticket email via Resend secara background (tanpa memblokir checkout)
+    if (participant.email) {
+      sendTicketConfirmationEmail({
+        to: participant.email,
+        ticketCode,
+        eventTitle: event.title,
+        eventDate: event.eventDate,
+        startTime: event.startTime,
+        venue: event.locationVenue,
+        city: event.locationCity,
+        categoryName: category.name,
+        bibName: (participant.bibName || "RUNNER").toUpperCase(),
+        participantName: participant.fullName,
+      }).catch((emailErr) => {
+        console.warn("[Purchase] Resend email delivery warning:", emailErr);
+      });
+    }
 
     return NextResponse.json({ success: true, ticket: issuedTicket });
   } catch (err: any) {

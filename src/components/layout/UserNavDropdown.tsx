@@ -12,7 +12,6 @@ import {
   Building,
   Ticket,
   LogOut,
-  ChevronDown,
   LayoutDashboard,
   QrCode,
   CheckCircle,
@@ -20,6 +19,8 @@ import {
   DollarSign,
   PlusCircle,
   LogIn,
+  Sparkles,
+  Settings,
 } from "lucide-react";
 
 interface UserNavDropdownProps {
@@ -54,20 +55,13 @@ export function UserNavDropdown({ compact = false }: UserNavDropdownProps) {
 
   if (!currentUser) {
     return (
-      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <div className="flex items-center shrink-0">
         <Link
           href="/login"
-          className="px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold border border-sand-border bg-white text-espresso hover:text-brand hover:border-brand shadow-xs transition-all flex items-center gap-1.5 active:scale-95"
+          className="px-3.5 py-1.5 rounded-full bg-brand text-white text-xs font-bold shadow-warm hover:bg-brand-800 transition-all active:scale-95 shrink-0 flex items-center justify-center"
           title="Masuk ke Akun"
         >
-          <LogIn className="w-3.5 h-3.5 text-brand" />
           <span>Masuk</span>
-        </Link>
-        <Link
-          href="/register"
-          className="px-3 sm:px-3.5 py-1.5 rounded-full bg-brand text-white text-xs font-bold shadow-warm hover:bg-brand-800 transition-all active:scale-95 shrink-0"
-        >
-          Daftar
         </Link>
       </div>
     );
@@ -75,19 +69,15 @@ export function UserNavDropdown({ compact = false }: UserNavDropdownProps) {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Trigger Button */}
+      {/* Trigger Button: Clean Avatar Icon Only (No Card Wrapper, No Dropdown Arrow) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center transition-all group ${
-          compact
-            ? "gap-1 p-1 rounded-full hover:ring-2 hover:ring-brand/30 border border-sand-border bg-white"
-            : "gap-2 p-1.5 rounded-btn hover:bg-surface-soft border border-sand-border"
-        }`}
+        className="relative rounded-full transition-all group focus:outline-none focus:ring-2 focus:ring-brand/40 active:scale-95 shrink-0"
         aria-label="Menu akun pengguna"
         aria-expanded={isOpen}
       >
         {currentUser.avatarUrl ? (
-          <div className="relative w-8 h-8 rounded-full overflow-hidden bg-sand-border shrink-0">
+          <div className="relative w-8 h-8 rounded-full overflow-hidden bg-sand-border shrink-0 shadow-2xs group-hover:ring-2 group-hover:ring-brand/40 transition-all">
             <Image
               src={currentUser.avatarUrl}
               alt={currentUser.name}
@@ -96,23 +86,10 @@ export function UserNavDropdown({ compact = false }: UserNavDropdownProps) {
             />
           </div>
         ) : (
-          <div className="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center font-bold text-xs shrink-0">
+          <div className="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-warm group-hover:bg-brand-800 group-hover:ring-2 group-hover:ring-brand/40 transition-all">
             {currentUser.name.slice(0, 2).toUpperCase()}
           </div>
         )}
-
-        {!compact && (
-          <div className="hidden lg:flex flex-col text-left">
-            <span className="text-xs font-bold text-espresso group-hover:text-brand transition-colors max-w-[120px] truncate leading-tight">
-              {currentUser.name}
-            </span>
-            <span className="text-[10px] uppercase font-bold text-brand">
-              {role}
-            </span>
-          </div>
-        )}
-
-        <ChevronDown className={`${compact ? "w-3 h-3 text-espresso-muted mr-1" : "w-3.5 h-3.5 text-espresso-muted ml-0.5"}`} />
       </button>
 
       {/* Dropdown Menu */}
@@ -159,12 +136,28 @@ export function UserNavDropdown({ compact = false }: UserNavDropdownProps) {
                   <span>Dashboard Pelari</span>
                 </Link>
                 <Link
-                  href="/dashboard?tab=tickets"
+                  href="/tickets"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 rounded-btn hover:bg-brand-50 text-espresso font-semibold transition-colors"
                 >
                   <Ticket className="w-4 h-4 text-brand" />
                   <span>Tiket Saya</span>
+                </Link>
+                <Link
+                  href="/smart-ai"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-btn hover:bg-brand-50 text-espresso font-semibold transition-colors"
+                >
+                  <Sparkles className="w-4 h-4 text-brand" />
+                  <span>Smart Distance AI</span>
+                </Link>
+                <Link
+                  href="/dashboard?tab=profile"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-btn hover:bg-brand-50 text-espresso font-semibold transition-colors"
+                >
+                  <Settings className="w-4 h-4 text-brand" />
+                  <span>Pengaturan</span>
                 </Link>
               </>
             )}

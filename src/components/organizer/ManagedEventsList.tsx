@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { RunningEvent } from "@/types";
-import { formatDateIndonesian } from "@/lib/utils";
+import { formatDateIndonesian, isEventPast } from "@/lib/utils";
 import { deleteEvent } from "@/services/eventService";
 import { EditEventModal } from "./EditEventModal";
 import {
@@ -117,6 +117,11 @@ export function ManagedEventsList({
                   >
                     {event.status === "published" ? "Publik" : "Draft"}
                   </span>
+                  {isEventPast(event.eventDate) && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-300">
+                      Selesai
+                    </span>
+                  )}
                   <span className="text-xs text-espresso-muted">
                     {event.organizerName}
                   </span>

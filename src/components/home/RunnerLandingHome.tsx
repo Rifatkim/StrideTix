@@ -87,7 +87,7 @@ export function RunnerLandingHome({ events }: RunnerLandingHomeProps) {
                   </Link>
 
                   <Link
-                    href="/dashboard?tab=tickets"
+                    href="/tickets"
                     className="px-5 py-3.5 rounded-btn bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm border border-white/20 transition-all flex items-center justify-center gap-1.5 active:scale-95"
                   >
                     <span>Semua Tiket ({tickets.length})</span>

@@ -31,3 +31,22 @@ export function formatDateIndonesian(dateString: string): string {
     return dateString;
   }
 }
+
+/**
+ * Cek apakah tanggal event lomba lari sudah lewat dari hari ini
+ */
+export function isEventPast(dateString?: string): boolean {
+  if (!dateString) return false;
+  try {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return false;
+
+    const targetDay = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    return targetDay < today;
+  } catch {
+    return false;
+  }
+}

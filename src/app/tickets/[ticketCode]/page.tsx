@@ -34,7 +34,7 @@ export default function TicketDetailPage() {
     <div className="min-h-screen flex flex-col bg-sand-warm text-espresso font-sans">
       <Navbar />
 
-      <Container as="main" className="flex-1 pt-6 pb-28 sm:pt-8 sm:pb-12">
+      <Container as="main" className="flex-1 pt-4 pb-36 sm:pt-8 sm:pb-16 max-w-2xl mx-auto">
         {isLoading ? (
           <div className="py-20 text-center flex flex-col items-center justify-center gap-2 text-xs text-espresso-muted">
             <Loader2 className="w-6 h-6 animate-spin text-brand" />

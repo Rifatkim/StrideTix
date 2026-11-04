@@ -64,54 +64,55 @@ export function EventCard({ event, isRecommended = false }: EventCardProps) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-espresso/80 via-espresso/20 to-transparent" />
 
-        {/* Top-Left: Category Badges & AI Recommendation Pill */}
-        <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1 max-w-[75%] z-10">
-          {matchesAIRecommendation && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-accent-ai text-white shadow-sm ring-1 ring-white/30 backdrop-blur-sm animate-pulse">
-              <Sparkles className="w-2.5 h-2.5" />
-              <span>Rekomendasi AI</span>
-            </span>
-          )}
+        {/* Top Header: Category Badges, AI Pill & Ticket Quota Status */}
+        <div className="absolute top-2.5 inset-x-2.5 flex items-start justify-between gap-1.5 z-10 pointer-events-none">
+          <div className="flex flex-wrap items-center gap-1 min-w-0 flex-1 pointer-events-auto">
+            {matchesAIRecommendation && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-accent-ai text-white shadow-sm ring-1 ring-white/30 backdrop-blur-sm shrink-0 whitespace-nowrap animate-pulse">
+                <Sparkles className="w-2.5 h-2.5" />
+                <span>Rekomendasi AI</span>
+              </span>
+            )}
 
-          {event.categories.slice(0, 2).map((cat) => (
-            <span
-              key={cat.id}
-              className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/95 text-espresso shadow-xs backdrop-blur-sm border border-sand-border"
-            >
-              {cat.name}
-            </span>
-          ))}
+            {event.categories.slice(0, 2).map((cat) => (
+              <span
+                key={cat.id}
+                className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/95 text-espresso shadow-xs backdrop-blur-sm border border-sand-border shrink-0 whitespace-nowrap"
+              >
+                {cat.name}
+              </span>
+            ))}
 
-          {event.categories.length > 2 && (
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-white/90 text-espresso-muted border border-sand-border">
-              +{event.categories.length - 2}
-            </span>
-          )}
-        </div>
+            {event.categories.length > 2 && (
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-white/90 text-espresso-muted border border-sand-border shrink-0 whitespace-nowrap">
+                +{event.categories.length - 2}
+              </span>
+            )}
+          </div>
 
-        {/* Top-Right: Status Ticket Indicator */}
-        <div className="absolute top-2.5 right-2.5 z-10">
-          {isSoldOut ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-600/90 text-white backdrop-blur-sm shadow-xs">
-              <XCircle className="w-3 h-3" />
-              <span>Sold Out</span>
-            </span>
-          ) : isPastDeadline ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-espresso/85 text-white backdrop-blur-sm shadow-xs">
-              <AlertCircle className="w-3 h-3 text-orange-400" />
-              <span>Ditutup</span>
-            </span>
-          ) : isAlmostSoldOut ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/95 text-white backdrop-blur-sm shadow-xs animate-bounce">
-              <AlertCircle className="w-3 h-3" />
-              <span>Sisa {totalAvailableQuota}</span>
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-espresso/75 text-white backdrop-blur-sm">
-              <Users className="w-3 h-3 text-brand-300" />
-              <span>Sisa {totalAvailableQuota}</span>
-            </span>
-          )}
+          <div className="shrink-0 pointer-events-auto">
+            {isSoldOut ? (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-600/90 text-white backdrop-blur-sm shadow-xs whitespace-nowrap">
+                <XCircle className="w-3 h-3" />
+                <span>Sold Out</span>
+              </span>
+            ) : isPastDeadline ? (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-espresso/85 text-white backdrop-blur-sm shadow-xs whitespace-nowrap">
+                <AlertCircle className="w-3 h-3 text-orange-400" />
+                <span>Ditutup</span>
+              </span>
+            ) : isAlmostSoldOut ? (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/95 text-white backdrop-blur-sm shadow-xs animate-bounce whitespace-nowrap">
+                <AlertCircle className="w-3 h-3" />
+                <span>Sisa {totalAvailableQuota}</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-espresso/75 text-white backdrop-blur-sm whitespace-nowrap">
+                <Users className="w-3 h-3 text-brand-300" />
+                <span>Sisa {totalAvailableQuota}</span>
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Bottom of Image: Date & Time */}

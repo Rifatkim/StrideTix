@@ -21,11 +21,11 @@ export function FloatingNavGuest({
   return (
     <div className="w-full flex items-center justify-between gap-2 sm:gap-3">
       {/* 1. Logo Left */}
-      <Link href="/" className="flex items-center gap-2 group shrink-0" aria-label="StrideTix Homepage">
-        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-brand flex items-center justify-center text-white shadow-warm group-hover:bg-brand-800 transition-all active:scale-95">
-          <StrideTixSymbol size={18} color="#FFFFFF" />
+      <Link href="/" className="flex items-center gap-1.5 sm:gap-2 group shrink-0" aria-label="StrideTix Homepage">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-brand flex items-center justify-center text-white shadow-warm group-hover:bg-brand-800 transition-all active:scale-95">
+          <StrideTixSymbol size={15} color="#FFFFFF" />
         </div>
-        <span className="hidden sm:inline text-base sm:text-lg font-black tracking-tight text-espresso leading-none">
+        <span className="hidden sm:inline text-sm sm:text-base font-black tracking-tight text-espresso leading-none">
           Stride<span className="text-brand">Tix</span>
         </span>
       </Link>

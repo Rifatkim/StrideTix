@@ -9,7 +9,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  Sparkles,
+  Info,
 } from "lucide-react";
 
 export function FitnessSyncMethods() {
@@ -65,10 +65,6 @@ export function FitnessSyncMethods() {
     <div className="bg-white rounded-card p-6 sm:p-8 border border-sand-border shadow-warm space-y-6 max-w-xl mx-auto">
       {/* Header & Deskripsi */}
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 text-brand text-[11px] font-extrabold uppercase tracking-wider border border-brand-200/50">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Universal Fitness Sync</span>
-        </div>
         <h3 className="text-xl sm:text-2xl font-extrabold text-espresso">
           Hubungkan Riwayat Lari Anda
         </h3>
@@ -92,7 +88,7 @@ export function FitnessSyncMethods() {
           }`}
         >
           <UploadCloud className="w-3.5 h-3.5" />
-          <span>Upload File (GPX/CSV)</span>
+          <span>Upload File</span>
         </button>
         <button
           type="button"
@@ -107,7 +103,7 @@ export function FitnessSyncMethods() {
           }`}
         >
           <Sliders className="w-3.5 h-3.5" />
-          <span>Input Manual Data Lari</span>
+          <span>Input Manual</span>
         </button>
       </div>
 
@@ -145,10 +141,7 @@ export function FitnessSyncMethods() {
             </div>
             <div className="space-y-1">
               <p className="text-xs font-bold text-espresso">
-                Klik untuk memilih file <span className="text-brand">.GPX</span> atau <span className="text-brand">.CSV</span>
-              </p>
-              <p className="text-[11px] text-espresso-muted">
-                Bisa menggunakan berkas ekspor gratis dari Strava, Garmin, Coros, Nike Run Club, dll.
+                Tipe File <span className="text-brand">.gpx</span> atau <span className="text-brand">.csv</span>
               </p>
             </div>
           </div>
@@ -175,12 +168,20 @@ export function FitnessSyncMethods() {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Memproses File Riwayat...</span>
+                <span>Mengekstrak...</span>
               </>
             ) : (
-              <span>Ekstrak & Analisis Kesiapan Lari</span>
+              <span>Ekstrak</span>
             )}
           </button>
+
+          {/* Info Card Ekspor Aplikasi */}
+          <div className="p-3 rounded-btn bg-sand-warm/60 border border-sand-border flex items-start gap-2.5 text-[11px] text-espresso-secondary">
+            <Info className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+            <p className="leading-relaxed">
+              Mendukung berkas ekspor aktivitas dari <strong>Strava</strong>, <strong>Garmin Connect</strong>, <strong>Coros</strong>, <strong>Nike Run Club</strong>, dan aplikasi GPS lainnya.
+            </p>
+          </div>
         </form>
       )}
 

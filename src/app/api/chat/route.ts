@@ -28,6 +28,26 @@ export async function POST(request: Request) {
       );
     }
 
+    // 1b. Verifikasi Kepemilikan Tiket Lomba (Hanya pengguna bertiket yang dapat akses)
+    const { data: userTickets } = await supabase
+      .from("tickets")
+      .select("id")
+      .eq("user_id", user.id)
+      .limit(1);
+
+    if (!userTickets || userTickets.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Akses eksklusif: Fitur StrideTix AI hanya dapat diakses oleh pelari yang memiliki tiket lomba resmi.",
+          reply:
+            "Fitur StrideTix AI adalah layanan pendamping eksklusif untuk peserta yang telah memiliki tiket lomba di StrideTix. Silakan amankan tiket event lari Anda untuk mulai berkonsultasi.",
+        },
+        { status: 403 }
+      );
+    }
+
     // Rate Limiting per user (OWASP LLM10 / DoS Guard)
     const { checkRateLimit } = await import("@/lib/security/rateLimit");
     const rateCheck = checkRateLimit(`chat_${user.id}`, 15, 60 * 1000); // 15 requests/minute
