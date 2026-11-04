@@ -15,6 +15,9 @@ import {
   Sparkles,
   Ticket,
   AlertCircle,
+  Mail,
+  Send,
+  Loader2,
 } from "lucide-react";
 
 interface CheckoutFlowContainerProps {
@@ -31,6 +34,8 @@ export function CheckoutFlowContainer({
   const [issuedTicket, setIssuedTicket] = useState<ETicket | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isResendingTicketEmail, setIsResendingTicketEmail] = useState(false);
+  const [resendTicketSuccess, setResendTicketSuccess] = useState<string | null>(null);
 
   const handleProceedToPayment = (data: ParticipantData) => {
     setParticipantData(data);

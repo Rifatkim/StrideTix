@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { formatRupiah } from "@/lib/utils";
 import { RunningEvent, TicketCategory, ParticipantData } from "@/types";
@@ -16,6 +16,9 @@ import {
   Loader2,
   AlertCircle,
   Sparkles,
+  Mail,
+  Send,
+  CheckCircle2,
 } from "lucide-react";
 
 const QRCodeSVG = dynamic(
@@ -44,6 +47,8 @@ export function PaymentSimulationStep({
   const [selectedBank, setSelectedBank] = useState<"bca" | "mandiri" | "bni">("bca");
   const [copied, setCopied] = useState(false);
   const [timeLeft, setTimeLeft] = useState(900); // 15 menit countdown
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [emailSendStatus, setEmailSendStatus] = useState<string | null>(null);
 
   const adminFee = 5000;
   const totalAmount = category.price + adminFee;
@@ -55,6 +60,35 @@ export function PaymentSimulationStep({
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const hasSentAutoEmail = useRef(false);
+
+  // Otomatis kirim tagihan & QR bayar ke Gmail saat memasuki halaman pembayaran
+  useEffect(() => {
+    if (!hasSentAutoEmail.current && participant.email) {
+      hasSentAutoEmail.current = true;
+      fetch("/api/tickets/send-payment-qr", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: participant.email,
+          participantName: participant.fullName,
+          eventTitle: event.title,
+          categoryName: category.name,
+          totalAmount,
+          paymentMethod: "qris",
+          qrisValue: `STRIDETIX-QRIS-MOCK-${event.id}-${category.id}-${totalAmount}`,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setEmailSendStatus(`Tagihan pembayaran & QRIS telah otomatis dikirim ke ${participant.email}`);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [participant.email, participant.fullName, event.id, event.title, category.id, category.name, totalAmount]);
 
   const formatTimer = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -75,6 +109,39 @@ export function PaymentSimulationStep({
       navigator.clipboard.writeText(currentVa);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleSendPaymentToEmail = async () => {
+    if (!participant.email) return;
+    setIsSendingEmail(true);
+    setEmailSendStatus(null);
+    try {
+      const res = await fetch("/api/tickets/send-payment-qr", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: participant.email,
+          participantName: participant.fullName,
+          eventTitle: event.title,
+          categoryName: category.name,
+          totalAmount,
+          paymentMethod,
+          vaNumber: paymentMethod === "va" ? currentVa : undefined,
+          bankName: paymentMethod === "va" ? selectedBank : undefined,
+          qrisValue: paymentMethod === "qris" ? `STRIDETIX-QRIS-MOCK-${event.id}-${category.id}-${totalAmount}` : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setEmailSendStatus(data.message || `QR bayar telah dikirim ke ${participant.email}`);
+      } else {
+        setEmailSendStatus(data.error || "Gagal mengirim email pembayaran.");
+      }
+    } catch {
+      setEmailSendStatus("Gagal mengirim email pembayaran.");
+    } finally {
+      setIsSendingEmail(false);
     }
   };
 
@@ -227,6 +294,24 @@ export function PaymentSimulationStep({
           </div>
         </div>
       )}
+
+      {/* Status Pengiriman Otomatis QRIS / Tagihan ke Gmail */}
+      <div className="p-3.5 rounded-btn bg-emerald-50 border border-emerald-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2 text-emerald-950">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>
+            Tagihan pembayaran &amp; QRIS telah otomatis dikirimkan ke email: <strong>{participant.email}</strong>
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={handleSendPaymentToEmail}
+          disabled={isSendingEmail}
+          className="text-xs font-bold text-emerald-800 hover:text-emerald-950 underline self-start sm:self-auto shrink-0 transition-colors disabled:opacity-50"
+        >
+          {isSendingEmail ? "Mengirim ulang..." : "Kirim ulang"}
+        </button>
+      </div>
 
       {/* Payment Security Notice */}
       <div className="p-3.5 rounded-btn bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-start gap-2.5">

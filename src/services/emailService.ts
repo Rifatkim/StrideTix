@@ -97,6 +97,7 @@ export async function sendTicketConfirmationEmail({
   categoryName,
   bibName,
   participantName,
+  qrPayload,
 }: {
   to: string;
   ticketCode: string;
@@ -108,8 +109,10 @@ export async function sendTicketConfirmationEmail({
   categoryName: string;
   bibName: string;
   participantName: string;
+  qrPayload?: string;
 }): Promise<EmailSendResult> {
   const subject = `E-Ticket Resmi: ${eventTitle} [${ticketCode}]`;
+  const bibNumber = ticketCode.split("-").pop() || ticketCode.slice(-4);
 
   const html = `
     <!DOCTYPE html>
@@ -149,15 +152,35 @@ export async function sendTicketConfirmationEmail({
           </p>
 
           <div class="ticket-box">
-            <div style="font-size: 11px; text-transform: uppercase; color: #786B62; margin-bottom: 4px;">Kode E-Ticket Resmi</div>
+            <div style="font-size: 11px; text-transform: uppercase; color: #786B62; margin-bottom: 8px; font-weight: 700;">QR Code & Kode E-Ticket</div>
+            <div style="background: #ffffff; display: inline-block; padding: 12px; border-radius: 12px; border: 1px solid #EFEAE4; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+              <img 
+                src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrPayload || ticketCode)}&margin=10&color=24-28-23" 
+                alt="QR Code Tiket ${ticketCode}"
+                width="180"
+                height="180"
+                style="display: block; margin: 0 auto; border-radius: 6px;"
+              />
+            </div>
             <div class="ticket-code">${ticketCode}</div>
-            <div style="font-size: 12px; color: #786B62; margin-top: 4px;">BIB: <strong>${bibName}</strong> &bull; Kategori: <strong>${categoryName}</strong></div>
+            <div style="font-size: 13px; color: #52443B; margin-top: 8px;">
+              No. BIB: <strong style="color: #EA580C; font-size: 16px; font-family: monospace; letter-spacing: 1px;">${bibNumber}</strong> (${bibName}) &bull; Kategori: <strong>${categoryName}</strong>
+            </div>
+            <div style="font-size: 11px; color: #EA580C; margin-top: 4px; font-weight: 600;">Scan di Gate Check-in Hari-H</div>
           </div>
 
           <table class="info-grid">
             <tr>
               <td class="label">Nama Event</td>
               <td class="value">${eventTitle}</td>
+            </tr>
+            <tr>
+              <td class="label">Nomor BIB</td>
+              <td class="value" style="color: #EA580C; font-size: 15px; font-weight: 800; font-family: monospace;">${bibNumber}</td>
+            </tr>
+            <tr>
+              <td class="label">Nama di BIB</td>
+              <td class="value">${bibName}</td>
             </tr>
             <tr>
               <td class="label">Tanggal Lomba</td>
@@ -170,10 +193,6 @@ export async function sendTicketConfirmationEmail({
             <tr>
               <td class="label">Lokasi / Venue</td>
               <td class="value">${venue}, ${city}</td>
-            </tr>
-            <tr>
-              <td class="label">Nama di BIB</td>
-              <td class="value">${bibName}</td>
             </tr>
           </table>
 
@@ -194,7 +213,7 @@ export async function sendTicketConfirmationEmail({
     to,
     subject,
     html,
-    text: `E-Ticket StrideTix: ${eventTitle} - Kode Tiket: ${ticketCode}. Kategori: ${categoryName}, BIB: ${bibName}, Tanggal: ${eventDate} di ${venue}, ${city}.`,
+    text: `E-Ticket StrideTix: ${eventTitle} - Kode Tiket: ${ticketCode}. No. BIB: ${bibNumber} (${bibName}), Kategori: ${categoryName}, Tanggal: ${eventDate} di ${venue}, ${city}.`,
   });
 }
 
@@ -298,3 +317,115 @@ export async function sendPasswordResetEmail({
   });
 }
 
+
+/**
+ * Template Email Instruksi Pembayaran (QRIS / Virtual Account)
+ */
+export async function sendPaymentInstructionEmail({
+  to,
+  participantName,
+  eventTitle,
+  categoryName,
+  totalAmount,
+  paymentMethod,
+  vaNumber,
+  bankName = "BCA",
+  qrisValue,
+}: {
+  to: string;
+  participantName: string;
+  eventTitle: string;
+  categoryName: string;
+  totalAmount: number;
+  paymentMethod: "qris" | "va";
+  vaNumber?: string;
+  bankName?: string;
+  qrisValue?: string;
+}): Promise<EmailSendResult> {
+  const subject = `Instruksi Pembayaran Tiket: ${eventTitle}`;
+  const formattedPrice = new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(totalAmount);
+
+  const qrisHtml = qrisValue
+    ? `
+      <div style="background: #ffffff; display: inline-block; padding: 14px; border-radius: 12px; border: 1px solid #EFEAE4; margin: 12px auto; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center;">
+        <img 
+          src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrisValue)}&margin=10&color=24-28-23" 
+          alt="QRIS Pembayaran StrideTix"
+          width="190"
+          height="190"
+          style="display: block; margin: 0 auto; border-radius: 6px;"
+        />
+        <div style="font-size: 12px; font-weight: bold; color: #EA580C; margin-top: 10px;">NMID: ID1020260987654</div>
+        <div style="font-size: 11px; color: #786B62; margin-top: 4px;">Scan via GoPay, OVO, Dana, BCA Mobile, Livin, dll.</div>
+      </div>
+    `
+    : "";
+
+  const vaHtml = vaNumber
+    ? `
+      <div style="background: #FAF8F5; border: 1px solid #EFEAE4; border-radius: 12px; padding: 18px; margin: 16px 0; text-align: center;">
+        <div style="font-size: 11px; text-transform: uppercase; color: #786B62; font-weight: 700;">Nomor Virtual Account (${bankName.toUpperCase()})</div>
+        <div style="font-family: monospace; font-size: 24px; font-weight: 900; color: #EA580C; letter-spacing: 2px; margin: 8px 0;">${vaNumber}</div>
+        <div style="font-size: 11px; color: #786B62;">Salin nomor di atas dan bayar melalui m-Banking / ATM ${bankName.toUpperCase()}</div>
+      </div>
+    `
+    : "";
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+      <meta charset="UTF-8">
+      <title>${subject}</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAF8F5; margin: 0; padding: 24px; color: #2B1E16; }
+        .card { max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #EFEAE4; overflow: hidden; box-shadow: 0 4px 12px rgba(43,30,22,0.06); }
+        .header { background: #EA580C; padding: 24px 20px; text-align: center; color: #ffffff; }
+        .header h1 { margin: 0; font-size: 20px; font-weight: 800; }
+        .content { padding: 24px 20px; text-align: center; }
+        .total-box { background: #FFF7ED; border: 1px solid #FFEDD5; border-radius: 12px; padding: 16px; margin: 16px 0; }
+        .footer { background: #FAF8F5; padding: 16px; text-align: center; font-size: 11px; color: #786B62; border-top: 1px solid #EFEAE4; }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="header">
+          <h1>StrideTix Pembayaran</h1>
+          <p style="margin: 4px 0 0; font-size: 12px; opacity: 0.9;">Instruksi Pembayaran Tiket Lomba</p>
+        </div>
+        <div class="content">
+          <h2 style="font-size: 16px; margin: 0 0 6px; color: #2B1E16;">Halo, ${participantName}!</h2>
+          <p style="font-size: 12px; color: #52443B; margin: 0 0 16px; line-height: 1.5;">
+            Berikut adalah detail tagihan pembayaran untuk pendaftaran <strong>${eventTitle}</strong> (${categoryName}):
+          </p>
+
+          <div class="total-box">
+            <span style="font-size: 11px; text-transform: uppercase; color: #9A3412; font-weight: 700; display: block;">Total Tagihan Pembayaran</span>
+            <span style="font-size: 26px; font-weight: 900; color: #EA580C; display: block; margin-top: 4px;">${formattedPrice}</span>
+          </div>
+
+          ${paymentMethod === "qris" ? qrisHtml : vaHtml}
+
+          <div style="margin-top: 20px; padding: 12px; background: #FEF3C7; border-radius: 8px; font-size: 11px; color: #92400E; text-align: left;">
+            ⏰ <strong>Batas Waktu:</strong> Selesaikan pembayaran dalam 15 menit agar slot kategori tiket lomba Anda tidak dibatalkan otomatis oleh sistem.
+          </div>
+        </div>
+        <div class="footer">
+          &copy; 2026 StrideTix Indonesia &bull; Smart Race Ticketing Platform
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to,
+    subject,
+    html,
+    text: `Instruksi Pembayaran StrideTix: ${eventTitle} (${categoryName}) - Total: ${formattedPrice}. Metode: ${paymentMethod.toUpperCase()}.`,
+  });
+}

@@ -204,6 +204,7 @@ export async function POST(request: Request) {
         categoryName: category.name,
         bibName: (participant.bibName || "RUNNER").toUpperCase(),
         participantName: participant.fullName,
+        qrPayload: qrHash,
       }).catch((emailErr) => {
         console.warn("[Purchase] Resend email delivery warning:", emailErr);
       });
