@@ -60,7 +60,7 @@ export function CheckoutForm({
   useEffect(() => {
     if (!initialData) {
       let isMounted = true;
-      async function syncProfile() {
+      const syncProfile = async () => {
         const profile = await getRunnerProfile(
           currentUser?.id,
           currentUser?.email,
