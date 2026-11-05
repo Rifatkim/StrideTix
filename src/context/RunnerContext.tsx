@@ -40,6 +40,7 @@ export function RunnerProvider({ children }: { children: React.ReactNode }) {
     athleteName: string;
     syncSource: FitnessSyncSource;
     deviceOrApp: string;
+    savedAiExplanation?: string | null;
   } | null>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -59,6 +60,7 @@ export function RunnerProvider({ children }: { children: React.ReactNode }) {
             athleteName: data.athleteName || "Pelari StrideTix",
             syncSource: data.syncSource || "manual",
             deviceOrApp: data.deviceOrApp || "Manual Assessment",
+            savedAiExplanation: data.recommendation?.reasoning || data.aiExplanation || null,
           });
           setSelectedProfileId("live_fitness");
         }
@@ -96,8 +98,15 @@ export function RunnerProvider({ children }: { children: React.ReactNode }) {
   // Rekomendasi deterministik
   const recommendation = useMemo(() => {
     if (!currentProfile) return null;
-    return calculateDistanceRecommendation(currentProfile.summary);
-  }, [currentProfile]);
+    const base = calculateDistanceRecommendation(currentProfile.summary);
+    if (liveProfile?.savedAiExplanation) {
+      return {
+        ...base,
+        reasoning: liveProfile.savedAiExplanation,
+      };
+    }
+    return base;
+  }, [currentProfile, liveProfile?.savedAiExplanation]);
 
   const setProfileById = useCallback((id: SimulatedProfileId | "disconnected") => {
     setSelectedProfileId(id);

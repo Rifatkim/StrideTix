@@ -31,6 +31,19 @@ export function RecommendationCard() {
       return;
     }
 
+    // Jika rekomendasi sudah memiliki reasoning tersimpan dari database (Supabase), gunakan langsung
+    if (recommendation.reasoning && recommendation.reasoning.trim().length > 10) {
+      const parts = recommendation.reasoning.split(/Catatan Keselamatan:\s*/i);
+      setAiExplanation({
+        explanation: parts[0]?.trim() || recommendation.reasoning,
+        safetyNotes:
+          parts[1]?.trim() ||
+          "Pastikan meningkatkan jarak lari secara bertahap dan jaga kecukupan hidrasi sebelum hari perlombaan.",
+        modelUsed: "groq-llama-3.3-70b",
+      });
+      return;
+    }
+
     let isMounted = true;
     async function fetchAiExplanation() {
       setIsAiLoading(true);

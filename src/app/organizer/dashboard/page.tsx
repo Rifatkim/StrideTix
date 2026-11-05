@@ -8,7 +8,7 @@ import { OrganizerStatCards } from "@/components/organizer/OrganizerStatCards";
 import { ManagedEventsList } from "@/components/organizer/ManagedEventsList";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { useAuth } from "@/context/AuthContext";
-import { getEvents } from "@/services/eventService";
+import { getOrganizerEvents } from "@/services/eventService";
 import { getAllUserTickets } from "@/services/ticketService";
 import { RunningEvent, ETicket } from "@/types";
 import { Container } from "@/components/layout/Container";
@@ -22,16 +22,19 @@ export default function OrganizerDashboardPage() {
 
   useEffect(() => {
     async function loadData() {
+      if (!currentUser?.id) return;
       const [allEvents, allTickets] = await Promise.all([
-        getEvents(undefined, { includePast: true }),
+        getOrganizerEvents(currentUser.id),
         getAllUserTickets(),
       ]);
       setEvents(allEvents);
       setTickets(allTickets);
       setIsLoading(false);
     }
-    loadData();
-  }, []);
+    if (currentUser?.id) {
+      loadData();
+    }
+  }, [currentUser?.id]);
 
   return (
     <div className="min-h-screen flex flex-col bg-sand-warm text-espresso font-sans">

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ParticipantData, RunningEvent, TicketCategory } from "@/types";
 import { useAuth } from "@/context/AuthContext";
+import { getRunnerProfile } from "@/services/runnerProfileService";
 import { ArrowRight, UserCheck } from "lucide-react";
 
 interface CheckoutFormProps {
@@ -10,6 +11,38 @@ interface CheckoutFormProps {
   category: TicketCategory;
   initialData?: ParticipantData;
   onProceedToPayment: (data: ParticipantData) => void;
+}
+
+function getInitialParticipantData(currentUser: any, initialData?: ParticipantData): ParticipantData {
+  if (initialData) return initialData;
+
+  let savedProfile: any = null;
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem("stridetix_runner_profile");
+      if (stored) savedProfile = JSON.parse(stored);
+    } catch {
+      // Ignore
+    }
+  }
+
+  const profile = currentUser?.metadata?.runner_profile || savedProfile || {};
+  const fullName = profile.fullName || currentUser?.name || "";
+  const email = profile.email || currentUser?.email || "";
+  const bibName = profile.bibName || (fullName ? fullName.split(" ")[0].toUpperCase() : "");
+
+  return {
+    fullName,
+    email,
+    phoneNumber: profile.phoneNumber || "",
+    gender: profile.gender === "female" ? "female" : "male",
+    dateOfBirth: profile.dateOfBirth || "1995-01-01",
+    bibName,
+    emergencyContactName: profile.emergencyName || profile.emergencyContactName || "",
+    emergencyContactPhone: profile.emergencyPhone || profile.emergencyContactPhone || "",
+    bloodType: profile.bloodType || "O",
+    medicalNotes: profile.medicalNotes || "",
+  };
 }
 
 export function CheckoutForm({
@@ -20,29 +53,43 @@ export function CheckoutForm({
 }: CheckoutFormProps) {
   const { currentUser } = useAuth();
 
-  // Form State with sensible defaults for quick testing
-  const [formData, setFormData] = useState<ParticipantData>(
-    initialData || {
-      fullName: currentUser?.name || "Bams",
-      email: currentUser?.email || "bambang123@gmail.com",
-      phoneNumber: "081234567890",
-      gender: "male",
-      dateOfBirth: "1995-08-17",
-      bibName: currentUser?.name ? currentUser.name.split(" ")[0].toUpperCase() : "BAMS",
-      emergencyContactName: "Dewi Pratama",
-      emergencyContactPhone: "081298765432",
-      bloodType: "O",
-    }
+  const [formData, setFormData] = useState<ParticipantData>(() =>
+    getInitialParticipantData(currentUser, initialData)
   );
 
   useEffect(() => {
-    if (currentUser && !initialData) {
-      setFormData((prev) => ({
-        ...prev,
-        fullName: currentUser.name || prev.fullName,
-        email: currentUser.email || prev.email,
-        bibName: currentUser.name ? currentUser.name.split(" ")[0].toUpperCase() : prev.bibName,
-      }));
+    if (!initialData) {
+      let isMounted = true;
+      async function syncProfile() {
+        const profile = await getRunnerProfile(
+          currentUser?.id,
+          currentUser?.email,
+          currentUser?.name
+        );
+        if (isMounted && profile) {
+          const fullName = profile.fullName || currentUser?.name || "";
+          const email = profile.email || currentUser?.email || "";
+          const bibName = fullName ? fullName.split(" ")[0].toUpperCase() : "";
+
+          setFormData((prev) => ({
+            ...prev,
+            fullName: prev.fullName || fullName,
+            email: prev.email || email,
+            phoneNumber: prev.phoneNumber || profile.phoneNumber || "",
+            gender: prev.gender || "male",
+            dateOfBirth: prev.dateOfBirth || "1995-01-01",
+            bibName: prev.bibName || bibName,
+            emergencyContactName: prev.emergencyContactName || profile.emergencyName || "",
+            emergencyContactPhone: prev.emergencyContactPhone || profile.emergencyPhone || "",
+            bloodType: prev.bloodType || profile.bloodType || "O",
+            medicalNotes: prev.medicalNotes || profile.medicalNotes || "",
+          }));
+        }
+      }
+      syncProfile();
+      return () => {
+        isMounted = false;
+      };
     }
   }, [currentUser, initialData]);
 

@@ -35,6 +35,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
       organizerName: role === "organizer" ? session.user.user_metadata?.organizer_name || name : undefined,
       organizerStatus: role === "organizer" ? "verified" : undefined,
       createdAt: profile?.created_at || session.user.created_at,
+      metadata: session.user.user_metadata || {},
     };
   } catch (err) {
     console.error("Error fetching current user session:", err);
@@ -80,6 +81,7 @@ export async function login(credentials: LoginCredentials): Promise<AuthUser> {
     organizerName: role === "organizer" ? data.user.user_metadata?.organizer_name || name : undefined,
     organizerStatus: role === "organizer" ? "verified" : undefined,
     createdAt: profile?.created_at || data.user.created_at,
+    metadata: data.user.user_metadata || {},
   };
 }
 
@@ -130,7 +132,20 @@ export async function register(payload: RegisterPayload): Promise<AuthUser> {
     organizerName: payload.role === "organizer" ? payload.organizerName || payload.name : undefined,
     organizerStatus: payload.role === "organizer" ? "pending" : undefined,
     createdAt: data.user.created_at,
+    metadata: data.user.user_metadata || {},
   };
+}
+
+export async function updateRunnerProfile(runnerProfile: Record<string, any>): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.auth.updateUser({
+    data: {
+      runner_profile: runnerProfile,
+    },
+  });
+  if (error) {
+    console.warn("Failed to persist runner profile to Supabase user metadata:", error.message);
+  }
 }
 
 export async function logout(): Promise<void> {

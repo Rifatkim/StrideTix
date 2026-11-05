@@ -1,6 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { RunnerTrainingContext } from "@/types/ai";
-import { MOCK_EVENTS } from "@/lib/mock-data/events";
 
 interface EventCategoryRow {
   category_name: string;
@@ -166,23 +165,12 @@ export async function fetchActiveEventsContext(supabase: SupabaseClient): Promis
       });
     }
   } catch (err) {
-    console.warn("[EventContext] Query running_events dari Supabase error, fallback ke data katalog:", err);
+    console.warn("[EventContext] Query running_events dari Supabase error:", err);
   }
 
-  // Fallback ke MOCK_EVENTS jika database kosong
+  // Jika tidak ada event yang aktif di database
   if (eventList.length === 0) {
-    eventList = MOCK_EVENTS.filter((e) => e.status === "published").slice(0, 6).map((e) => ({
-      title: e.title,
-      city: e.locationCity,
-      location: e.locationVenue,
-      eventDate: e.eventDate,
-      categories: e.categories.map((c) => ({
-        name: c.name,
-        distanceKm: c.distanceKm,
-        price: c.price,
-        remainingQuota: c.availableQuota,
-      })),
-    }));
+    return "Saat ini belum ada event lomba lari aktif yang terdaftar di database resmi platform StrideTix.";
   }
 
   // Format ke teks padat dan terstruktur untuk LLM context

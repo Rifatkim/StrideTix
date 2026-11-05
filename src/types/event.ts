@@ -19,6 +19,7 @@ export interface RunningEvent {
   title: string;
   organizerName: string;
   organizerLogo?: string;
+  organizerId?: string;
   description: string;
   locationCity: string;
   locationVenue: string;

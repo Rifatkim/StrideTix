@@ -45,7 +45,7 @@ export async function getAllUserTickets(): Promise<ETicket[]> {
     const res = await fetch("/api/tickets");
     if (res.ok) {
       const data = await res.json();
-      if (data.success && Array.isArray(data.tickets) && data.tickets.length > 0) {
+      if (data.success && Array.isArray(data.tickets)) {
         return data.tickets;
       }
     }
@@ -92,6 +92,9 @@ export async function getTicketByCode(ticketCode: string): Promise<ETicket | nul
 
   try {
     const res = await fetch(`/api/tickets?code=${encodeURIComponent(cleanCode)}`);
+    if (res.status === 403 || res.status === 401) {
+      return null;
+    }
     if (res.ok) {
       const data = await res.json();
       if (data.success && data.ticket) {
@@ -158,6 +161,9 @@ export const createTicketOrder = createTicket;
 export async function getParticipantsByEvent(eventId: string): Promise<ETicket[]> {
   try {
     const res = await fetch(`/api/tickets?eventId=${encodeURIComponent(eventId)}`);
+    if (res.status === 403 || res.status === 401) {
+      return [];
+    }
     if (res.ok) {
       const data = await res.json();
       if (data.success && Array.isArray(data.tickets)) {

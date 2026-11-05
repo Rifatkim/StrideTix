@@ -23,6 +23,7 @@ export interface RecommendationResult {
   confidencePercentage: number; // 0 - 100
   confidenceLevel: ConfidenceLevel;
   reasons: string[];
+  reasoning?: string;
   safetyNotes?: string;
   calculatedAt: string;
   isEligibleForCategory: (selectedCategory: DistanceCategory) => {

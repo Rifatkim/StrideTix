@@ -82,10 +82,10 @@ export async function GET(request: Request) {
       // Authorization Check: Must be ticket owner OR event organizer OR platform admin
       const isOwner = ticket.user_id === user.id;
       const eventOrganizerId = ticket.event_categories?.running_events?.organizer_id;
-      const isEventOrganizer = eventOrganizerId && eventOrganizerId === user.id;
-      const isAdminOrOrganizer = role === "admin" || (role === "organizer" && isEventOrganizer);
+      const isEventOrganizer = Boolean(eventOrganizerId && eventOrganizerId === user.id);
+      const isAuthorized = isOwner || role === "admin" || (role === "organizer" && isEventOrganizer);
 
-      if (!isOwner && !isAdminOrOrganizer && role !== "admin") {
+      if (!isAuthorized) {
         return NextResponse.json(
           { success: false, error: "Akses ditolak. Anda tidak memiliki izin melihat tiket ini." },
           { status: 403 }

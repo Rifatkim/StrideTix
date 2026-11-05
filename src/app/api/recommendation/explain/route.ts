@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createClient as createServerSupabase } from "@/utils/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 import { executeGroqChatCompletion } from "@/lib/ai/groqClient";
 import {
   RECOMMENDATION_EXPLAINER_SYSTEM_PROMPT,
@@ -86,14 +87,36 @@ export async function POST(request: Request) {
       };
     }
 
+    const finalExplanation =
+      parsed.explanation ||
+      `Berdasarkan data long run ${body.longestRunKm} km dan konsistensi ${body.consistencyScore}%, kategori ${body.recommendedCategory || "5K"} adalah opsi yang paling aman dan terukur.`;
+    const finalSafetyNotes =
+      parsed.safetyNotes ||
+      "Disarankan untuk tidak melompat kategori jarak secara drastis guna mencegah kelelahan berlebih atau cedera.";
+
+    if (user && process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      try {
+        const adminClient = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL,
+          process.env.SUPABASE_SERVICE_ROLE_KEY
+        );
+        const fullStoredExplanation = finalSafetyNotes
+          ? `${finalExplanation}\n\nCatatan Keselamatan: ${finalSafetyNotes}`
+          : finalExplanation;
+
+        await adminClient
+          .from("event_recommendations")
+          .update({ ai_explanation: fullStoredExplanation })
+          .eq("user_id", user.id);
+      } catch (saveErr) {
+        console.warn("[Explain Route] Gagal menyimpan penjelasan ke Supabase:", saveErr);
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      explanation:
-        parsed.explanation ||
-        `Berdasarkan data long run ${body.longestRunKm} km dan konsistensi ${body.consistencyScore}%, kategori ${body.recommendedCategory || "5K"} adalah opsi yang paling aman dan terukur.`,
-      safetyNotes:
-        parsed.safetyNotes ||
-        "Disarankan untuk tidak melompat kategori jarak secara drastis guna mencegah kelelahan berlebih atau cedera.",
+      explanation: finalExplanation,
+      safetyNotes: finalSafetyNotes,
       modelUsed,
     });
   } catch (err: unknown) {

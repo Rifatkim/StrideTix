@@ -33,6 +33,7 @@ function mapRowToRunningEvent(row: any): RunningEvent {
     title: row.title,
     organizerName: row.organizer_name || "Penyelenggara Resmi",
     organizerLogo: row.organizer_logo,
+    organizerId: row.organizer_id,
     description: row.description || "",
     locationCity: row.city || "",
     locationVenue: row.location || "",
@@ -237,20 +238,17 @@ export async function createEvent(
 }
 
 export async function getOrganizerEvents(organizerId?: string): Promise<RunningEvent[]> {
+  if (!organizerId) return [];
   const supabase = getSupabase();
   if (!supabase) return [];
 
   try {
-    let query = supabase
+    const { data, error } = await supabase
       .from("running_events")
       .select("*, categories:event_categories(*)")
+      .eq("organizer_id", organizerId)
       .order("created_at", { ascending: false });
 
-    if (organizerId) {
-      query = query.eq("organizer_id", organizerId);
-    }
-
-    const { data, error } = await query;
     if (error) return [];
     return (data || []).map(mapRowToRunningEvent);
   } catch {

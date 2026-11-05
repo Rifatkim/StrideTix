@@ -132,15 +132,11 @@ export async function POST(request: Request) {
     }
 
     // TC-ORG-01: Multi-event isolation check (OWASP A01: Broken Access Control)
-    if (
-      eventOrganizerId &&
-      eventOrganizerId !== callerUser.id &&
-      callerRole !== "admin"
-    ) {
+    if (callerRole === "organizer" && eventOrganizerId !== callerUser.id) {
       return NextResponse.json(
         {
           success: false,
-          message: "Akses ditolak: Anda tidak memiliki izin untuk memvalidasi tiket event milik penyelenggara lain.",
+          message: "Akses ditolak: Anda hanya berhak memvalidasi tiket untuk event yang Anda selenggarakan sendiri.",
         },
         { status: 403 }
       );

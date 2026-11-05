@@ -9,6 +9,7 @@ export interface AuthUser {
   organizerName?: string;
   organizerStatus?: "pending" | "verified" | "rejected";
   createdAt: string;
+  metadata?: Record<string, any>;
 }
 
 export interface LoginCredentials {
