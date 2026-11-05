@@ -11,7 +11,7 @@
   <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5.6-blue?logo=typescript" alt="TypeScript" /></a>
   <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?logo=tailwind-css" alt="Tailwind CSS" /></a>
   <a href="https://supabase.com"><img src="https://img.shields.io/badge/Supabase-PostgreSQL_%26_Auth-3ECF8E?logo=supabase" alt="Supabase" /></a>
-  <a href="https://groq.com"><img src="https://img.shields.io/badge/Groq_Cloud-Llama_3.3_70B-F55036" alt="Groq Cloud" /></a>
+  <a href="https://groq.com"><img src="https://img.shields.io/badge/Groq_Cloud-openai%2Fgpt--oss--120b-F55036" alt="Groq Cloud" /></a>
   <img src="https://img.shields.io/badge/Security-Hardened_(OWASP)-success" alt="Security Hardened" />
 </p>
 
@@ -29,7 +29,7 @@ Platform ini dirancang khusus untuk mencegah cedera fisik akibat pemaksaan jarak
 
 ### 🏃 1. Smart Distance Recommendation
 * **Deterministic Rule-Based Scoring:** Rekomendasi kategori jarak lari (5K, 10K, Half Marathon, Full Marathon) dihitung menggunakan algoritma deterministik matematis murni berdasarkan volume mingguan, *longest run*, *average pace*, dan skor konsistensi.
-* **LLM Personalization Layer:** Groq Cloud API memberikan narasi analisis personal, saran kesiapan fisiologis, dan tips latihan tanpa mengubah kategori rekomendasi deterministik yang telah terkunci.
+* **LLM Personalization Layer:** Groq Cloud API menggunakan model `openai/gpt-oss-120b` (didukung opsi cepat `openai/gpt-oss-20b`) memberikan narasi analisis personal, saran kesiapan fisiologis, dan tips latihan tanpa mengubah kategori rekomendasi deterministik yang telah terkunci.
 * **Multi-Source Fitness Sync:** Mendukung input manual, unggah log latihan CSV/GPX, serta persiapan integrasi Strava API v3.
 
 ### 🎫 2. E-Ticket & Vector PDF Engine
@@ -73,7 +73,7 @@ flowchart TD
     end
 
     subgraph External ["External Services"]
-        GROQ_API["Groq Cloud (Llama 3.3 70B)"]
+        GROQ_API["Groq Cloud (openai/gpt-oss-120b)"]
         RESEND["Resend Transactional Email API"]
     end
 
@@ -95,7 +95,7 @@ flowchart TD
 | **Bahasa** | TypeScript 5.6 | Strict Type Safety |
 | **Styling** | Tailwind CSS + Lucide Icons | Palet warna hangat (Warm Sand & Vibrant Orange) |
 | **Database & Auth** | Supabase (PostgreSQL + Auth) | RLS Policies, SSR Cookie Management |
-| **AI Explanation** | Groq Cloud API | Llama 3.3 70B Versatile |
+| **AI Explanation** | Groq Cloud API | Model `openai/gpt-oss-120b` (Fallback: `openai/gpt-oss-20b`) |
 | **QR Code Engine** | `qrcode.react` & `html5-qrcode` | Live Camera Scanning & Vector Generation |
 | **PDF Generation** | `@react-pdf/renderer` | High-fidelity Vector Ticket Pass |
 | **Transactional Mail**| Resend API | Pengiriman E-Ticket dan OTP 2FA |
@@ -135,10 +135,11 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # Groq Cloud API
 GROQ_API_KEY=gsk_your_groq_api_key
+GROQ_MODEL=openai/gpt-oss-120b
 
 # Transactional Email (Resend)
 RESEND_API_KEY=re_your_resend_api_key
-EMAIL_FROM="StrideTix <no-reply@yourdomain.com>"
+RESEND_FROM_EMAIL=StrideTix <tickets@oscartambunan.my.id>
 ```
 
 ### 5. Menjalankan Server Development
