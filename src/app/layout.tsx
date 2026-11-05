@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 };
 
 import { AppProviders } from "@/components/providers/AppProviders";
+import { Analytics } from "@vercel/analytics/next";
 
 export default function RootLayout({
   children,
@@ -31,6 +32,7 @@ export default function RootLayout({
     <html lang="id" className={plusJakartaSans.variable}>
       <body className="min-h-screen flex flex-col bg-surface-main text-espresso antialiased">
         <AppProviders>{children}</AppProviders>
+        <Analytics />
       </body>
     </html>
   );
