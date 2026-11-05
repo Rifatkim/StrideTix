@@ -384,6 +384,14 @@ export function LoginForm() {
               setInfoMessage("Password berhasil diperbarui! Silakan masuk dengan password baru.");
               router.replace("/login");
             }}
+            onRetry={() => {
+              setStep("forgot_password");
+              router.replace("/login");
+            }}
+            onCancel={() => {
+              setStep("credentials");
+              router.replace("/login");
+            }}
           />
         )}
 

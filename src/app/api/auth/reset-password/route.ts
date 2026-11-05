@@ -49,7 +49,7 @@ export async function POST(request: Request) {
 
     const url = new URL(request.url);
     const origin = url.origin;
-    const redirectTo = `${origin}/login?reset=success`;
+    const redirectTo = `${origin}/auth/callback?next=/login?reset=success`;
 
     // Buat link recovery via Supabase Admin API
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
