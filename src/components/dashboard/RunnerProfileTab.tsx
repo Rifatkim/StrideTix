@@ -18,34 +18,14 @@ import {
 } from "lucide-react";
 import { ProfileFieldItem } from "./ProfileFieldItem";
 import { RunnerProfileHeader } from "./RunnerProfileHeader";
+import {
+  RunnerProfileData,
+  EMPTY_PROFILE,
+  getRunnerProfile,
+  saveRunnerProfile,
+} from "@/services/runnerProfileService";
 
-export interface RunnerProfileData {
-  fullName: string;
-  email: string;
-  phoneNumber: string;
-  city: string;
-  emergencyName: string;
-  emergencyRelation: string;
-  emergencyPhone: string;
-  bloodType: string;
-  jerseySize: string;
-  medicalNotes: string;
-}
-
-const STORAGE_KEY = "stridetix_runner_profile";
-
-const EMPTY_PROFILE: RunnerProfileData = {
-  fullName: "",
-  email: "",
-  phoneNumber: "",
-  city: "",
-  emergencyName: "",
-  emergencyRelation: "Pasangan",
-  emergencyPhone: "",
-  bloodType: "O",
-  jerseySize: "M",
-  medicalNotes: "",
-};
+export type { RunnerProfileData };
 
 export function RunnerProfileTab() {
   const { currentUser } = useAuth();
@@ -58,32 +38,22 @@ export function RunnerProfileTab() {
   const [savedLabel, setSavedLabel] = useState("");
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          const fullData = {
-            ...EMPTY_PROFILE,
-            ...parsed,
-            fullName: parsed.fullName || currentUser?.name || "",
-            email: parsed.email || currentUser?.email || "",
-          };
-          setProfile(fullData);
-          setFormData(fullData);
-        } else if (currentUser) {
-          const initial = {
-            ...EMPTY_PROFILE,
-            fullName: currentUser.name || "",
-            email: currentUser.email || "",
-          };
-          setProfile(initial);
-          setFormData(initial);
-        }
-      } catch {
-        // Fallback default
+    let isMounted = true;
+    async function loadProfile() {
+      const data = await getRunnerProfile(
+        currentUser?.id,
+        currentUser?.email,
+        currentUser?.name
+      );
+      if (isMounted) {
+        setProfile(data);
+        setFormData(data);
       }
     }
+    loadProfile();
+    return () => {
+      isMounted = false;
+    };
   }, [currentUser]);
 
   const photoUrl =
@@ -101,15 +71,15 @@ export function RunnerProfileTab() {
     setActiveSection(null);
   };
 
-  const saveSection = (sectionNumber: number, label: string) => {
+  const saveSection = async (sectionNumber: number, label: string) => {
     setProfile(formData);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
-    }
     setActiveSection(null);
     setSavedLabel(label);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2500);
+
+    // Persist to Supabase and sync cross-device
+    await saveRunnerProfile(currentUser?.id, formData);
   };
 
   const getChestSize = (size: string) => {
