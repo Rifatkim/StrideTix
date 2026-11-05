@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { checkRateLimit } from "@/lib/security/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,20 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { valid: false, error: "Email dan password wajib diisi." },
         { status: 400 }
+      );
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // OWASP A07: Brute-force protection pada verifikasi login (maksimal 10x percobaan per menit)
+    const rateCheck = checkRateLimit(`auth_verify_${normalizedEmail}`, 10, 60 * 1000);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        {
+          valid: false,
+          error: "Terlalu banyak percobaan masuk yang gagal. Mohon tunggu 1 menit sebelum mencoba kembali.",
+        },
+        { status: 429 }
       );
     }
 
@@ -36,7 +51,7 @@ export async function POST(request: Request) {
     });
 
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: email.trim().toLowerCase(),
+      email: normalizedEmail,
       password,
     });
 
@@ -62,4 +77,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Html5Qrcode } from "html5-qrcode";
+import { extractTicketCode } from "@/utils/ticketCode";
+export { extractTicketCode };
 import {
   Camera,
   X,
@@ -14,21 +16,6 @@ interface QRScannerModalProps {
   isOpen: boolean;
   onClose: () => void;
   onScanSuccess: (scannedCode: string) => void;
-}
-
-// Ekstrak kode tiket unik dari berbagai variasi payload QR
-export function extractTicketCode(rawPayload: string): string {
-  const trimmed = rawPayload.trim();
-  const matchToken = trimmed.match(/STRIDETIX-TOKEN-([A-Z0-9-]+)-VERIFIED/i);
-  if (matchToken && matchToken[1]) return matchToken[1].toUpperCase();
-
-  const matchUrl = trimmed.match(/tickets\/([A-Z0-9-]+)/i);
-  if (matchUrl && matchUrl[1]) return matchUrl[1].toUpperCase();
-
-  const matchStx = trimmed.match(/(STX-[A-Z0-9-]+)/i);
-  if (matchStx && matchStx[1]) return matchStx[1].toUpperCase();
-
-  return trimmed.toUpperCase();
 }
 
 // Efek audio beep sukses scan gate

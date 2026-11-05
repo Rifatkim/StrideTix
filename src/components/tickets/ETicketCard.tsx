@@ -4,7 +4,6 @@ import React, { useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { ETicket } from "@/types";
-import { downloadTicketPDF } from "@/utils/ticketPdf";
 
 const QRCodeSVG = dynamic(
   () => import("qrcode.react").then((mod) => mod.QRCodeSVG),
@@ -48,6 +47,7 @@ export function ETicketCard({ ticket }: ETicketCardProps) {
     setIsExporting(true);
     try {
       const fileName = `StrideTix-Pass-${ticket.ticketCode}.pdf`;
+      const { downloadTicketPDF } = await import("@/utils/ticketPdf");
       await downloadTicketPDF(ticket, fileName);
     } catch (err) {
       console.error("Gagal men-generate PDF:", err);

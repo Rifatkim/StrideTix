@@ -1,10 +1,37 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { createClient as createServerSupabase } from "@/utils/supabase/server";
 import { sendPaymentInstructionEmail } from "@/services/emailService";
+import { checkRateLimit } from "@/lib/security/rateLimit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
+    // OWASP A01: Wajibkan autentikasi sesi pelari sebelum memicu email relay
+    const cookieStore = cookies();
+    const supabase = createServerSupabase(cookieStore);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: "Akses ditolak. Silakan login untuk mengirimkan tagihan pembayaran." },
+        { status: 401 }
+      );
+    }
+
+    // Rate limiting: maksimal 6 pengiriman instruksi bayar per menit per user
+    const rateCheck = checkRateLimit(`send_qr_${user.id}`, 6, 60 * 1000);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: "Terlalu banyak permintaan pengiriman tagihan. Mohon tunggu sesaat." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const {
       email,
@@ -26,7 +53,7 @@ export async function POST(request: Request) {
     }
 
     const result = await sendPaymentInstructionEmail({
-      to: email,
+      to: email.trim(),
       participantName: participantName || "Runner",
       eventTitle,
       categoryName: categoryName || "Tiket Lomba",
@@ -56,4 +83,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

@@ -133,7 +133,7 @@ export async function GET(request: Request) {
       let query = adminClient
         .from("tickets")
         .select("*, event_categories!inner(*, running_events!inner(*)), users(*)")
-        .order("created_at", { ascending: false });
+        .order("checked_in_at", { ascending: false, nullsFirst: false });
 
       if (role !== "admin") {
         query = query.eq("event_categories.running_events.organizer_id", user.id);
@@ -152,7 +152,7 @@ export async function GET(request: Request) {
       .from("tickets")
       .select("*, event_categories(*, running_events(*)), users(*)")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+      .order("checked_in_at", { ascending: false, nullsFirst: false });
 
     return NextResponse.json({
       success: true,

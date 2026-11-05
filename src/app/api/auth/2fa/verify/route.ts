@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyOtp } from "@/lib/otpStore";
+import { checkRateLimit } from "@/lib/security/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,20 @@ export async function POST(request: Request) {
       );
     }
 
-    const verification = verifyOtp(email, otp);
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // OWASP A05: Rate limit verifikasi OTP (maksimal 6x percobaan verifikasi per menit)
+    const rateCheck = checkRateLimit(`otp_verify_${normalizedEmail}`, 6, 60 * 1000);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        {
+          error: "Terlalu banyak percobaan verifikasi kode OTP. Mohon tunggu 1 menit sebelum mencoba kembali.",
+        },
+        { status: 429 }
+      );
+    }
+
+    const verification = verifyOtp(normalizedEmail, otp);
 
     if (!verification.valid) {
       return NextResponse.json(
@@ -36,4 +50,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

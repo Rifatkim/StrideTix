@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ["tailwind-merge", "clsx"],
+  // Fast barrel file resolution for heavy component libraries
+  experimental: {
+    optimizePackageImports: ["lucide-react", "date-fns"],
+  },
   images: {
     // Restricted remote patterns (OWASP A10: SSRF prevention, GHSA-9g9p-9gw9-jx7f)
     remotePatterns: [
@@ -36,6 +39,10 @@ const nextConfig = {
       {
         source: "/:path*",
         headers: [
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
           {
             key: "X-Frame-Options",
             value: "SAMEORIGIN",

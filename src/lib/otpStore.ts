@@ -1,11 +1,13 @@
 /**
  * In-memory OTP Store for Two-Factor Authentication (2FA)
  * Persisted on globalThis to survive Next.js dev reloads
+ * Hardened with maximum attempts (lockout after 5 failed tries)
  */
 
 interface OtpEntry {
   code: string;
   expiresAt: number;
+  attempts: number;
 }
 
 const globalForOtp = globalThis as unknown as {
@@ -20,18 +22,18 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 /**
- * Generate 6-digit OTP and store it with 10-minute validity
+ * Generate 6-digit OTP and store it with 10-minute validity and attempt tracking
  */
 export function generateOtp(email: string): string {
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-  otpStore.set(email.toLowerCase().trim(), { code, expiresAt });
+  otpStore.set(email.toLowerCase().trim(), { code, expiresAt, attempts: 0 });
   return code;
 }
 
 /**
- * Verify OTP against stored entry
+ * Verify OTP against stored entry with brute-force protection (CWE-307)
  */
 export function verifyOtp(email: string, inputCode: string): { valid: boolean; error?: string } {
   const normalizedEmail = email.toLowerCase().trim();
@@ -47,11 +49,22 @@ export function verifyOtp(email: string, inputCode: string): { valid: boolean; e
   }
 
   if (entry.code !== inputCode.trim()) {
-    return { valid: false, error: "Kode OTP yang Anda masukkan salah." };
+    entry.attempts += 1;
+    if (entry.attempts >= 5) {
+      otpStore.delete(normalizedEmail);
+      return {
+        valid: false,
+        error: "Batas percobaan terlampaui (5x salah). Kode OTP telah dinonaktifkan demi keamanan. Silakan minta kode baru.",
+      };
+    }
+    const remaining = 5 - entry.attempts;
+    return {
+      valid: false,
+      error: `Kode OTP yang Anda masukkan salah. Sisa kesempatan: ${remaining}x.`,
+    };
   }
 
-  // Consume OTP after successful verification
+  // Consume OTP immediately after successful verification (Single-use token)
   otpStore.delete(normalizedEmail);
   return { valid: true };
 }
-

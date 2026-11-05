@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendPasswordResetEmail } from "@/services/emailService";
+import { checkRateLimit } from "@/lib/security/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,19 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Alamat email tidak valid." },
         { status: 400 }
+      );
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // OWASP A05: Rate limit permintaan reset password (maksimal 4x per 10 menit per email)
+    const rateCheck = checkRateLimit(`reset_pwd_${normalizedEmail}`, 4, 10 * 60 * 1000);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        {
+          error: "Terlalu banyak permintaan reset password. Mohon tunggu beberapa saat sebelum mencoba kembali.",
+        },
+        { status: 429 }
       );
     }
 
@@ -33,39 +47,34 @@ export async function POST(request: Request) {
       },
     });
 
-    // Tentukan origin callback untuk redirect ke form Buat Password Baru
     const url = new URL(request.url);
     const origin = url.origin;
     const redirectTo = `${origin}/login?reset=success`;
 
-    // Buat link recovery via Supabase Admin API (TIDAK memakai SMTP Supabase yang terkena rate limit!)
+    // Buat link recovery via Supabase Admin API
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: "recovery",
-      email: email.trim().toLowerCase(),
+      email: normalizedEmail,
       options: {
         redirectTo,
       },
     });
 
-    if (error) {
-      console.error("[Reset Password Admin API Error]:", error);
-      return NextResponse.json(
-        { error: error.message || "Gagal membuat tautan reset password." },
-        { status: 400 }
-      );
+    // OWASP A07: Anti-User Enumeration Protection
+    // Jika email tidak terdaftar di sistem, tetap kembalikan pesan generik seragam
+    if (error || !data?.properties?.action_link) {
+      console.warn("[Reset Password] Info (user might not exist):", error?.message);
+      return NextResponse.json({
+        success: true,
+        message: `Jika alamat email Anda terdaftar, tautan reset password telah dikirim ke ${email}. Silakan periksa kotak masuk atau folder spam Anda.`,
+      });
     }
 
-    const actionLink = data?.properties?.action_link;
-    if (!actionLink) {
-      return NextResponse.json(
-        { error: "Gagal membuat tautan pemulihan akun." },
-        { status: 500 }
-      );
-    }
+    const actionLink = data.properties.action_link;
 
-    // Kirim email pemulihan via RESEND API (Domain resmi & tanpa limit SMTP Supabase)
+    // Kirim email pemulihan via Resend API
     const emailResult = await sendPasswordResetEmail({
-      to: email.trim(),
+      to: normalizedEmail,
       resetLink: actionLink,
     });
 
@@ -73,8 +82,7 @@ export async function POST(request: Request) {
       console.error("[Reset Password Email Error]:", emailResult.error);
       return NextResponse.json(
         {
-          error:
-            emailResult.error || "Gagal mengirimkan email melalui server Resend.",
+          error: emailResult.error || "Gagal mengirimkan email melalui server Resend.",
         },
         { status: 500 }
       );
@@ -82,7 +90,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: `Tautan reset password berhasil dikirim ke ${email}. Silakan periksa inbox atau folder spam Anda.`,
+      message: `Tautan reset password berhasil dikirim ke ${email}. Silakan periksa kotak masuk atau folder spam Anda.`,
     });
   } catch (err: any) {
     console.error("[Reset Password Route Exception]:", err);
@@ -92,4 +100,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

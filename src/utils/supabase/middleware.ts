@@ -14,6 +14,26 @@ export const createClient = async (request: NextRequest) => {
     },
   });
 
+  // Fast-path: Check if any Supabase authentication token cookies exist
+  const allCookies = request.cookies.getAll();
+  const hasAuthToken = allCookies.some(
+    (c) => c.name.startsWith("sb-") && c.name.includes("-auth-token")
+  );
+
+  // If no auth tokens exist at all, skip outbound Supabase Auth call (prevents blocking navigation for guests/public pages)
+  if (!hasAuthToken) {
+    return supabaseResponse;
+  }
+
+  // Fast-path for prefetch: Next.js prefetch requests do not commit cookie updates
+  const isPrefetch =
+    request.headers.get("next-router-prefetch") === "1" ||
+    request.headers.get("purpose") === "prefetch";
+
+  if (isPrefetch) {
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
     supabaseUrl!,
     supabaseKey!,
@@ -35,7 +55,7 @@ export const createClient = async (request: NextRequest) => {
     },
   );
 
-  // Refresh session by calling getUser
+  // Refresh session by calling getUser only for active authenticated user navigations
   await supabase.auth.getUser();
 
   return supabaseResponse;

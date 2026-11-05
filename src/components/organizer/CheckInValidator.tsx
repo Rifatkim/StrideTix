@@ -1,9 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { checkInTicket, getTicketByCode } from "@/services/ticketService";
 import { ETicket } from "@/types";
-import { QRScannerModal, extractTicketCode } from "./QRScannerModal";
+import { extractTicketCode } from "@/utils/ticketCode";
+
+const QRScannerModal = dynamic(
+  () => import("./QRScannerModal").then((mod) => mod.QRScannerModal),
+  { ssr: false }
+);
 import {
   ShieldCheck,
   Search,
@@ -221,12 +227,14 @@ export function CheckInValidator({ initialCode = "" }: CheckInValidatorProps) {
         </div>
       )}
 
-      {/* Live QR Scanner Modal */}
-      <QRScannerModal
-        isOpen={isScannerOpen}
-        onClose={() => setIsScannerOpen(false)}
-        onScanSuccess={handleScanSuccess}
-      />
+      {/* Live QR Scanner Modal (Dimuat on-demand hanya saat dibuka) */}
+      {isScannerOpen && (
+        <QRScannerModal
+          isOpen={isScannerOpen}
+          onClose={() => setIsScannerOpen(false)}
+          onScanSuccess={handleScanSuccess}
+        />
+      )}
     </div>
   );
 }

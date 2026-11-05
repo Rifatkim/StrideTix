@@ -26,25 +26,30 @@ export async function GET() {
       });
     }
 
-    const { data: profileData } = await supabase
-      .from("runner_profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    const { data: syncData } = await supabase
-      .from("user_fitness_sync")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    const { data: recData } = await supabase
-      .from("event_recommendations")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    // Parallel fetch for profile, sync data, and recommendation to eliminate waterfall delay
+    const [
+      { data: profileData },
+      { data: syncData },
+      { data: recData },
+    ] = await Promise.all([
+      supabase
+        .from("runner_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("user_fitness_sync")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("event_recommendations")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
 
     if (!profileData || (profileData.longest_run_km === 0 && profileData.avg_weekly_distance_km === 0)) {
       return NextResponse.json({
