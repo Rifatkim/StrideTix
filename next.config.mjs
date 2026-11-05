@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Isolasi output build saat verifikasi agar tidak menimpa cache .next milik 'next dev'
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   reactStrictMode: true,
   // Fast barrel file resolution for heavy component libraries
   experimental: {
