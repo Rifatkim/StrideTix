@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { createClient } from "@/utils/supabase/client";
-import { AuthUser, UserRole } from "@/types";
+import { AuthUser } from "@/types";
 import { ArrowRight, Lock, Mail, AlertCircle, Loader2, CheckCircle2 } from "lucide-react";
 import { StrideTixSymbol } from "@/components/brand/StrideTixLogo";
 import { ForgotPasswordStep } from "./ForgotPasswordStep";
@@ -70,13 +70,11 @@ export function LoginForm() {
     return () => clearTimeout(timer);
   }, [step, countdown]);
 
-  const redirectByRole = (role: UserRole) => {
-    if (role === "admin") {
-      router.push("/admin");
-    } else if (role === "organizer") {
-      router.push("/organizer");
+  const handlePostLoginRedirect = () => {
+    if (redirectParam && redirectParam.startsWith("/")) {
+      router.push(redirectParam);
     } else {
-      router.push("/dashboard");
+      router.push("/");
     }
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -133,12 +131,8 @@ export function LoginForm() {
         }
       } else {
         // Direct login jika 2FA tidak aktif
-        const user = await login({ email, password });
-        if (redirectParam && redirectParam.startsWith("/")) {
-          router.push(redirectParam);
-        } else {
-          redirectByRole(user.role);
-        }
+        await login({ email, password });
+        handlePostLoginRedirect();
       }
     } catch (err: any) {
       setErrorMessage(
@@ -179,17 +173,13 @@ export function LoginForm() {
       }
 
       // Kredensial & OTP Valid: Sekarang lakukan login resmi ke Supabase
-      const user = await login({
+      await login({
         email: pendingCredentials.email,
         password: pendingCredentials.password,
       });
 
-      // Verification success -> proceed to dashboard or redirect URL
-      if (redirectParam && redirectParam.startsWith("/")) {
-        router.push(redirectParam);
-      } else {
-        redirectByRole(user.role);
-      }
+      // Verification success -> proceed to homepage or redirect URL
+      handlePostLoginRedirect();
     } catch (err: any) {
       setOtpError(err.message || "Gagal memverifikasi kode OTP.");
     } finally {
@@ -232,7 +222,7 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-4">
+    <div className="w-full max-w-md mx-auto space-y-3 sm:space-y-3.5">
       {/* Logo di atas, tepat di bawahnya langsung nama merk */}
       <div className="flex flex-col items-center justify-center">
         <Link
@@ -240,17 +230,17 @@ export function LoginForm() {
           className="inline-flex flex-col items-center group transition-transform active:scale-95"
           aria-label="Beranda StrideTix"
         >
-          <div className="w-10 h-10 rounded-xl bg-brand text-white flex items-center justify-center shadow-warm group-hover:bg-brand-800 transition-colors">
-            <StrideTixSymbol size={22} color="#FFFFFF" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand text-white flex items-center justify-center shadow-warm group-hover:bg-brand-800 transition-colors">
+            <StrideTixSymbol size={20} color="#FFFFFF" />
           </div>
-          <span className="font-extrabold text-sm tracking-tight text-espresso mt-1.5 group-hover:text-brand transition-colors">
+          <span className="font-extrabold text-sm tracking-tight text-espresso mt-1 group-hover:text-brand transition-colors">
             Stride<span className="text-brand">Tix</span>
           </span>
         </Link>
       </div>
 
       {/* Frame Konten Form */}
-      <div className="bg-white rounded-modal p-6 sm:p-8 border border-sand-border shadow-warm-modal space-y-6">
+      <div className="bg-white rounded-modal p-5 sm:p-6 sm:py-6 border border-sand-border shadow-warm-modal space-y-4">
         {step === "credentials" && (
           <>
             {/* Informational banner when redirected from checkout */}
@@ -278,15 +268,15 @@ export function LoginForm() {
 
             {/* Error Alert */}
             {errorMessage && (
-              <div className="p-3.5 rounded-xl bg-accent-error/10 border border-accent-error/20 flex items-start gap-2.5 text-xs text-accent-error animate-in fade-in">
+              <div className="p-3 rounded-xl bg-accent-error/10 border border-accent-error/20 flex items-start gap-2 text-xs text-accent-error animate-in fade-in">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{errorMessage}</span>
               </div>
             )}
 
             {/* Standard Login Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5">
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="space-y-1">
                 <label className="text-xs font-bold text-espresso">
                   Alamat Email
                 </label>
@@ -299,12 +289,12 @@ export function LoginForm() {
                     placeholder="nama@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+                    className="w-full pl-10 pr-4 py-2 sm:py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-espresso">
                     Password
@@ -330,41 +320,48 @@ export function LoginForm() {
                     placeholder="Masukkan password akun"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+                    className="w-full pl-10 pr-4 py-2 sm:py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
                   />
                 </div>
               </div>
 
-              {/* Tombol Masuk & Tombol Daftar Berdampingan (Tanpa Icon Panah) */}
-              <div className="grid grid-cols-2 gap-3 pt-1">
+              {/* Tombol Masuk Penuh Selebar Container */}
+              <div className="pt-1">
                 <button
                   id="login-submit-btn"
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-2.5 px-4 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm transition-all flex items-center justify-center disabled:opacity-50"
+                  className="w-full py-2.5 sm:py-2.5 px-6 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
                 >
                   {isSubmitting ? (
-                    <div className="flex items-center gap-1.5">
+                    <>
                       <Loader2 className="w-4 h-4 animate-spin" />
                       <span>Masuk...</span>
-                    </div>
+                    </>
                   ) : (
-                    <span>Masuk</span>
+                    <>
+                      <span>Masuk</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </>
                   )}
                 </button>
-
-                <Link
-                  href={`/register${
-                    redirectParam
-                      ? `?redirect=${encodeURIComponent(redirectParam)}`
-                      : ""
-                  }`}
-                  className="w-full py-2.5 px-4 rounded-btn border border-brand/30 bg-brand-50/60 hover:bg-brand-100/60 text-brand font-bold text-sm transition-all flex items-center justify-center shadow-2xs hover:border-brand/50 text-center"
-                >
-                  <span>Daftar</span>
-                </Link>
               </div>
             </form>
+
+            {/* Footer Link: Belum memiliki akun? Daftar di Sini */}
+            <div className="text-center text-xs text-espresso-secondary pt-2 border-t border-sand-border/60">
+              Belum memiliki akun?{" "}
+              <Link
+                href={`/register${
+                  redirectParam
+                    ? `?redirect=${encodeURIComponent(redirectParam)}`
+                    : ""
+                }`}
+                className="font-bold text-brand hover:underline"
+              >
+                Daftar di Sini
+              </Link>
+            </div>
           </>
         )}
 

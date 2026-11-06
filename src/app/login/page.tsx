@@ -38,7 +38,7 @@ export default function LoginPage() {
       </header>
 
       {/* Main Content Form */}
-      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-10 sm:py-16 relative z-10">
+      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-4 sm:py-6 relative z-10">
         <React.Suspense fallback={<div className="text-center text-xs text-espresso-muted">Memuat formulir...</div>}>
           <LoginForm />
         </React.Suspense>

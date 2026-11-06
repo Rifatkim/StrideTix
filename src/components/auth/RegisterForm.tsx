@@ -51,7 +51,7 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-4">
+    <div className="w-full max-w-md mx-auto space-y-3 sm:space-y-3.5">
       {/* Logo di atas, tepat di bawahnya langsung nama merk */}
       <div className="flex flex-col items-center justify-center">
         <Link
@@ -59,17 +59,17 @@ export function RegisterForm() {
           className="inline-flex flex-col items-center group transition-transform active:scale-95"
           aria-label="Beranda StrideTix"
         >
-          <div className="w-10 h-10 rounded-xl bg-brand text-white flex items-center justify-center shadow-warm group-hover:bg-brand-800 transition-colors">
-            <StrideTixSymbol size={22} color="#FFFFFF" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand text-white flex items-center justify-center shadow-warm group-hover:bg-brand-800 transition-colors">
+            <StrideTixSymbol size={20} color="#FFFFFF" />
           </div>
-          <span className="font-extrabold text-sm tracking-tight text-espresso mt-1.5 group-hover:text-brand transition-colors">
+          <span className="font-extrabold text-sm tracking-tight text-espresso mt-1 group-hover:text-brand transition-colors">
             Stride<span className="text-brand">Tix</span>
           </span>
         </Link>
       </div>
 
       {/* Frame / Card Utama */}
-      <div className="bg-white rounded-modal p-6 sm:p-8 border border-sand-border shadow-warm-modal space-y-6">
+      <div className="bg-white rounded-modal p-5 sm:p-6 sm:py-6 border border-sand-border shadow-warm-modal space-y-4">
         {/* Header */}
         <div className="text-center">
           <h2 className="text-lg sm:text-xl font-bold text-espresso tracking-tight">Daftar</h2>
@@ -82,7 +82,7 @@ export function RegisterForm() {
             <button
               type="button"
               onClick={() => setRole("runner")}
-              className={`py-2.5 px-3 rounded-btn border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+              className={`py-2 px-3 rounded-btn border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                 role === "runner"
                   ? "bg-brand text-white border-brand shadow-sm"
                   : "bg-surface-main text-espresso border-sand-border hover:bg-brand-50"
@@ -95,7 +95,7 @@ export function RegisterForm() {
             <button
               type="button"
               onClick={() => setRole("organizer")}
-              className={`py-2.5 px-3 rounded-btn border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+              className={`py-2 px-3 rounded-btn border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                 role === "organizer"
                   ? "bg-brand text-white border-brand shadow-sm"
                   : "bg-surface-main text-espresso border-sand-border hover:bg-brand-50"
@@ -109,15 +109,15 @@ export function RegisterForm() {
 
         {/* Error Alert */}
         {errorMessage && (
-          <div className="p-3.5 rounded-xl bg-accent-error/10 border border-accent-error/20 flex items-start gap-2.5 text-xs text-accent-error">
+          <div className="p-3 rounded-xl bg-accent-error/10 border border-accent-error/20 flex items-start gap-2 text-xs text-accent-error">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{errorMessage}</span>
           </div>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="space-y-1">
             <label className="text-xs font-bold text-espresso">Nama Lengkap</label>
             <div className="relative">
               <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
@@ -127,13 +127,13 @@ export function RegisterForm() {
                 placeholder="Contoh: Budi Pratama"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+                className="w-full pl-10 pr-4 py-2 sm:py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
               />
             </div>
           </div>
 
           {role === "organizer" && (
-            <div className="space-y-1.5 animate-in fade-in duration-150">
+            <div className="space-y-1 animate-in fade-in duration-150">
               <label className="text-xs font-bold text-espresso">Nama Organisasi / Komunitas EO</label>
               <div className="relative">
                 <Building className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
@@ -143,13 +143,13 @@ export function RegisterForm() {
                   placeholder="Contoh: Stride Jakarta Athletics"
                   value={organizerName}
                   onChange={(e) => setOrganizerName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+                  className="w-full pl-10 pr-4 py-2 sm:py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
                 />
               </div>
             </div>
           )}
 
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             <label className="text-xs font-bold text-espresso">Alamat Email</label>
             <div className="relative">
               <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
@@ -159,12 +159,12 @@ export function RegisterForm() {
                 placeholder="nama@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+                className="w-full pl-10 pr-4 py-2 sm:py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
               />
             </div>
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             <label className="text-xs font-bold text-espresso">Password</label>
             <div className="relative">
               <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
@@ -175,28 +175,30 @@ export function RegisterForm() {
                 placeholder="Minimal 6 karakter"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+                className="w-full pl-10 pr-4 py-2 sm:py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
               />
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3 px-6 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Mendaftarkan Akun...</span>
-              </>
-            ) : (
-              <>
-                <span>Buat Akun Sekarang</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </>
-            )}
-          </button>
+          <div className="pt-1">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-2.5 sm:py-2.5 px-6 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Mendaftarkan Akun...</span>
+                </>
+              ) : (
+                <>
+                  <span>Buat Akun Sekarang</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
+            </button>
+          </div>
         </form>
 
         {/* Footer Link */}

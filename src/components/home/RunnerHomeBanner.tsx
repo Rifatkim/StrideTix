@@ -8,7 +8,6 @@ import { getAllUserTickets } from "@/services/ticketService";
 import { formatPace } from "@/lib/utils";
 import { ETicket } from "@/types";
 import { Container } from "@/components/layout/Container";
-import { RunningStrideIcon } from "@/components/brand/RunningStrideIcon";
 import {
   Ticket,
   Activity,
@@ -49,12 +48,8 @@ export function RunnerHomeBanner() {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6">
           {/* Kolom Kiri (~62%): Greeting Bersih & Deskripsi */}
           <div className="lg:w-[62%] space-y-1.5 sm:space-y-2">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-espresso tracking-tight leading-tight flex items-center gap-2.5 sm:gap-3 flex-wrap">
-              <span>Halo, {currentUser?.name || "Pelari Hebat"}!</span>
-              <RunningStrideIcon
-                size={34}
-                className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 shrink-0 inline-block drop-shadow-[0_3px_8px_rgba(234,88,12,0.25)] hover:scale-105 transition-transform duration-200"
-              />
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-espresso tracking-tight leading-tight">
+              Halo, {currentUser?.name || "Pelari Hebat"}!
             </h1>
             <p className="text-xs sm:text-sm text-espresso-secondary max-w-3xl leading-relaxed">
               Temukan race lari terkurasi dan gunakan analitik kebugaran Anda untuk memilih kategori jarak yang paling realistis dan aman.
