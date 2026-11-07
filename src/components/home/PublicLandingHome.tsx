@@ -3,6 +3,7 @@
 import React from "react";
 import { RunningEvent } from "@/types";
 import { HeroSection } from "./HeroSection";
+import { RaceTickerTape } from "./RaceTickerTape";
 import { FeaturedRacesSection } from "./FeaturedRacesSection";
 import { EventDiscoverySection } from "./EventDiscoverySection";
 import { SmartRecommendationExplainer } from "./SmartRecommendationExplainer";
@@ -12,16 +13,16 @@ interface PublicLandingHomeProps {
 }
 
 export function PublicLandingHome({ events }: PublicLandingHomeProps) {
-
   return (
-    <div className="space-y-10 sm:space-y-12">
-      {/* 1. Balanced 2-Column Hero Section with Layered Product Preview */}
+    <div className="space-y-8 sm:space-y-10">
+      {/* 1. Warm Editorial Athletic Hero Section with Authentic Race BIB */}
       <HeroSection />
 
-      {/* 2. Featured Races Preview Section ("Race Pilihan Minggu Ini") */}
+      {/* 2. Continuous Sports Marquee Ticker */}
+      <RaceTickerTape />
+
+      {/* 3. Featured Races Preview Section ("Race Pilihan Minggu Ini") */}
       <FeaturedRacesSection events={events} />
-
-
 
       {/* 4. Full Marketplace Search, Filter & Event Catalog */}
       <EventDiscoverySection initialEvents={events} />

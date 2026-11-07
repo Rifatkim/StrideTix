@@ -81,6 +81,22 @@
   background: linear-gradient(135deg, #FFFCF8 0%, #FFF8EE 55%, #FFE8CF 100%);
 }
 
+/* Continuous Sports Marquee Ticker */
+@keyframes sports-ticker {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-sports-ticker {
+  display: flex;
+  width: max-content;
+  animation: sports-ticker 32s linear infinite;
+}
+
+.animate-sports-ticker:hover {
+  animation-play-state: paused;
+}
+
 /* Custom scrollbar matching warm theme */
 ::-webkit-scrollbar {
   width: 8px;
