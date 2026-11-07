@@ -15,8 +15,8 @@ import { HeroAthleticBackdrop } from "./HeroAthleticBackdrop";
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-[#0D0402] min-h-[85vh] lg:min-h-[90vh] flex items-center pt-24 sm:pt-28 lg:pt-32 pb-16 sm:pb-20 border-b border-black/50">
-      {/* 1. Cinematic Photographic Athletic Runner with Golden-Orange Light Trails */}
+    <section className="relative overflow-hidden bg-[#0E0302] pt-8 pb-14 sm:pt-12 sm:pb-20 lg:pt-14 lg:pb-24 border-b border-black/50">
+      {/* 1. Cinematic Photographic Athletic Runner with Smooth Golden-Orange Light Trails (Zero Sparks/Dots) */}
       <HeroAthleticBackdrop />
 
       <Container className="relative z-10 w-full my-auto">
@@ -25,12 +25,6 @@ export function HeroSection() {
 
           {/* LEFT COLUMN: High-Contrast Athletic Typography, Actions & Trust Badges */}
           <div className="space-y-6 sm:space-y-7 text-left">
-            
-            {/* Pill Tagline */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-white/10 text-orange-200 border border-white/20 backdrop-blur-md shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse shadow-[0_0_8px_#FB923C]" />
-              <span>Smart Race Ticketing Platform</span>
-            </div>
 
             {/* Main Headline (with generous leading & bottom padding so descenders like 'g' never clip) */}
             <h1 className="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-black text-white tracking-tight leading-[1.18] sm:leading-[1.18]">
@@ -109,7 +103,7 @@ export function HeroSection() {
 
           {/* RIGHT COLUMN: The Authentic Athletic Race BIB Pass */}
           <div className="w-full flex justify-center lg:justify-end mt-4 sm:mt-6 lg:mt-0">
-            <HeroRaceBib notchBgClass="bg-[#0D0402]" />
+            <HeroRaceBib notchBgClass="bg-[#0E0302]" />
           </div>
 
         </div>

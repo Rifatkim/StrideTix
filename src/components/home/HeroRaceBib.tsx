@@ -9,7 +9,7 @@ interface HeroRaceBibProps {
   notchBgClass?: string;
 }
 
-export function HeroRaceBib({ notchBgClass = "bg-[#130704]" }: HeroRaceBibProps) {
+export function HeroRaceBib({ notchBgClass = "bg-[#0E0302]" }: HeroRaceBibProps) {
   return (
     <div className="relative w-full max-w-[440px] mx-auto select-none group">
       {/* Warm athletic ambient glow behind the bib */}
