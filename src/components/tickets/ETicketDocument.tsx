@@ -288,7 +288,7 @@ export function ETicketDocument({ ticket, qrDataUrl }: ETicketDocumentProps) {
         {/* Top Header Bar */}
         <View style={styles.topHeaderBar}>
           <Text style={styles.topBrandText}>
-            STRIDETIX — OFFICIAL RACE PASS & E-TICKET
+            STRIDETIX: OFFICIAL RACE PASS & E-TICKET
           </Text>
           <Text style={styles.topBrandSub}>
             BUKTI RESMI REGISTRASI PESERTA LOMBA

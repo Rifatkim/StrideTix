@@ -111,16 +111,17 @@ export function ResetPasswordStep({ onSuccess, onRetry, onCancel }: ResetPasswor
     setErrorMessage(null);
 
     if (password.length < 6) {
-      setErrorMessage("Password baru minimal 6 karakter.");
+      setErrorMessage("Password minimal 6 karakter.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage("Konfirmasi password tidak cocok.");
+      setErrorMessage("Konfirmasi password tidak cocok dengan password baru.");
       return;
     }
 
     setIsSubmitting(true);
+
     try {
       const supabase = createClient();
       const { error } = await supabase.auth.updateUser({
@@ -128,81 +129,96 @@ export function ResetPasswordStep({ onSuccess, onRetry, onCancel }: ResetPasswor
       });
 
       if (error) {
-        setErrorMessage(error.message || "Gagal memperbarui password akun.");
-        return;
+        setErrorMessage(
+          error.message || "Gagal memperbarui password akun Anda."
+        );
+      } else {
+        setIsSuccess(true);
       }
-
-      // Bersihkan sesi sementara pemulihan agar pengguna dapat login secara bersih
-      await supabase.auth.signOut().catch(() => {});
-
-      setIsSuccess(true);
     } catch (err: any) {
-      setErrorMessage(err.message || "Terjadi kesalahan saat menyimpan password baru.");
+      setErrorMessage(
+        err.message || "Terjadi kesalahan saat menyimpan password baru."
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // State: Memvalidasi Sesi
+  // State: Loading Verifikasi Sesi
   if (isValidatingSession) {
     return (
-      <div className="py-8 text-center space-y-3 animate-in fade-in">
-        <Loader2 className="w-7 h-7 animate-spin text-brand mx-auto" />
-        <p className="text-xs text-espresso-muted font-medium">
-          Memverifikasi tautan autentikasi akun...
+      <div className="py-10 text-center space-y-3 animate-in fade-in duration-200">
+        <Loader2 className="w-8 h-8 text-brand animate-spin mx-auto" />
+        <p className="text-xs text-espresso-muted">
+          Memverifikasi tautan pemulihan akun...
         </p>
       </div>
     );
   }
 
-  // State: Sesi Tidak Valid / Kedaluwarsa
+  // State: Sesi Tidak Valid / Kadaluwarsa
   if (!isSessionValid) {
     return (
-      <div className="space-y-5 text-center animate-in fade-in duration-200">
-        <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
-          <AlertCircle className="w-5 h-5" />
+      <div className="space-y-5 animate-in fade-in duration-200 text-center">
+        <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
+          <AlertCircle className="w-6 h-6" />
         </div>
-        <div className="space-y-1.5">
-          <h2 className="text-lg sm:text-xl font-bold text-espresso tracking-tight">
-            Tautan Kedaluwarsa atau Tidak Valid
+        <div className="space-y-1">
+          <h2 className="text-lg font-bold text-espresso">
+            Tautan Kedaluwarsa
           </h2>
-          <p className="text-xs text-espresso-muted leading-relaxed max-w-xs mx-auto">
-            {errorMessage || "Sesi autentikasi telah berakhir. Demi keamanan akun Anda, silakan minta tautan reset password yang baru."}
+          <p className="text-xs text-espresso-muted leading-relaxed max-w-sm mx-auto">
+            {errorMessage ||
+              "Tautan pemulihan akun ini sudah digunakan atau telah kedaluwarsa demi keamanan akun Anda."}
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={onRetry || onCancel}
-          className="w-full py-2.5 px-4 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-xs shadow-warm transition-all flex items-center justify-center gap-1.5 active:scale-95"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>Minta Tautan Baru</span>
-        </button>
+        <div className="pt-2 flex flex-col sm:flex-row gap-2">
+          {onRetry && (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="flex-1 py-2.5 px-4 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-xs shadow-warm transition-transform duration-150 ease-out active:scale-[0.97] flex items-center justify-center gap-1.5 min-h-[44px] touch-manipulation cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Minta Tautan Baru</span>
+            </button>
+          )}
+
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="py-2.5 px-4 rounded-btn border border-sand-border bg-surface-main hover:bg-stone-100 text-espresso font-semibold text-xs transition-transform duration-150 ease-out active:scale-[0.97] min-h-[44px] touch-manipulation cursor-pointer"
+            >
+              Kembali ke Login
+            </button>
+          )}
+        </div>
       </div>
     );
   }
 
-  // State: Sukses Ubah Password
+  // State: Berhasil Reset Password
   if (isSuccess) {
     return (
-      <div className="space-y-5 text-center animate-in fade-in duration-200">
-        <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-xs">
-          <CheckCircle2 className="w-5 h-5" />
+      <div className="space-y-5 animate-in fade-in duration-200 text-center py-2">
+        <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-xs">
+          <CheckCircle2 className="w-6 h-6" />
         </div>
-        <div className="space-y-1.5">
-          <h2 className="text-lg sm:text-xl font-bold text-espresso tracking-tight">
-            Password Berhasil Diperbarui!
+        <div className="space-y-1">
+          <h2 className="text-lg font-bold text-espresso">
+            Password Berhasil Diperbarui
           </h2>
-          <p className="text-xs text-espresso-muted leading-relaxed max-w-xs mx-auto">
-            Password akun Anda telah berhasil diganti. Silakan masuk menggunakan password baru Anda.
+          <p className="text-xs text-espresso-muted leading-relaxed">
+            Akun Anda telah diamankan dengan password baru. Silakan masuk kembali untuk melanjutkan.
           </p>
         </div>
 
         <button
           type="button"
           onClick={onSuccess}
-          className="w-full py-2.5 px-4 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm transition-all flex items-center justify-center gap-1.5 active:scale-95"
+          className="w-full h-12 px-4 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm transition-transform duration-150 ease-out flex items-center justify-center gap-1.5 active:scale-[0.97] touch-manipulation cursor-pointer"
         >
           <span>Masuk dengan Password Baru</span>
           <ArrowRight className="w-4 h-4" />
@@ -239,7 +255,7 @@ export function ResetPasswordStep({ onSuccess, onRetry, onCancel }: ResetPasswor
             Password Baru
           </label>
           <div className="relative">
-            <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
+            <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
             <input
               type="password"
               required
@@ -247,7 +263,7 @@ export function ResetPasswordStep({ onSuccess, onRetry, onCancel }: ResetPasswor
               placeholder="Minimal 6 karakter"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+              className="w-full pl-10 pr-4 h-12 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand transition-colors duration-150 ease-out touch-manipulation"
             />
           </div>
         </div>
@@ -257,7 +273,7 @@ export function ResetPasswordStep({ onSuccess, onRetry, onCancel }: ResetPasswor
             Konfirmasi Password Baru
           </label>
           <div className="relative">
-            <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
+            <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
             <input
               type="password"
               required
@@ -265,7 +281,7 @@ export function ResetPasswordStep({ onSuccess, onRetry, onCancel }: ResetPasswor
               placeholder="Ulangi password baru"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+              className="w-full pl-10 pr-4 h-12 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand transition-colors duration-150 ease-out touch-manipulation"
             />
           </div>
         </div>
@@ -273,7 +289,7 @@ export function ResetPasswordStep({ onSuccess, onRetry, onCancel }: ResetPasswor
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3 px-4 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-95"
+          className="w-full h-12 px-4 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm transition-transform duration-150 ease-out flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-[0.97] touch-manipulation select-none cursor-pointer"
         >
           {isSubmitting ? (
             <>

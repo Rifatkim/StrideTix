@@ -99,7 +99,7 @@ export function HeroProductPreview() {
             </div>
           </div>
 
-          {/* Strava 3-Metric Summary Grid */}
+          {/* Fitness 3-Metric Summary Grid */}
           <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-center pt-0.5 sm:pt-1">
             <div className="p-2 sm:p-2.5 rounded-xl bg-surface-main border border-sand-border/60">
               <span className="text-[9px] sm:text-[10px] font-bold text-espresso-muted block truncate">Pace Rata-rata</span>

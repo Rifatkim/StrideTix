@@ -40,14 +40,39 @@
 
   --shadow-card: 0 6px 24px rgba(58, 39, 24, 0.08);
   --shadow-card-hover: 0 14px 36px rgba(58, 39, 24, 0.14);
+
+  /* Emil Kowalski Design Engineering Easing Curves */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 @layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior-y: none;
+  }
+
   body {
     background-color: var(--color-background-main);
     color: var(--color-text-primary);
     font-family: var(--font-plus-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+  }
+
+  /* Prevent auto-zoom on iOS Safari: minimum 16px font size */
+  input, textarea, select {
+    font-size: 16px;
+  }
+
+  /* Eliminate 300ms tap delay & accidental text selection on touch controls */
+  button, a, [role="button"], input[type="submit"], input[type="button"] {
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
   }
 }
 
@@ -110,6 +135,6 @@
     border: 1.5px solid #241C17 !important;
     page-break-inside: avoid !important;
     max-width: 100% !important;
-    margin: 0 auto !important;
+    width: 100% !important;
   }
 }

@@ -62,7 +62,7 @@ export function OrganizerLandingHome({ events: initialEvents }: OrganizerLanding
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             <h1 className="text-lg sm:text-2xl font-black text-espresso tracking-tight">
-              {currentUser?.organizerName || currentUser?.name || "Stride Jakarta Athletics"}
+              {currentUser?.organizerName || currentUser?.name || "Penyelenggara Lomba"}
             </h1>
             <span title="Terverifikasi" className="inline-flex items-center"><CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /></span>
             <span className="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-brand-50 text-brand border border-brand/20 uppercase tracking-wider">
@@ -87,7 +87,7 @@ export function OrganizerLandingHome({ events: initialEvents }: OrganizerLanding
             className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-btn bg-white text-espresso font-bold text-[11px] sm:text-xs border border-sand-border shadow-sm hover:border-brand hover:text-brand transition-all active:scale-95 whitespace-nowrap"
           >
             <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand shrink-0" />
-            <span className="whitespace-nowrap">Buat</span>
+            <span className="whitespace-nowrap">Buat Event Baru</span>
           </Link>
         </div>
       </div>

@@ -117,8 +117,9 @@ export function UserNavDropdown({ compact = false }: UserNavDropdownProps) {
               {currentUser.email}
             </span>
             {currentUser.organizerName && (
-              <span className="text-[10px] font-semibold text-brand block mt-0.5">
-                🏢 {currentUser.organizerName}
+              <span className="text-[10px] font-semibold text-brand flex items-center gap-1 mt-0.5">
+                <Building className="w-3 h-3 shrink-0" />
+                <span>{currentUser.organizerName}</span>
               </span>
             )}
           </div>

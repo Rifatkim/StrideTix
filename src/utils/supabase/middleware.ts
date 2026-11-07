@@ -56,9 +56,11 @@ export const createClient = async (request: NextRequest) => {
   );
 
   // Refresh session by calling getUser only for active authenticated user navigations
-  await supabase.auth.getUser();
+  try {
+    await supabase.auth.getUser();
+  } catch {
+    // If the refresh token is missing or invalid, fail gracefully without throwing 400
+  }
 
   return supabaseResponse;
 };
-
-export const updateSession = createClient;

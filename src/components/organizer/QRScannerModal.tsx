@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { extractTicketCode } from "@/utils/ticketCode";
-export { extractTicketCode };
 import {
   Camera,
   X,

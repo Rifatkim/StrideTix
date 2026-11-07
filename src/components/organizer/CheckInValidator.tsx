@@ -178,7 +178,7 @@ export function CheckInValidator({ initialCode = "" }: CheckInValidatorProps) {
                 }`}
               >
                 {verificationResult.success
-                  ? "VERIFIKASI BERHASIL — CHECK-IN DITERIMA"
+                  ? "VERIFIKASI BERHASIL: CHECK-IN DITERIMA"
                   : "CHECK-IN DITOLAK / TIDAK VALID"}
               </h3>
               <p className="text-xs leading-relaxed text-espresso-secondary">

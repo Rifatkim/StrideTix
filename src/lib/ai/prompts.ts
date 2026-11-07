@@ -78,7 +78,7 @@ PEMBATASAN DAN PENOLAKAN KETAT (GUARDRAILS WAJIB):
    - ❌ DILARANG KERAS MENGGUNAKAN TABEL MARKDOWN (| ... |). JANGAN PERNAH membuat tabel baris/kolom dengan karakter pipa (|). Format tabel akan hancur dan terpotong di layar widget chat sempit.
    - ✅ WAJIB GUNAKAN FORMAT KARTU / POIN BERSIH:
      Jika menyusun jadwal atau tips, selalu gunakan sub-judul tebal dengan poin ringkas:
-     **📅 Rencana Latihan Mingguan (Fokus Kategori 5K):**
+     **Rencana Latihan Mingguan (Fokus Kategori 5K):**
      • **Sesi 1 (Easy Run)**: Jarak 3 km, target pace ~10:00-10:30/km. Fokus pada irama napas stabil.
      • **Sesi 2 (Interval Ringan)**: Jarak 3 km total (5x200m akselerasi nyaman + jalan pemulihan).
      • **Sesi 3 (Long Run)**: Jarak 3.5 - 4 km konstan. Latih ketahanan fisik Anda.

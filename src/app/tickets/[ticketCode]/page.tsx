@@ -101,11 +101,11 @@ export default function TicketDetailPage() {
               Kode tiket <code className="bg-sand-warm px-1.5 py-0.5 rounded font-mono font-bold text-espresso">{ticketCode}</code> tidak terdaftar dalam database atau akun Anda tidak memiliki hak akses atas tiket ini.
             </p>
             <Link
-              href="/"
+              href="/tickets"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-btn bg-brand text-white font-semibold text-xs shadow-sm hover:bg-brand-800 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Kembali ke Beranda</span>
+              <span>Kembali ke Tiket Saya</span>
             </Link>
           </div>
         )}

@@ -136,18 +136,6 @@ export async function register(payload: RegisterPayload): Promise<AuthUser> {
   };
 }
 
-export async function updateRunnerProfile(runnerProfile: Record<string, any>): Promise<void> {
-  const supabase = createClient();
-  const { error } = await supabase.auth.updateUser({
-    data: {
-      runner_profile: runnerProfile,
-    },
-  });
-  if (error) {
-    console.warn("Failed to persist runner profile to Supabase user metadata:", error.message);
-  }
-}
-
 export async function logout(): Promise<void> {
   const supabase = createClient();
   await supabase.auth.signOut();

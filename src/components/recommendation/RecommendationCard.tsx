@@ -150,7 +150,7 @@ export function RecommendationCard() {
           Catatan aktivitas Anda baru merekam {currentProfile.summary.totalRuns} sesi lari. Rekomendasi personal memerlukan minimal 3 aktivitas lari dalam 4–8 minggu terakhir untuk analisis yang akurat.
         </p>
         <div className="text-[11px] text-espresso-muted bg-white p-3 rounded-btn border border-sand-border">
-          💡 Anda tetap bebas memilih kategori tiket yang diinginkan secara mandiri.
+          Catatan: Anda tetap bebas memilih kategori tiket lomba yang diinginkan secara mandiri.
         </div>
       </div>
     );
@@ -254,7 +254,7 @@ export function RecommendationCard() {
         </ul>
       </div>
 
-      {/* Strava Key Metrics Pill */}
+      {/* Fitness Key Metrics Pill */}
       <div className="grid grid-cols-3 gap-2 bg-white/80 p-3 rounded-btn border border-sand-border text-center text-xs">
         <div>
           <span className="text-[10px] text-espresso-muted block">Longest Run</span>

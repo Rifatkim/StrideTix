@@ -49,14 +49,14 @@ export function RunnerHomeBanner() {
           {/* Kolom Kiri (~62%): Greeting Bersih & Deskripsi */}
           <div className="lg:w-[62%] space-y-1.5 sm:space-y-2">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-espresso tracking-tight leading-tight">
-              Halo, {currentUser?.name || "Pelari Hebat"}!
+              Halo, {currentUser?.name || "Pelari"}!
             </h1>
             <p className="text-xs sm:text-sm text-espresso-secondary max-w-3xl leading-relaxed">
               Temukan race lari terkurasi dan gunakan analitik kebugaran Anda untuk memilih kategori jarak yang paling realistis dan aman.
             </p>
           </div>
 
-          {/* Kolom Kanan (~38%): Aksi Cepat Tiket & Strava AI, Rata Kanan di Desktop */}
+          {/* Kolom Kanan (~38%): Aksi Cepat Tiket & Fitness AI, Rata Kanan di Desktop */}
           <div className="lg:w-[38%] flex flex-wrap sm:flex-nowrap items-center lg:justify-end gap-3 shrink-0">
             <Link
               href="/tickets"
@@ -79,7 +79,7 @@ export function RunnerHomeBanner() {
 
         {/* 2. Statistic Cards: Grid 3-Kolom Penuh Berdasarkan Data Backend */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
-          {/* Card 1: Status Kebugaran / Strava */}
+          {/* Card 1: Status Kebugaran / Fitness Activity */}
           <div className="bg-white rounded-card p-4 sm:p-5 border border-sand-border shadow-warm flex items-center gap-3.5 hover:shadow-warm-hover transition-all">
             <div className="w-12 h-12 rounded-xl bg-orange-50 text-accent-strava flex items-center justify-center shrink-0 border border-orange-200/60">
               <Activity className="w-6 h-6" />

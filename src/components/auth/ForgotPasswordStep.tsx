@@ -78,14 +78,19 @@ export function ForgotPasswordStep({ initialEmail = "", onBack }: ForgotPassword
             Alamat Email Akun
           </label>
           <div className="relative">
-            <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
+            <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
             <input
               type="email"
+              inputMode="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              enterKeyHint="send"
               required
               placeholder="nama@email.com"
               value={forgotEmail}
               onChange={(e) => setForgotEmail(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+              className="w-full pl-10 pr-4 h-12 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors duration-150 ease-out touch-manipulation"
             />
           </div>
         </div>
@@ -94,7 +99,7 @@ export function ForgotPasswordStep({ initialEmail = "", onBack }: ForgotPassword
           <button
             type="button"
             onClick={onBack}
-            className="w-full py-2.5 px-4 rounded-btn border border-sand-border bg-surface-main hover:bg-stone-100 text-espresso font-semibold text-xs transition-colors flex items-center justify-center gap-1.5"
+            className="w-full h-12 px-4 rounded-btn border border-sand-border bg-surface-main hover:bg-stone-100 active:scale-[0.97] transition-transform duration-150 ease-out text-espresso font-semibold text-xs flex items-center justify-center gap-1.5 select-none touch-manipulation cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Kembali</span>
@@ -103,7 +108,7 @@ export function ForgotPasswordStep({ initialEmail = "", onBack }: ForgotPassword
           <button
             type="submit"
             disabled={isSendingReset}
-            className="w-full py-2.5 px-4 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-xs shadow-warm transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+            className="w-full h-12 px-4 rounded-btn bg-brand hover:bg-brand-800 active:scale-[0.97] transition-transform duration-150 ease-out text-white font-bold text-xs shadow-warm flex items-center justify-center gap-1.5 disabled:opacity-50 select-none touch-manipulation cursor-pointer"
           >
             {isSendingReset ? (
               <>
@@ -119,4 +124,3 @@ export function ForgotPasswordStep({ initialEmail = "", onBack }: ForgotPassword
     </div>
   );
 }
-

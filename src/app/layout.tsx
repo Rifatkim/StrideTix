@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -9,10 +9,21 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FFFCF8" },
+    { media: "(prefers-color-scheme: dark)", color: "#241C17" },
+  ],
+};
+
 export const metadata: Metadata = {
-  title: "StrideTix — Platform E-Ticket Event Lari & Smart Distance Recommendation",
+  title: "StrideTix: Platform E-Ticket Event Lari & Rekomendasi Jarak",
   description:
-    "Temukan event lari impian, beli tiket dengan aman, dan dapatkan rekomendasi kategori jarak lari (5K, 10K, Half Marathon, Full Marathon) berdasarkan analisis riwayat dan data latihan lari Anda.",
+    "Cari event lari resmi, beli tiket lomba, dan dapatkan rekomendasi kategori jarak lari berdasarkan analisis riwayat latihan Anda.",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",

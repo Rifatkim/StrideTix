@@ -7,6 +7,12 @@
       "skillPath": "skills/antislop/SKILL.md",
       "computedHash": "e263d21c173627572f12ba679494ebf86f6b8f4863ac3e470383ecff28d8d279"
     },
+    "antislop-copywriting": {
+      "source": "miqdadbadjuber/anti-slop",
+      "sourceType": "github",
+      "skillPath": "skills/antislop-copywriting/SKILL.md",
+      "computedHash": "506633a939259f1a4d0defdb36e6462cde1ac78d31026829cb5c5e8f4a5fae07"
+    },
     "api-and-interface-design": {
       "source": "addyosmani/agent-skills",
       "sourceType": "github",

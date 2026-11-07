@@ -74,14 +74,14 @@ export function TwoFactorOtpStep({
             onChange={(e) =>
               setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))
             }
-            className="w-full text-center tracking-[0.5em] text-2xl font-mono py-3 font-extrabold rounded-input bg-surface-main border border-sand-border text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+            className="w-full text-center tracking-[0.5em] text-2xl font-mono py-3 font-extrabold rounded-input bg-surface-main border border-sand-border text-espresso focus:outline-none focus:ring-2 focus:ring-brand transition-colors duration-150 ease-out touch-manipulation"
           />
         </div>
 
         <button
           type="submit"
           disabled={isVerifying || otpCode.length !== 6}
-          className="w-full py-3 px-6 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+          className="w-full h-12 px-6 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm active:scale-[0.97] transition-transform duration-150 ease-out flex items-center justify-center gap-2 disabled:opacity-50 touch-manipulation select-none cursor-pointer"
         >
           {isVerifying ? (
             <>
@@ -102,7 +102,7 @@ export function TwoFactorOtpStep({
         <button
           type="button"
           onClick={onCancel}
-          className="inline-flex items-center gap-1 text-espresso-muted hover:text-espresso font-semibold transition-colors"
+          className="inline-flex items-center gap-1 text-espresso-muted hover:text-espresso font-semibold transition-colors duration-150 min-h-[44px] px-1 touch-manipulation active:scale-[0.97]"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Kembali</span>
@@ -112,7 +112,7 @@ export function TwoFactorOtpStep({
           type="button"
           onClick={onResend}
           disabled={countdown > 0 || isResending}
-          className="inline-flex items-center gap-1 font-bold text-brand hover:underline disabled:text-espresso-muted disabled:no-underline transition-colors"
+          className="inline-flex items-center gap-1 font-bold text-brand hover:underline disabled:text-espresso-muted disabled:no-underline transition-colors duration-150 min-h-[44px] px-1 touch-manipulation active:scale-[0.97]"
         >
           <RefreshCw
             className={`w-3.5 h-3.5 ${isResending ? "animate-spin" : ""}`}
@@ -125,4 +125,3 @@ export function TwoFactorOtpStep({
     </div>
   );
 }
-

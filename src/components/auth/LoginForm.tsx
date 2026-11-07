@@ -5,9 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { createClient } from "@/utils/supabase/client";
-import { AuthUser } from "@/types";
-import { ArrowRight, Lock, Mail, AlertCircle, Loader2, CheckCircle2 } from "lucide-react";
-import { StrideTixSymbol } from "@/components/brand/StrideTixLogo";
+import { ArrowRight, Lock, Mail, AlertCircle, Loader2, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { ForgotPasswordStep } from "./ForgotPasswordStep";
 import { TwoFactorOtpStep } from "./TwoFactorOtpStep";
 import { ResetPasswordStep } from "./ResetPasswordStep";
@@ -23,6 +21,7 @@ export function LoginForm() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // View Step: "credentials" | "2fa_otp" | "forgot_password" | "reset_password"
   const [step, setStep] = useState<"credentials" | "2fa_otp" | "forgot_password" | "reset_password">("credentials");
@@ -117,85 +116,91 @@ export function LoginForm() {
         // Simpan kredensial sementara hanya di memori state React untuk login nanti setelah OTP diverifikasi
         setPendingCredentials({ email: normalizedEmail, password });
         setStep("2fa_otp");
+        setOtpError(null);
         setCountdown(60);
 
-        // Kirim email OTP via Resend API
+        // 2. Trigger pengiriman OTP ke Gmail pengguna
         try {
-          await fetch("/api/auth/2fa/send", {
+          const otpRes = await fetch("/api/auth/send-otp", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: normalizedEmail }),
           });
-        } catch (sendErr) {
-          console.warn("Could not dispatch 2FA OTP email:", sendErr);
+
+          if (!otpRes.ok) {
+            const otpData = await otpRes.json();
+            setOtpError(otpData.error || "Gagal mengirimkan kode OTP ke email Anda.");
+          }
+        } catch {
+          setOtpError("Terjadi gangguan saat mengirimkan kode verifikasi 2FA.");
         }
-      } else {
-        // Direct login jika 2FA tidak aktif
-        await login({ email, password });
-        handlePostLoginRedirect();
+
+        setIsSubmitting(false);
+        return;
       }
+
+      // Login normal tanpa 2FA
+      await login({ email: normalizedEmail, password });
+      handlePostLoginRedirect();
     } catch (err: any) {
       setErrorMessage(
-        err.message || "Email atau password yang Anda masukkan salah."
+        err.message || "Email atau password salah. Silakan coba kembali."
       );
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleVerifyOtp = async (code: string) => {
-    setOtpError(null);
-    setIsVerifyingOtp(true);
+  const handleVerifyOtp = async (token: string) => {
+    if (!pendingCredentials) {
+      setOtpError("Sesi verifikasi telah kedaluwarsa. Silakan login ulang.");
+      setStep("credentials");
+      return;
+    }
 
-    const targetEmail = pendingCredentials?.email || email.trim();
+    setIsVerifyingOtp(true);
+    setOtpError(null);
 
     try {
-      const res = await fetch("/api/auth/2fa/verify", {
+      const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: targetEmail,
-          otp: code.trim(),
+          email: pendingCredentials.email,
+          token: token.trim(),
         }),
       });
 
       const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        setOtpError(data.error || "Kode OTP tidak valid atau telah kadaluarsa.");
+      if (!res.ok) {
+        setOtpError(data.error || "Kode OTP tidak valid atau sudah kedaluwarsa.");
+        setIsVerifyingOtp(false);
         return;
       }
 
-      if (!pendingCredentials) {
-        setOtpError("Sesi verifikasi kadaluarsa. Silakan masukkan password kembali.");
-        setStep("credentials");
-        return;
-      }
-
-      // Kredensial & OTP Valid: Sekarang lakukan login resmi ke Supabase
+      // OTP Valid -> Eksekusi login final
       await login({
         email: pendingCredentials.email,
         password: pendingCredentials.password,
       });
-
-      // Verification success -> proceed to homepage or redirect URL
+      setPendingCredentials(null);
       handlePostLoginRedirect();
-    } catch (err: any) {
-      setOtpError(err.message || "Gagal memverifikasi kode OTP.");
+    } catch {
+      setOtpError("Gagal memverifikasi kode OTP. Silakan coba lagi.");
     } finally {
       setIsVerifyingOtp(false);
     }
   };
 
   const handleResendOtp = async () => {
-    if (countdown > 0 || isResendingOtp) return;
+    const targetEmail = pendingCredentials?.email || email.trim().toLowerCase();
+    if (!targetEmail) return;
+
     setIsResendingOtp(true);
     setOtpError(null);
 
-    const targetEmail = pendingCredentials?.email || email.trim();
-
     try {
-      const res = await fetch("/api/auth/2fa/send", {
+      const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: targetEmail }),
@@ -222,41 +227,17 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-3 sm:space-y-3.5">
-      {/* Logo di atas, tepat di bawahnya langsung nama merk */}
-      <div className="flex flex-col items-center justify-center">
-        <Link
-          href="/"
-          className="inline-flex flex-col items-center group transition-transform active:scale-95"
-          aria-label="Beranda StrideTix"
-        >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand text-white flex items-center justify-center shadow-warm group-hover:bg-brand-800 transition-colors">
-            <StrideTixSymbol size={20} color="#FFFFFF" />
-          </div>
-          <span className="font-extrabold text-sm tracking-tight text-espresso mt-1 group-hover:text-brand transition-colors">
-            Stride<span className="text-brand">Tix</span>
-          </span>
-        </Link>
-      </div>
-
+    <div className="w-full space-y-4">
       {/* Frame Konten Form */}
-      <div className="bg-white rounded-modal p-5 sm:p-6 sm:py-6 border border-sand-border shadow-warm-modal space-y-4">
+      <div className="bg-white rounded-modal p-6 sm:p-7 border border-sand-border shadow-warm-modal space-y-4">
         {step === "credentials" && (
           <>
             {/* Informational banner when redirected from checkout */}
             {redirectParam && (
               <div className="p-3 rounded-xl bg-amber-50 border border-amber-200/80 text-xs text-amber-900 leading-relaxed animate-in fade-in">
-                Silakan masuk terlebih dahulu untuk melanjutkan pembelian tiket
-                lomba.
+                Silakan masuk terlebih dahulu untuk melanjutkan pembelian tiket lomba.
               </div>
             )}
-
-            {/* Header: Judul minimalis */}
-            <div className="text-center">
-              <h2 className="text-lg sm:text-xl font-bold text-espresso tracking-tight">
-                Masuk
-              </h2>
-            </div>
 
             {/* Success Message Banner */}
             {infoMessage && (
@@ -275,26 +256,31 @@ export function LoginForm() {
             )}
 
             {/* Standard Login Form */}
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <div className="space-y-1">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
                 <label className="text-xs font-bold text-espresso">
                   Alamat Email
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
+                  <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
                   <input
                     id="email-input"
                     type="email"
+                    inputMode="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    enterKeyHint="next"
                     required
                     placeholder="nama@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 sm:py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+                    className="w-full pl-10 pr-4 h-12 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors duration-150 ease-out touch-manipulation"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-espresso">
                     Password
@@ -306,32 +292,43 @@ export function LoginForm() {
                       setInfoMessage(null);
                       setStep("forgot_password");
                     }}
-                    className="text-xs font-semibold text-brand hover:underline transition-colors"
+                    className="text-xs font-semibold text-brand hover:underline transition-colors min-h-[44px] flex items-center px-1 touch-manipulation active:scale-[0.97]"
                   >
                     Lupa Password?
                   </button>
                 </div>
                 <div className="relative">
-                  <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
+                  <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
                   <input
                     id="password-input"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    enterKeyHint="done"
                     required
                     placeholder="Masukkan password akun"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 sm:py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+                    className="w-full pl-10 pr-12 h-12 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors duration-150 ease-out touch-manipulation"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-espresso-muted hover:text-espresso transition-colors duration-150 ease-out touch-manipulation select-none active:scale-[0.92]"
+                    aria-label={showPassword ? "Sembunyikan password" : "Lihat password"}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
               {/* Tombol Masuk Penuh Selebar Container */}
-              <div className="pt-1">
+              <div className="pt-2">
                 <button
                   id="login-submit-btn"
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-2.5 sm:py-2.5 px-6 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
+                  className="w-full h-12 px-6 rounded-btn bg-brand hover:bg-brand-800 active:scale-[0.97] transition-transform duration-150 ease-out text-white font-bold text-sm shadow-warm flex items-center justify-center gap-2 group disabled:opacity-50 select-none touch-manipulation cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>
@@ -340,8 +337,8 @@ export function LoginForm() {
                     </>
                   ) : (
                     <>
-                      <span>Masuk</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      <span>Masuk ke Akun</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-150 ease-out" />
                     </>
                   )}
                 </button>
@@ -349,7 +346,7 @@ export function LoginForm() {
             </form>
 
             {/* Footer Link: Belum memiliki akun? Daftar di Sini */}
-            <div className="text-center text-xs text-espresso-secondary pt-2 border-t border-sand-border/60">
+            <div className="text-center text-xs text-espresso-secondary pt-3 border-t border-sand-border/60">
               Belum memiliki akun?{" "}
               <Link
                 href={`/register${
@@ -357,9 +354,9 @@ export function LoginForm() {
                     ? `?redirect=${encodeURIComponent(redirectParam)}`
                     : ""
                 }`}
-                className="font-bold text-brand hover:underline"
+                className="font-bold text-brand hover:underline inline-flex items-center min-h-[44px] px-1 touch-manipulation"
               >
-                Daftar di Sini
+                Daftar Sekarang
               </Link>
             </div>
           </>

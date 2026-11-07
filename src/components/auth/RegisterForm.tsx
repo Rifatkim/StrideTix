@@ -4,8 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowRight, Building, Lock, Mail, User, AlertCircle, Loader2 } from "lucide-react";
-import { StrideTixSymbol } from "@/components/brand/StrideTixLogo";
+import { ArrowRight, Building, Lock, Mail, User, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -19,6 +18,7 @@ export function RegisterForm() {
   const [email, setEmail] = useState("");
   const [organizerName, setOrganizerName] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -27,7 +27,7 @@ export function RegisterForm() {
     setErrorMessage(null);
     setIsSubmitting(true);
     try {
-      const user = await register({
+      await register({
         name,
         email,
         password,
@@ -51,140 +51,152 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-3 sm:space-y-3.5">
-      {/* Logo di atas, tepat di bawahnya langsung nama merk */}
-      <div className="flex flex-col items-center justify-center">
-        <Link
-          href="/"
-          className="inline-flex flex-col items-center group transition-transform active:scale-95"
-          aria-label="Beranda StrideTix"
-        >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand text-white flex items-center justify-center shadow-warm group-hover:bg-brand-800 transition-colors">
-            <StrideTixSymbol size={20} color="#FFFFFF" />
-          </div>
-          <span className="font-extrabold text-sm tracking-tight text-espresso mt-1 group-hover:text-brand transition-colors">
-            Stride<span className="text-brand">Tix</span>
-          </span>
-        </Link>
-      </div>
-
+    <div className="w-full space-y-4">
       {/* Frame / Card Utama */}
-      <div className="bg-white rounded-modal p-5 sm:p-6 sm:py-6 border border-sand-border shadow-warm-modal space-y-4">
-        {/* Header */}
-        <div className="text-center">
-          <h2 className="text-lg sm:text-xl font-bold text-espresso tracking-tight">Daftar</h2>
-        </div>
-
+      <div className="bg-white rounded-modal p-6 sm:p-7 border border-sand-border shadow-warm-modal space-y-4">
         {/* Role Picker Pills */}
         <div className="space-y-1.5">
           <label className="text-xs font-bold text-espresso block">Pilih Jenis Akun</label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2.5">
             <button
               type="button"
               onClick={() => setRole("runner")}
-              className={`py-2 px-3 rounded-btn border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+              className={`min-h-[52px] p-3 rounded-btn border text-left flex flex-col justify-center gap-1 touch-manipulation select-none active:scale-[0.97] transition-transform duration-150 ease-out ${
                 role === "runner"
                   ? "bg-brand text-white border-brand shadow-sm"
-                  : "bg-surface-main text-espresso border-sand-border hover:bg-brand-50"
+                  : "bg-surface-main text-espresso border-sand-border hover:bg-brand-50/50 hover:border-brand/40"
               }`}
             >
-              <User className="w-3.5 h-3.5" />
-              <span>Pelari</span>
+              <div className="flex items-center gap-1.5 font-bold text-xs">
+                <User className="w-3.5 h-3.5 shrink-0" />
+                <span>Pelari (Runner)</span>
+              </div>
+              <span className={`text-[10px] leading-tight ${role === "runner" ? "text-white/80" : "text-espresso-muted"}`}>
+                Daftar & beli tiket resmi
+              </span>
             </button>
 
             <button
               type="button"
               onClick={() => setRole("organizer")}
-              className={`py-2 px-3 rounded-btn border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+              className={`min-h-[52px] p-3 rounded-btn border text-left flex flex-col justify-center gap-1 touch-manipulation select-none active:scale-[0.97] transition-transform duration-150 ease-out ${
                 role === "organizer"
                   ? "bg-brand text-white border-brand shadow-sm"
-                  : "bg-surface-main text-espresso border-sand-border hover:bg-brand-50"
+                  : "bg-surface-main text-espresso border-sand-border hover:bg-brand-50/50 hover:border-brand/40"
               }`}
             >
-              <Building className="w-3.5 h-3.5" />
-              <span>Penyelenggara</span>
+              <div className="flex items-center gap-1.5 font-bold text-xs">
+                <Building className="w-3.5 h-3.5 shrink-0" />
+                <span>Penyelenggara (EO)</span>
+              </div>
+              <span className={`text-[10px] leading-tight ${role === "organizer" ? "text-white/80" : "text-espresso-muted"}`}>
+                Kelola event & scan tiket
+              </span>
             </button>
           </div>
         </div>
 
         {/* Error Alert */}
         {errorMessage && (
-          <div className="p-3 rounded-xl bg-accent-error/10 border border-accent-error/20 flex items-start gap-2 text-xs text-accent-error">
+          <div className="p-3 rounded-xl bg-accent-error/10 border border-accent-error/20 flex items-start gap-2 text-xs text-accent-error animate-in fade-in">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{errorMessage}</span>
           </div>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="space-y-1">
+        <form onSubmit={handleSubmit} className="space-y-3.5">
+          <div className="space-y-1.5">
             <label className="text-xs font-bold text-espresso">Nama Lengkap</label>
             <div className="relative">
-              <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
+              <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
               <input
                 type="text"
                 required
+                autoCapitalize="words"
+                enterKeyHint="next"
                 placeholder="Contoh: Budi Pratama"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 sm:py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+                className="w-full h-12 pl-10 pr-4 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors duration-150 ease-out touch-manipulation"
               />
             </div>
           </div>
 
           {role === "organizer" && (
-            <div className="space-y-1 animate-in fade-in duration-150">
+            <div className="space-y-1.5 animate-in fade-in duration-150">
               <label className="text-xs font-bold text-espresso">Nama Organisasi / Komunitas EO</label>
               <div className="relative">
-                <Building className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
+                <Building className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
                 <input
                   type="text"
                   required
-                  placeholder="Contoh: Stride Jakarta Athletics"
+                  autoCapitalize="words"
+                  enterKeyHint="next"
+                  placeholder="Contoh: Stride Athletics ID"
                   value={organizerName}
                   onChange={(e) => setOrganizerName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 sm:py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+                  className="w-full h-12 pl-10 pr-4 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors duration-150 ease-out touch-manipulation"
                 />
               </div>
             </div>
           )}
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <label className="text-xs font-bold text-espresso">Alamat Email</label>
             <div className="relative">
-              <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
+              <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
               <input
                 type="email"
                 required
+                inputMode="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                enterKeyHint="next"
                 placeholder="nama@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 sm:py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+                className="w-full h-12 pl-10 pr-4 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors duration-150 ease-out touch-manipulation"
               />
             </div>
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <label className="text-xs font-bold text-espresso">Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted" />
+              <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 minLength={6}
+                autoCapitalize="none"
+                autoCorrect="off"
+                enterKeyHint="done"
                 placeholder="Minimal 6 karakter"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 sm:py-2.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand"
+                className="w-full h-12 pl-10 pr-12 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors duration-150 ease-out touch-manipulation"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-espresso-muted hover:text-espresso transition-colors duration-150 ease-out touch-manipulation select-none active:scale-[0.92]"
+                aria-label={showPassword ? "Sembunyikan password" : "Lihat password"}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
+            <span className="text-[10px] text-espresso-muted block">
+              Gunakan minimal 6 karakter kombinasi huruf dan angka.
+            </span>
           </div>
 
-          <div className="pt-1">
+          <div className="pt-2">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-2.5 sm:py-2.5 px-6 rounded-btn bg-brand hover:bg-brand-800 text-white font-bold text-sm shadow-warm transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
+              className="w-full h-12 min-h-[48px] px-6 rounded-btn bg-brand hover:bg-brand-800 active:scale-[0.97] text-white font-bold text-sm shadow-warm transition-transform duration-150 ease-out flex items-center justify-center gap-2 group disabled:opacity-50 touch-manipulation select-none cursor-pointer"
             >
               {isSubmitting ? (
                 <>
@@ -194,7 +206,7 @@ export function RegisterForm() {
               ) : (
                 <>
                   <span>Buat Akun Sekarang</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-150 ease-out" />
                 </>
               )}
             </button>
@@ -202,11 +214,11 @@ export function RegisterForm() {
         </form>
 
         {/* Footer Link */}
-        <div className="text-center text-xs text-espresso-secondary pt-2 border-t border-sand-border/60">
+        <div className="text-center text-xs text-espresso-secondary pt-3 border-t border-sand-border/60">
           Sudah memiliki akun?{" "}
           <Link
             href={`/login${redirectParam ? `?redirect=${encodeURIComponent(redirectParam)}` : ""}`}
-            className="font-bold text-brand hover:underline"
+            className="font-bold text-brand hover:underline min-h-[44px] inline-flex items-center px-1 touch-manipulation"
           >
             Masuk di Sini
           </Link>

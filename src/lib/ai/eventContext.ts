@@ -185,7 +185,7 @@ export async function fetchActiveEventsContext(supabase: SupabaseClient): Promis
     lines.push("   - Kategori & Harga Tiket:");
     ev.categories.forEach((cat) => {
       lines.push(
-        `     • ${cat.name} (${cat.distanceKm}K) — ${formatRupiah(cat.price)} (Sisa Kuota: ${cat.remainingQuota})`
+        `     • ${cat.name} (${cat.distanceKm}K): ${formatRupiah(cat.price)} (Sisa Kuota: ${cat.remainingQuota})`
       );
     });
   });

@@ -33,7 +33,7 @@ export function ChatbotWidget() {
     {
       id: "initial-msg",
       sender: "bot",
-      text: "Halo! Saya Asisten Lari StrideTix 🏃 didukung oleh Groq AI. Ada yang bisa saya bantu seputar persiapan lomba, checklist perlengkapan, hidrasi, atau strategi pace Anda?",
+      text: "Halo! Saya Asisten Lari StrideTix. Ada yang bisa saya bantu seputar persiapan lomba, checklist perlengkapan, hidrasi, atau strategi pace Anda?",
     },
   ]);
   const [inputValue, setInputValue] = useState("");

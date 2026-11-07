@@ -179,7 +179,7 @@ export function FitnessSyncMethods() {
           <div className="p-3 rounded-btn bg-sand-warm/60 border border-sand-border flex items-start gap-2.5 text-[11px] text-espresso-secondary">
             <Info className="w-4 h-4 text-brand shrink-0 mt-0.5" />
             <p className="leading-relaxed">
-              Mendukung berkas ekspor aktivitas dari <strong>Strava</strong>, <strong>Garmin Connect</strong>, <strong>Coros</strong>, <strong>Nike Run Club</strong>, dan aplikasi GPS lainnya.
+              Mendukung berkas ekspor aktivitas dari <strong>Garmin Connect</strong>, <strong>Coros</strong>, <strong>Nike Run Club</strong>, dan aplikasi pelacak GPS lainnya.
             </p>
           </div>
         </form>

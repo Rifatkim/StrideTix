@@ -123,7 +123,7 @@ export async function getTicketByCode(ticketCode: string): Promise<ETicket | nul
   }
 }
 
-export async function createTicket(params: {
+export async function createTicketOrder(params: {
   event: {
     id: string;
     title: string;
@@ -155,8 +155,6 @@ export async function createTicket(params: {
 
   return data.ticket;
 }
-
-export const createTicketOrder = createTicket;
 
 export async function getParticipantsByEvent(eventId: string): Promise<ETicket[]> {
   try {
