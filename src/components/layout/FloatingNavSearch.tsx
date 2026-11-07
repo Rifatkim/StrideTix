@@ -1,16 +1,36 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import React, { useState, useRef, useEffect, Suspense } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search, X, ArrowRight } from "lucide-react";
 
-export function FloatingNavSearch() {
+function FloatingNavSearchInner() {
   const router = useRouter();
   const pathname = usePathname();
-  const [query, setQuery] = useState("");
+  const searchParams = useSearchParams();
+  const qFromUrl = searchParams?.get("q") ?? "";
+
+  const [query, setQuery] = useState(qFromUrl);
   const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const mobileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync state if URL search param changes
+  useEffect(() => {
+    if (qFromUrl !== undefined) {
+      setQuery(qFromUrl);
+    }
+  }, [qFromUrl]);
+
+  // Sync state if user types in main EventFilterBar
+  useEffect(() => {
+    const handleNavSync = (e: Event) => {
+      const val = (e as CustomEvent<string>).detail ?? "";
+      setQuery(val);
+    };
+    window.addEventListener("stridetix:nav-sync", handleNavSync);
+    return () => window.removeEventListener("stridetix:nav-sync", handleNavSync);
+  }, []);
 
   useEffect(() => {
     if (isMobileModalOpen && mobileInputRef.current) {
@@ -18,21 +38,43 @@ export function FloatingNavSearch() {
     }
   }, [isMobileModalOpen]);
 
+  const executeSearch = (targetQuery: string) => {
+    const trimmed = targetQuery.trim();
+
+    // 1. Instant event dispatch for immediate in-page reactivity
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("stridetix:search", { detail: trimmed })
+      );
+    }
+
+    // 2. Smooth scroll to event catalog
+    const eventSection =
+      document.getElementById("jelajahi-event") ||
+      document.getElementById("events-section");
+    if (eventSection) {
+      eventSection.scrollIntoView({ behavior: "smooth" });
+    }
+
+    // 3. Update URL with query param
+    if (trimmed) {
+      router.push(`/?q=${encodeURIComponent(trimmed)}#jelajahi-event`, {
+        scroll: false,
+      });
+    } else {
+      router.push(`/#jelajahi-event`, { scroll: false });
+    }
+  };
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim()) return;
-
     setIsMobileModalOpen(false);
+    executeSearch(query);
+  };
 
-    if (pathname === "/") {
-      const eventSection = document.getElementById("jelajahi-event") || document.getElementById("events-section");
-      if (eventSection) {
-        eventSection.scrollIntoView({ behavior: "smooth" });
-      }
-      router.push(`/?q=${encodeURIComponent(query.trim())}#jelajahi-event`);
-    } else {
-      router.push(`/?q=${encodeURIComponent(query.trim())}#jelajahi-event`);
-    }
+  const handleClear = () => {
+    setQuery("");
+    executeSearch("");
   };
 
   return (
@@ -55,7 +97,7 @@ export function FloatingNavSearch() {
         {query && (
           <button
             type="button"
-            onClick={() => setQuery("")}
+            onClick={handleClear}
             className="text-espresso-muted hover:text-espresso p-0.5 rounded-full"
             aria-label="Hapus kata kunci"
           >
@@ -103,7 +145,7 @@ export function FloatingNavSearch() {
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Nama event, kota, atau jarak..."
+                  placeholder="Nama event, kota, atau rute..."
                   className="w-full bg-transparent text-sm text-espresso placeholder:text-espresso-muted outline-none px-2"
                 />
               </div>
@@ -119,5 +161,17 @@ export function FloatingNavSearch() {
         </div>
       )}
     </>
+  );
+}
+
+export function FloatingNavSearch() {
+  return (
+    <Suspense
+      fallback={
+        <div className="hidden md:flex w-36 lg:w-48 xl:w-60 h-8.5 sm:h-9 rounded-full bg-[#F7F3EE] animate-pulse" />
+      }
+    >
+      <FloatingNavSearchInner />
+    </Suspense>
   );
 }

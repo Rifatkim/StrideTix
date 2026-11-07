@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DistanceCategory, RunningEvent } from "@/types";
 import { Container } from "@/components/layout/Container";
 import { EventFilterBar, FilterState } from "@/components/events/EventFilterBar";
@@ -21,10 +22,39 @@ const DEFAULT_FILTERS: FilterState = {
   sortBy: "date-asc",
 };
 
-export function EventDiscoverySection({
+function EventDiscoverySectionContent({
   initialEvents,
 }: EventDiscoverySectionProps) {
-  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const qParam = searchParams?.get("q") ?? "";
+
+  const [filters, setFilters] = useState<FilterState>(() => ({
+    ...DEFAULT_FILTERS,
+    searchQuery: qParam,
+  }));
+
+  // 1. Sync filter whenever URL query parameter 'q' changes
+  useEffect(() => {
+    if (qParam !== undefined) {
+      setFilters((prev) => {
+        if (prev.searchQuery === qParam) return prev;
+        return { ...prev, searchQuery: qParam };
+      });
+    }
+  }, [qParam]);
+
+  // 2. Listen to instant custom event from navbar search
+  useEffect(() => {
+    const handleInstantSearch = (e: Event) => {
+      const targetQuery = (e as CustomEvent<string>).detail ?? "";
+      setFilters((prev) => ({ ...prev, searchQuery: targetQuery }));
+    };
+
+    window.addEventListener("stridetix:search", handleInstantSearch);
+    return () =>
+      window.removeEventListener("stridetix:search", handleInstantSearch);
+  }, []);
 
   // Extract unique cities from initial events
   const availableCities = useMemo(() => {
@@ -37,10 +67,25 @@ export function EventDiscoverySection({
     value: FilterState[K]
   ) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
+
+    // If search query is changed in this bar, sync to FloatingNavSearch
+    if (key === "searchQuery") {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("stridetix:nav-sync", { detail: value as string })
+        );
+      }
+    }
   };
 
   const handleResetFilters = () => {
     setFilters(DEFAULT_FILTERS);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("stridetix:nav-sync", { detail: "" })
+      );
+    }
+    router.push("/#jelajahi-event", { scroll: false });
   };
 
   // Reactive Multi-dimensional Filter & Sorting
@@ -135,20 +180,28 @@ export function EventDiscoverySection({
   }, [initialEvents, filters]);
 
   return (
-    <section id="jelajahi-event" className="py-6 sm:py-8 space-y-6 scroll-mt-20 md:scroll-mt-24 relative">
+    <section
+      id="jelajahi-event"
+      className="py-6 sm:py-8 space-y-6 scroll-mt-20 md:scroll-mt-24 relative"
+    >
       {/* Anchor alias for backwards compatibility */}
-      <span id="events-section" className="absolute -top-24" aria-hidden="true" />
+      <span
+        id="events-section"
+        className="absolute -top-24"
+        aria-hidden="true"
+      />
       <Container className="space-y-6">
-        {/* Section Header: Lebar & Proporsional */}
+        {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-sand-border pb-3.5">
           <div>
             <span className="text-xs uppercase font-black tracking-wider text-brand">
               Marketplace Event Lari
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-espresso tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-black text-espresso tracking-tight mt-0.5">
               Jelajahi Event Lari Aktif
             </h2>
           </div>
+
           <div className="flex items-center gap-2 text-xs text-espresso-muted">
             <span>
               Menampilkan{" "}
@@ -204,5 +257,22 @@ export function EventDiscoverySection({
         )}
       </Container>
     </section>
+  );
+}
+
+export function EventDiscoverySection(props: EventDiscoverySectionProps) {
+  return (
+    <Suspense
+      fallback={
+        <section
+          id="jelajahi-event"
+          className="py-12 text-center text-espresso-muted text-xs"
+        >
+          Memuat katalog event...
+        </section>
+      }
+    >
+      <EventDiscoverySectionContent {...props} />
+    </Suspense>
   );
 }
