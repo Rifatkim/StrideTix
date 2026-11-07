@@ -60,7 +60,7 @@ export function SafetyWarningModal({
             Kategori <strong>{selectedCategoryName}</strong> berada <strong>di atas rekomendasi latihan Anda saat ini</strong> (Rekomendasi sistem: <strong>{recommendedCategoryName}</strong>).
           </p>
           <p>
-            Berdasarkan data Strava Anda, jarak lari terjauh (long run) yang tercatat adalah <strong>{longestRunKm} km</strong>. Memilih jarak yang melompat terlalu jauh dapat meningkatkan risiko cedera otot, kelelahan berlebih, atau gagal menyelesaikan lomba (*Did Not Finish / DNF*).
+            Berdasarkan catatan latihan Anda, jarak lari terjauh (long run) yang tercatat adalah <strong>{longestRunKm} km</strong>. Memilih jarak yang melompat terlalu jauh dapat meningkatkan risiko cedera otot, kelelahan berlebih, atau gagal menyelesaikan lomba (*Did Not Finish / DNF*).
           </p>
         </div>
 

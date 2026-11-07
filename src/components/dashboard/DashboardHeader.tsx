@@ -82,7 +82,7 @@ export function DashboardHeader({ onEdit, className = "" }: DashboardHeaderProps
             {currentUser?.email || "runner@stridetix.com"}
           </p>
 
-          {/* Baris 3: Lokasi & Status Strava */}
+          {/* Baris 3: Lokasi & Status Latihan */}
           <div className="flex items-center gap-2 mt-1 text-[11px] text-stone-500">
             <span className="inline-flex items-center gap-1 shrink-0">
               <MapPin className="w-3 h-3 text-stone-400" />
@@ -95,7 +95,7 @@ export function DashboardHeader({ onEdit, className = "" }: DashboardHeaderProps
               }`}
             >
               <Activity className="w-3 h-3" />
-              <span>{isConnectedToStrava ? "Strava Sync" : "Offline"}</span>
+              <span>{isConnectedToStrava ? "Data Latihan Aktif" : "Offline"}</span>
             </span>
           </div>
         </div>

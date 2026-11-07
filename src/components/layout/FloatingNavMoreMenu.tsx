@@ -169,7 +169,7 @@ export function FloatingNavMoreMenu({
                 className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-espresso-secondary hover:text-espresso hover:bg-surface-soft transition-colors"
               >
                 <Activity className="w-3.5 h-3.5 text-accent-strava" />
-                <span>Aktivitas Strava</span>
+                <span>Riwayat Latihan</span>
               </Link>
               <Link
                 href="/dashboard?tab=profile"

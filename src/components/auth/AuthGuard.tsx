@@ -29,7 +29,7 @@ const ROLE_INFO: Record<
     label: "Pelari (Runner)",
     icon: User,
     title: "Portal Peserta Lomba Lari",
-    desc: "Akses tiket aktif, riwayat latihan Strava, dan profil kontak darurat Anda.",
+    desc: "Akses tiket aktif, riwayat latihan lari, dan profil kontak darurat Anda.",
   },
   organizer: {
     label: "Penyelenggara (Organizer)",

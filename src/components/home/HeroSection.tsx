@@ -56,7 +56,7 @@ export function HeroSection() {
             {/* Refined Description */}
             <div className="space-y-1.5 sm:space-y-2 max-w-xl text-stone-100 text-xs sm:text-base leading-relaxed font-normal drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
               <p>
-                Cari event lari, beli tiket, dan dapatkan rekomendasi kategori 5K hingga Marathon berdasarkan riwayat latihan Strava Anda.
+                Cari event lari, beli tiket, dan dapatkan rekomendasi kategori 5K hingga Marathon berdasarkan riwayat dan data latihan lari Anda.
               </p>
               <p className="text-[11px] sm:text-sm text-stone-200">
                 Rekomendasi bersifat informatif dan membantu Anda mempertimbangkan pilihan kategori.

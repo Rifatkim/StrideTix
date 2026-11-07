@@ -20,7 +20,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-espresso-muted text-sm max-w-sm leading-relaxed">
-              Platform e-ticket lomba lari dengan fitur Smart Distance Recommendation yang menganalisis latihan Strava Anda untuk pemilihan kategori jarak lomba yang tepat dan aman.
+              Platform e-ticket lomba lari dengan fitur Smart Distance Recommendation yang menganalisis riwayat latihan lari Anda untuk pemilihan kategori jarak lomba yang tepat dan aman.
             </p>
           </div>
 

@@ -18,7 +18,7 @@ export function SmartRecommendationExplainer() {
             Smart Distance Recommendation
           </h2>
           <p className="text-sm sm:text-base text-espresso-secondary">
-            Bukan sekadar tebak-tebakan. Kami menghubungkan riwayat lari mingguan Anda dari Strava ke mesin kalkulasi deterministik untuk merekomendasikan jarak lomba yang paling aman dan terukur.
+            Bukan sekadar tebak-tebakan. Kami menghubungkan riwayat lari dan profil kebugaran Anda ke mesin kalkulasi deterministik untuk merekomendasikan jarak lomba yang paling aman dan terukur.
           </p>
         </div>
 
@@ -30,10 +30,10 @@ export function SmartRecommendationExplainer() {
               1
             </div>
             <h3 className="text-lg font-bold text-espresso">
-              1. Sinkronisasi Data Strava
+              1. Sinkronisasi Data Latihan
             </h3>
             <p className="text-xs text-espresso-secondary leading-relaxed">
-              Sistem mengambil data aktivitas lari (*distance*, *longest run*, *weekly frequency*, dan *pace*) secara aman melalui OAuth 2.0.
+              Input data aktivitas lari (*longest run*, *weekly frequency*, dan *pace*) secara instan via Form Mandiri, berkas GPX/CSV, atau Persona Simulator.
             </p>
           </div>
 

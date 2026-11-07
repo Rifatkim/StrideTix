@@ -89,7 +89,7 @@ export function RecommendationCard() {
         <div className="flex items-center gap-2.5">
           <Sparkles className="w-4 h-4 text-brand shrink-0" />
           <span className="text-xs text-espresso font-medium leading-relaxed">
-            Masuk sebagai <strong>Pelari</strong> untuk mengaktifkan fitur Smart Distance AI berbasis data Strava.
+            Masuk sebagai <strong>Pelari</strong> untuk mengaktifkan fitur Smart Distance AI berbasis riwayat latihan Anda.
           </span>
         </div>
         <Link
@@ -143,11 +143,11 @@ export function RecommendationCard() {
         <div className="flex items-center gap-2 text-espresso">
           <Info className="w-5 h-5 text-accent-info" />
           <h3 className="text-sm font-extrabold text-espresso">
-            Data Aktivitas Strava Belum Cukup
+            Data Aktivitas Lari Belum Cukup
           </h3>
         </div>
         <p className="text-xs text-espresso-secondary leading-relaxed">
-          Akun Strava Anda baru merekam {currentProfile.summary.totalRuns} aktivitas lari. Rekomendasi personal memerlukan minimal 3 aktivitas lari dalam 4–8 minggu terakhir untuk analisis yang akurat.
+          Catatan aktivitas Anda baru merekam {currentProfile.summary.totalRuns} sesi lari. Rekomendasi personal memerlukan minimal 3 aktivitas lari dalam 4–8 minggu terakhir untuk analisis yang akurat.
         </p>
         <div className="text-[11px] text-espresso-muted bg-white p-3 rounded-btn border border-sand-border">
           💡 Anda tetap bebas memilih kategori tiket yang diinginkan secara mandiri.

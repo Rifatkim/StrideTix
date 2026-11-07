@@ -81,7 +81,7 @@ export function RunnerProfileHeader({
               }`}
             >
               <Activity className="w-3 h-3" />
-              <span>{isConnectedToStrava ? "Strava Sync" : "Offline"}</span>
+              <span>{isConnectedToStrava ? "Data Latihan Aktif" : "Offline"}</span>
             </span>
           </div>
         </div>

@@ -25,13 +25,13 @@ export function HeroProductPreview() {
       {/* 2. Composition Container for the Stacked Product Cards */}
       <div className="relative w-full max-w-[460px]">
 
-        {/* Mobile: Clean Strava Sync Badge cleanly positioned above the card to prevent any overlap */}
+        {/* Mobile: Clean Data Latihan Badge cleanly positioned above the card to prevent any overlap */}
         <div className="sm:hidden flex items-center justify-end mb-2.5 pr-1">
           <div className="bg-white/95 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/60 shadow-xs flex items-center gap-2">
             <div className="w-5 h-5 rounded-full bg-orange-50 text-accent-strava flex items-center justify-center shrink-0">
               <Activity className="w-3 h-3" />
             </div>
-            <span className="text-[11px] font-bold text-espresso">Strava Terhubung</span>
+            <span className="text-[11px] font-bold text-espresso">Data Latihan Terhubung</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           </div>
         </div>
@@ -43,10 +43,10 @@ export function HeroProductPreview() {
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-black text-espresso">Strava Terhubung</span>
+              <span className="text-xs font-black text-espresso">Data Latihan Terhubung</span>
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <p className="text-[10px] text-espresso-muted">Aktivitas terakhir disinkronkan</p>
+            <p className="text-[10px] text-espresso-muted">Aktivitas latihan terverifikasi</p>
           </div>
         </div>
 
@@ -117,7 +117,7 @@ export function HeroProductPreview() {
 
           {/* Action Link Footer */}
           <div className="pt-1 flex items-center justify-between text-xs border-t border-sand-border/60">
-            <span className="text-[10px] sm:text-[11px] text-espresso-muted truncate mr-2">Analisis fisiologis Strava aman</span>
+            <span className="text-[10px] sm:text-[11px] text-espresso-muted truncate mr-2">Analisis kesiapan fisik aman & terukur</span>
             <Link
               href="#recommendation-explainer"
               className="inline-flex items-center gap-1 text-xs font-bold text-brand hover:underline shrink-0"

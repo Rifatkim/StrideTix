@@ -12,7 +12,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "StrideTix — Platform E-Ticket Event Lari & Smart Distance Recommendation",
   description:
-    "Temukan event lari impian, beli tiket dengan aman, dan dapatkan rekomendasi kategori jarak lari (5K, 10K, Half Marathon, Full Marathon) berdasarkan analisis aktivitas Strava Anda.",
+    "Temukan event lari impian, beli tiket dengan aman, dan dapatkan rekomendasi kategori jarak lari (5K, 10K, Half Marathon, Full Marathon) berdasarkan analisis riwayat dan data latihan lari Anda.",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
