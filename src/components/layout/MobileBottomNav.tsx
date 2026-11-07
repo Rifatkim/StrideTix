@@ -4,6 +4,7 @@ import React, { Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useLandingScrollSpy } from "@/hooks/useLandingScrollSpy";
 import {
   Compass,
   Ticket,
@@ -27,8 +28,17 @@ function MobileBottomNavInner() {
   const searchParams = useSearchParams();
   const tabParam = searchParams?.get("tab");
   const { currentUser, role } = useAuth();
+  const { activeSection, scrollToSection } = useLandingScrollSpy();
 
   const isExactActive = (path: string) => pathname === path;
+
+  // Guest landing active state mapping (matches desktop: only active when inside that section, inactive on top/hero)
+  const isGuestLanding = pathname === "/";
+  const isKalenderActive = isGuestLanding && activeSection === "kalender-lomba";
+  const isJelajahiActive = isGuestLanding
+    ? activeSection === "jelajahi-event"
+    : pathname.startsWith("/events");
+  const isAiActive = isGuestLanding && activeSection === "smart-distance-ai";
 
   // Do not render bottom nav on dedicated auth pages
   if (pathname === "/login" || pathname === "/register") {
@@ -264,40 +274,98 @@ function MobileBottomNavInner() {
         {/* 4. GUEST / BELUM LOGIN */}
         {!currentUser && (
           <>
+            {/* 1. Kalender Lomba */}
             <Link
-              href="/"
+              href="/#kalender-lomba"
+              onClick={(e) => {
+                if (pathname === "/") {
+                  e.preventDefault();
+                  scrollToSection("kalender-lomba");
+                }
+              }}
               className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 ${
-                isExactActive("/") ? "text-brand font-bold" : "text-espresso-muted hover:text-espresso"
+                isKalenderActive
+                  ? "text-brand font-bold"
+                  : "text-espresso-muted hover:text-espresso"
               }`}
             >
-              <Compass className={`w-5 h-5 ${isExactActive("/") ? "stroke-[2.5]" : "stroke-[1.75]"}`} />
-              <span className="text-[10px] mt-0.5 tracking-tight font-medium">Jelajahi</span>
+              <Calendar
+                className={`w-5 h-5 ${
+                  isKalenderActive ? "stroke-[2.5]" : "stroke-[1.75]"
+                }`}
+              />
+              <span className="text-[10px] mt-0.5 tracking-tight font-medium">
+                Kalender
+              </span>
             </Link>
 
+            {/* 2. Jelajahi Event */}
             <Link
-              href="/#events-section"
-              className="flex flex-col items-center justify-center flex-1 py-1 text-espresso-muted hover:text-espresso transition-transform active:scale-95"
+              href="/#jelajahi-event"
+              onClick={(e) => {
+                if (pathname === "/") {
+                  e.preventDefault();
+                  scrollToSection("jelajahi-event");
+                }
+              }}
+              className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 ${
+                isJelajahiActive
+                  ? "text-brand font-bold"
+                  : "text-espresso-muted hover:text-espresso"
+              }`}
             >
-              <Calendar className="w-5 h-5 stroke-[1.75]" />
-              <span className="text-[10px] mt-0.5 tracking-tight font-medium">Kalender</span>
+              <Compass
+                className={`w-5 h-5 ${
+                  isJelajahiActive ? "stroke-[2.5]" : "stroke-[1.75]"
+                }`}
+              />
+              <span className="text-[10px] mt-0.5 tracking-tight font-medium">
+                Jelajahi
+              </span>
             </Link>
 
+            {/* 3. Tentang Smart AI */}
             <Link
-              href="/#recommendation-info"
-              className="flex flex-col items-center justify-center flex-1 py-1 text-espresso-muted hover:text-espresso transition-transform active:scale-95"
+              href="/#smart-distance-ai"
+              onClick={(e) => {
+                if (pathname === "/") {
+                  e.preventDefault();
+                  scrollToSection("smart-distance-ai");
+                }
+              }}
+              className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 ${
+                isAiActive
+                  ? "text-brand font-bold"
+                  : "text-espresso-muted hover:text-espresso"
+              }`}
             >
-              <Sparkles className="w-5 h-5 stroke-[1.75]" />
-              <span className="text-[10px] mt-0.5 tracking-tight font-medium">Fitur AI</span>
+              <Activity
+                className={`w-5 h-5 ${
+                  isAiActive ? "stroke-[2.5]" : "stroke-[1.75]"
+                }`}
+              />
+              <span className="text-[10px] mt-0.5 tracking-tight font-medium">
+                Smart AI
+              </span>
             </Link>
 
+            {/* 4. Masuk Akun */}
             <Link
               href="/login"
               className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 ${
-                isExactActive("/login") ? "text-brand font-bold" : "text-espresso-muted hover:text-espresso"
+                isExactActive("/login")
+                  ? "text-brand font-bold"
+                  : "text-espresso-muted hover:text-espresso"
               }`}
             >
-              <User className={`w-5 h-5 ${isExactActive("/login") ? "stroke-[2.5]" : "stroke-[1.75]"}`} />
-              <span className="text-[10px] mt-0.5 tracking-tight font-medium">Masuk</span>
+              <User
+                className={`w-5 h-5 ${
+                  isExactActive("/login") ? "stroke-[2.5]" : "stroke-[1.75]"
+                }`}
+              />
+              <span className="text-[10px] mt-0.5 tracking-tight font-medium">
+                Masuk
+              </span>
             </Link>
           </>
         )}

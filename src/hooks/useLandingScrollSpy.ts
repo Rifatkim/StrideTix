@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 export type LandingNavSectionId = "jelajahi-event" | "kalender-lomba" | "smart-distance-ai";
@@ -20,10 +20,16 @@ export function useLandingScrollSpy(): UseLandingScrollSpyReturn {
   const pathname = usePathname();
   const isLandingPage = pathname === "/";
   const [activeSection, setActiveSection] = useState<LandingNavSectionId | null>(null);
+  const programmaticScrollUntilRef = useRef<number>(0);
 
   const calculateActiveSection = useCallback(() => {
     if (typeof window === "undefined" || !isLandingPage) {
       setActiveSection(null);
+      return;
+    }
+
+    // Do not override active section during active programmatic smooth scrolling animation
+    if (Date.now() < programmaticScrollUntilRef.current) {
       return;
     }
 
@@ -74,6 +80,14 @@ export function useLandingScrollSpy(): UseLandingScrollSpyReturn {
       return;
     }
 
+    // Check URL hash on initial mount
+    if (typeof window !== "undefined" && window.location.hash) {
+      const hash = window.location.hash.replace("#", "") as LandingNavSectionId;
+      if (SECTION_IDS.includes(hash)) {
+        setActiveSection(hash);
+      }
+    }
+
     let ticking = false;
 
     const handleScroll = () => {
@@ -106,6 +120,7 @@ export function useLandingScrollSpy(): UseLandingScrollSpyReturn {
       if (targetEl) {
         // Set immediately for instant visual feedback
         setActiveSection(sectionId);
+        programmaticScrollUntilRef.current = Date.now() + 850;
 
         targetEl.scrollIntoView({ behavior: "smooth" });
 
