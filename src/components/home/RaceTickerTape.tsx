@@ -95,7 +95,7 @@ const THEME_STYLES: Record<
 
 export function RaceTickerTape() {
   return (
-    <div className="w-full bg-[#120503] border-y border-white/10 overflow-hidden py-3 sm:py-3.5 select-none">
+    <div className="w-full bg-[#120B07] border-y border-white/10 overflow-hidden py-3 sm:py-3.5 select-none">
       <div className="animate-sports-ticker flex items-center gap-4 sm:gap-6 px-4">
         {/* Render duplicate items for infinite smooth ticker animation */}
         {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, idx) => {

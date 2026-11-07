@@ -15,8 +15,8 @@ import { HeroAthleticBackdrop } from "./HeroAthleticBackdrop";
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-[#0E0302] pt-8 pb-14 sm:pt-12 sm:pb-20 lg:pt-14 lg:pb-24 border-b border-black/50">
-      {/* 1. Cinematic Photographic Athletic Runner with Smooth Golden-Orange Light Trails (Zero Sparks/Dots) */}
+    <section className="relative overflow-hidden bg-[#120B07] pt-8 pb-14 sm:pt-12 sm:pb-20 lg:pt-14 lg:pb-24 border-b border-stone-800/80">
+      {/* 1. Authentic Marathon Event Photo with Clean Directional Dark Gradient */}
       <HeroAthleticBackdrop />
 
       <Container className="relative z-10 w-full my-auto">
@@ -27,7 +27,7 @@ export function HeroSection() {
           <div className="space-y-6 sm:space-y-7 text-left">
 
             {/* Main Headline (with generous leading & bottom padding so descenders like 'g' never clip) */}
-            <h1 className="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-black text-white tracking-tight leading-[1.18] sm:leading-[1.18]">
+            <h1 className="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-black text-white tracking-tight leading-[1.18] sm:leading-[1.18] drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
               Temukan Race yang{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-orange-500 inline-block pb-3 pr-2 drop-shadow-[0_2px_16px_rgba(234,88,12,0.45)]">
                 Sesuai Langkahmu.
@@ -35,7 +35,7 @@ export function HeroSection() {
             </h1>
 
             {/* Supporting Copy */}
-            <p className="text-sm sm:text-base text-stone-200/90 leading-relaxed max-w-xl font-normal">
+            <p className="text-sm sm:text-base text-stone-100/90 leading-relaxed max-w-xl font-normal drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
               Beli tiket event lari resmi dengan verifikasi QR instan, dan dapatkan rekomendasi kategori jarak (5K hingga Marathon) yang paling aman berdasarkan kesiapan fisik Anda untuk mencegah risiko cedera atau DNF.
             </p>
 
@@ -103,7 +103,7 @@ export function HeroSection() {
 
           {/* RIGHT COLUMN: The Authentic Athletic Race BIB Pass */}
           <div className="w-full flex justify-center lg:justify-end mt-4 sm:mt-6 lg:mt-0">
-            <HeroRaceBib notchBgClass="bg-[#0E0302]" />
+            <HeroRaceBib notchBgClass="bg-[#120B07]" />
           </div>
 
         </div>
