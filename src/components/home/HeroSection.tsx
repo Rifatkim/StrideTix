@@ -9,56 +9,40 @@ import {
   QrCode,
   ShieldCheck,
   ArrowRight,
-  Flame,
 } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { HeroRaceBib } from "./HeroRaceBib";
+import { HeroAthleticBackdrop } from "./HeroAthleticBackdrop";
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-warm-hero border-b border-sand-border pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pt-14 lg:pb-20">
-      {/* 1. Subtle Athletic Track Curve Contours (Background Aesthetics) */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-40 overflow-hidden" aria-hidden="true">
-        <svg
-          className="absolute -top-24 -right-24 w-[600px] h-[600px] sm:w-[900px] sm:h-[900px] text-brand-200/40"
-          viewBox="0 0 800 800"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle cx="400" cy="400" r="380" stroke="currentColor" strokeWidth="1.5" strokeDasharray="6 6" />
-          <circle cx="400" cy="400" r="320" stroke="currentColor" strokeWidth="1.5" />
-          <circle cx="400" cy="400" r="260" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" />
-          <circle cx="400" cy="400" r="200" stroke="currentColor" strokeWidth="1" />
-        </svg>
-
-        {/* Soft Warm Radial Ambient Light */}
-        <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full bg-brand-100/60 blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-80 h-80 rounded-full bg-orange-200/40 blur-3xl" />
-      </div>
+    <section className="relative overflow-hidden bg-[#110603] pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pt-14 lg:pb-20 border-b border-black/40">
+      {/* 1. Dynamic Athletic Runner Speed Backdrop (Inspired by Sports Motion Blur) */}
+      <HeroAthleticBackdrop />
 
       <Container className="relative z-10 w-full my-auto">
         {/* 2. Balanced 2-Column Athletic Grid: Left Content (54%) & Right Race BIB (46%) */}
         <div className="grid grid-cols-1 lg:grid-cols-[54%_46%] gap-8 sm:gap-10 xl:gap-14 items-center">
 
-          {/* LEFT COLUMN: Editorial Typography, Action CTAs & Trust Badges */}
+          {/* LEFT COLUMN: High-Contrast Athletic Typography, Actions & Trust Badges */}
           <div className="space-y-6 sm:space-y-7 text-left">
             
             {/* Pill Tagline */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-brand-50 text-brand border border-brand/20 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-white/10 text-orange-200 border border-white/20 backdrop-blur-md shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse shadow-[0_0_8px_#FB923C]" />
               <span>Smart Race Ticketing Platform</span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-black text-espresso tracking-tight leading-[1.12]">
+            <h1 className="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-black text-white tracking-tight leading-[1.12]">
               Temukan Race yang{" "}
-              <span className="text-brand inline-block underline decoration-brand-200 decoration-wavy decoration-2 underline-offset-8">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-orange-500 inline-block drop-shadow-[0_2px_16px_rgba(234,88,12,0.45)]">
                 Sesuai Langkahmu.
               </span>
             </h1>
 
             {/* Supporting Copy */}
-            <p className="text-sm sm:text-base text-espresso-secondary leading-relaxed max-w-xl font-medium">
+            <p className="text-sm sm:text-base text-stone-200/90 leading-relaxed max-w-xl font-normal">
               Beli tiket event lari resmi dengan verifikasi QR instan, dan dapatkan rekomendasi kategori jarak (5K hingga Marathon) yang paling aman berdasarkan kesiapan fisik Anda untuk mencegah risiko cedera atau DNF.
             </p>
 
@@ -66,7 +50,7 @@ export function HeroSection() {
             <div className="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <a
                 href="#jelajahi-event"
-                className="px-6 py-3.5 sm:px-7 sm:py-4 rounded-btn bg-brand hover:bg-brand-800 text-white font-extrabold text-sm sm:text-base shadow-warm hover:shadow-warm-hover transition-all flex items-center justify-center gap-2 group active:scale-95"
+                className="px-6 py-3.5 sm:px-7 sm:py-4 rounded-full bg-brand hover:bg-orange-600 text-white font-extrabold text-sm sm:text-base shadow-[0_4px_24px_rgba(194,65,12,0.5)] transition-all flex items-center justify-center gap-2 group active:scale-95 border border-orange-400/30"
               >
                 <Compass className="w-4 h-4" />
                 <span>Temukan Event Lari</span>
@@ -75,46 +59,46 @@ export function HeroSection() {
 
               <a
                 href="#smart-distance-ai"
-                className="px-5 py-3.5 sm:px-6 sm:py-4 rounded-btn bg-white hover:bg-brand-50 text-brand font-bold text-sm sm:text-base border-2 border-brand/30 hover:border-brand transition-all flex items-center justify-center gap-2 shadow-2xs active:scale-95"
+                className="px-5 py-3.5 sm:px-6 sm:py-4 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-sm sm:text-base border border-white/25 backdrop-blur-md transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95"
               >
-                <Activity className="w-4 h-4 text-brand" />
+                <Activity className="w-4 h-4 text-orange-300" />
                 <span>Coba Smart Recommendation</span>
               </a>
             </div>
 
-            {/* Three Athletic Trust Badges (Warm White Cards per DESIGN.md) */}
-            <div className="pt-4 border-t border-sand-border/80">
+            {/* Three Athletic Trust Badges (Frosted Glass Capsules) */}
+            <div className="pt-4 border-t border-white/15">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 
                 {/* Badge 1 */}
-                <div className="bg-white/90 backdrop-blur-xs p-3 rounded-xl border border-sand-border shadow-2xs space-y-1">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-espresso">
-                    <QrCode className="w-4 h-4 text-brand shrink-0" />
+                <div className="bg-black/40 backdrop-blur-md p-3.5 rounded-xl border border-white/10 hover:border-white/25 shadow-lg space-y-1 transition-all">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                    <QrCode className="w-4 h-4 text-orange-400 shrink-0" />
                     <span>E-Ticket QR Resmi</span>
                   </div>
-                  <p className="text-[11px] text-espresso-muted leading-tight">
+                  <p className="text-[11px] text-stone-300 leading-tight">
                     Kode QR unik anti-duplikasi untuk race pack & check-in.
                   </p>
                 </div>
 
                 {/* Badge 2 */}
-                <div className="bg-white/90 backdrop-blur-xs p-3 rounded-xl border border-sand-border shadow-2xs space-y-1">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-espresso">
-                    <Sparkles className="w-4 h-4 text-accent-ai shrink-0" />
+                <div className="bg-black/40 backdrop-blur-md p-3.5 rounded-xl border border-white/10 hover:border-white/25 shadow-lg space-y-1 transition-all">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                    <Sparkles className="w-4 h-4 text-purple-300 shrink-0" />
                     <span>Smart Distance AI</span>
                   </div>
-                  <p className="text-[11px] text-espresso-muted leading-tight">
+                  <p className="text-[11px] text-stone-300 leading-tight">
                     Rekomendasi jarak terukur mitigasi risiko DNF & cedera.
                   </p>
                 </div>
 
                 {/* Badge 3 */}
-                <div className="bg-white/90 backdrop-blur-xs p-3 rounded-xl border border-sand-border shadow-2xs space-y-1">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-espresso">
-                    <ShieldCheck className="w-4 h-4 text-accent-success shrink-0" />
+                <div className="bg-black/40 backdrop-blur-md p-3.5 rounded-xl border border-white/10 hover:border-white/25 shadow-lg space-y-1 transition-all">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>Kuota Terverifikasi</span>
                   </div>
-                  <p className="text-[11px] text-espresso-muted leading-tight">
+                  <p className="text-[11px] text-stone-300 leading-tight">
                     Ketersediaan tiket diperbarui langsung oleh organizer resmi.
                   </p>
                 </div>
@@ -126,7 +110,7 @@ export function HeroSection() {
 
           {/* RIGHT COLUMN: The Authentic Athletic Race BIB Pass */}
           <div className="w-full flex justify-center lg:justify-end mt-4 sm:mt-6 lg:mt-0">
-            <HeroRaceBib />
+            <HeroRaceBib notchBgClass="bg-[#110603]" />
           </div>
 
         </div>

@@ -5,23 +5,27 @@ import Link from "next/link";
 import { Sparkles, CheckCircle2, ShieldCheck, ArrowRight, Zap, QrCode } from "lucide-react";
 import { StrideTixSymbol } from "@/components/brand/StrideTixLogo";
 
-export function HeroRaceBib() {
+interface HeroRaceBibProps {
+  notchBgClass?: string;
+}
+
+export function HeroRaceBib({ notchBgClass = "bg-[#130704]" }: HeroRaceBibProps) {
   return (
     <div className="relative w-full max-w-[440px] mx-auto select-none group">
-      {/* Subtle warm athletic ambient glow behind the bib */}
+      {/* Warm athletic ambient glow behind the bib */}
       <div
-        className="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-brand/20 via-orange-400/15 to-transparent blur-2xl pointer-events-none"
+        className="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-brand/35 via-orange-500/25 to-amber-300/20 blur-2xl pointer-events-none"
         aria-hidden="true"
       />
 
       {/* --- THE PHYSICAL ATHLETIC RACE BIB (NOMOR DADA LARI) --- */}
-      <div className="relative bg-white rounded-[22px] border-2 border-stone-200/90 shadow-[0_20px_50px_rgba(58,39,24,0.15)] p-5 sm:p-6 transition-transform duration-300 hover:-translate-y-1 overflow-hidden">
+      <div className="relative bg-white rounded-[22px] border-2 border-stone-200/90 shadow-[0_25px_60px_rgba(0,0,0,0.5),0_0_35px_rgba(234,88,12,0.25)] p-5 sm:p-6 transition-transform duration-300 hover:-translate-y-1 overflow-hidden">
         
-        {/* 4 Corner Safety Pin Holes (Grommets) */}
-        <div className="absolute top-3.5 left-3.5 w-3.5 h-3.5 rounded-full border-2 border-stone-300 bg-sand-muted shadow-inner pointer-events-none" />
-        <div className="absolute top-3.5 right-3.5 w-3.5 h-3.5 rounded-full border-2 border-stone-300 bg-sand-muted shadow-inner pointer-events-none" />
-        <div className="absolute bottom-3.5 left-3.5 w-3.5 h-3.5 rounded-full border-2 border-stone-300 bg-sand-muted shadow-inner pointer-events-none" />
-        <div className="absolute bottom-3.5 right-3.5 w-3.5 h-3.5 rounded-full border-2 border-stone-300 bg-sand-muted shadow-inner pointer-events-none" />
+        {/* 4 Corner Safety Pin Holes (Grommets showing dark background through) */}
+        <div className={`absolute top-3.5 left-3.5 w-3.5 h-3.5 rounded-full border-2 border-stone-300 ${notchBgClass} shadow-inner pointer-events-none`} />
+        <div className={`absolute top-3.5 right-3.5 w-3.5 h-3.5 rounded-full border-2 border-stone-300 ${notchBgClass} shadow-inner pointer-events-none`} />
+        <div className={`absolute bottom-3.5 left-3.5 w-3.5 h-3.5 rounded-full border-2 border-stone-300 ${notchBgClass} shadow-inner pointer-events-none`} />
+        <div className={`absolute bottom-3.5 right-3.5 w-3.5 h-3.5 rounded-full border-2 border-stone-300 ${notchBgClass} shadow-inner pointer-events-none`} />
 
         {/* 1. Header: StrideTix Official Seal & Event Title */}
         <div className="flex items-center justify-between pb-3 border-b border-stone-200/80 px-1">
@@ -106,9 +110,9 @@ export function HeroRaceBib() {
 
         {/* 5. Perforated Bottom Stub (Kupon Pengambilan Race Pack & Medali) */}
         <div className="relative pt-3">
-          {/* Authentic Tear Notches on the Left & Right edges */}
-          <div className="absolute -top-2 -left-7 w-4 h-4 rounded-full bg-[#FFF8EE] border-r-2 border-stone-200/90 pointer-events-none" />
-          <div className="absolute -top-2 -right-7 w-4 h-4 rounded-full bg-[#FFF8EE] border-l-2 border-stone-200/90 pointer-events-none" />
+          {/* Authentic Tear Notches on the Left & Right edges matching hero canvas */}
+          <div className={`absolute -top-2 -left-7 w-4 h-4 rounded-full ${notchBgClass} border-r-2 border-stone-200/90 pointer-events-none`} />
+          <div className={`absolute -top-2 -right-7 w-4 h-4 rounded-full ${notchBgClass} border-l-2 border-stone-200/90 pointer-events-none`} />
 
           {/* Dashed Perforation Line */}
           <div className="border-t-2 border-dashed border-stone-300 mb-3" />
