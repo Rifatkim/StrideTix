@@ -68,34 +68,34 @@ const THEME_STYLES: Record<
   { badgeBg: string; badgeText: string; iconBg: string; iconText: string }
 > = {
   brand: {
-    badgeBg: "bg-brand-50",
-    badgeText: "text-brand",
-    iconBg: "bg-brand-100",
-    iconText: "text-brand",
+    badgeBg: "bg-orange-500/20",
+    badgeText: "text-orange-300",
+    iconBg: "bg-orange-500/20",
+    iconText: "text-orange-400",
   },
   purple: {
-    badgeBg: "bg-purple-50",
-    badgeText: "text-purple-700",
-    iconBg: "bg-purple-100",
-    iconText: "text-purple-700",
+    badgeBg: "bg-purple-500/20",
+    badgeText: "text-purple-300",
+    iconBg: "bg-purple-500/20",
+    iconText: "text-purple-400",
   },
   emerald: {
-    badgeBg: "bg-emerald-50",
-    badgeText: "text-emerald-700",
-    iconBg: "bg-emerald-100",
-    iconText: "text-emerald-700",
+    badgeBg: "bg-emerald-500/20",
+    badgeText: "text-emerald-300",
+    iconBg: "bg-emerald-500/20",
+    iconText: "text-emerald-400",
   },
   amber: {
-    badgeBg: "bg-amber-50",
-    badgeText: "text-amber-800",
-    iconBg: "bg-amber-100",
-    iconText: "text-amber-800",
+    badgeBg: "bg-amber-500/20",
+    badgeText: "text-amber-300",
+    iconBg: "bg-amber-500/20",
+    iconText: "text-amber-400",
   },
 };
 
 export function RaceTickerTape() {
   return (
-    <div className="w-full bg-surface-soft border-y border-sand-border/80 overflow-hidden py-3 sm:py-3.5 select-none">
+    <div className="w-full bg-[#120503] border-y border-white/10 overflow-hidden py-3 sm:py-3.5 select-none">
       <div className="animate-sports-ticker flex items-center gap-4 sm:gap-6 px-4">
         {/* Render duplicate items for infinite smooth ticker animation */}
         {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, idx) => {
@@ -106,7 +106,7 @@ export function RaceTickerTape() {
             <Link
               href={item.href}
               key={idx}
-              className="group inline-flex items-center gap-2.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white border border-stone-200/90 shadow-[0_2px_6px_rgba(58,39,24,0.04)] hover:border-brand hover:shadow-[0_8px_18px_rgba(194,65,12,0.14)] hover:-translate-y-1 active:translate-y-0 transition-all duration-200 cursor-pointer shrink-0 text-xs text-espresso"
+              className="group inline-flex items-center gap-2.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-black/60 border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3)] hover:border-orange-500/60 hover:shadow-[0_8px_20px_rgba(234,88,12,0.25)] hover:-translate-y-1 active:translate-y-0 transition-all duration-200 cursor-pointer shrink-0 text-xs"
             >
               {/* Icon Capsule */}
               <span
@@ -116,11 +116,11 @@ export function RaceTickerTape() {
               </span>
 
               {/* Title & Detail */}
-              <span className="font-extrabold tracking-tight text-espresso uppercase text-[11px] sm:text-xs group-hover:text-brand transition-colors whitespace-nowrap">
+              <span className="font-extrabold tracking-tight text-white uppercase text-[11px] sm:text-xs group-hover:text-orange-400 transition-colors whitespace-nowrap">
                 {item.label}
               </span>
 
-              <span className="text-espresso-muted hidden md:inline text-[11px] whitespace-nowrap">
+              <span className="text-stone-400 hidden md:inline text-[11px] whitespace-nowrap">
                 {item.detail}
               </span>
 

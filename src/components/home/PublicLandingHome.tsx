@@ -14,21 +14,24 @@ interface PublicLandingHomeProps {
 
 export function PublicLandingHome({ events }: PublicLandingHomeProps) {
   return (
-    <div className="space-y-8 sm:space-y-10">
-      {/* 1. Warm Editorial Athletic Hero Section with Authentic Race BIB */}
+    <div>
+      {/* 1. Full-Bleed Cinematic Athletic Hero Section */}
       <HeroSection />
 
-      {/* 2. Continuous Sports Marquee Ticker */}
+      {/* 2. Continuous Sports Marquee Ticker Tape (Seamlessly contiguous) */}
       <RaceTickerTape />
 
-      {/* 3. Featured Races Preview Section ("Race Pilihan Minggu Ini") */}
-      <FeaturedRacesSection events={events} />
+      {/* 3. Marketplace Body Sections */}
+      <div className="space-y-8 sm:space-y-12 mt-8 sm:mt-10">
+        {/* Featured Races Preview Section ("Race Pilihan Minggu Ini") */}
+        <FeaturedRacesSection events={events} />
 
-      {/* 4. Full Marketplace Search, Filter & Event Catalog */}
-      <EventDiscoverySection initialEvents={events} />
+        {/* Full Marketplace Search, Filter & Event Catalog */}
+        <EventDiscoverySection initialEvents={events} />
 
-      {/* 5. Smart Distance Scoring Explainer */}
-      <SmartRecommendationExplainer />
+        {/* Smart Distance Scoring Explainer */}
+        <SmartRecommendationExplainer />
+      </div>
     </div>
   );
 }

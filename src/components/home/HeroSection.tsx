@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import {
   Compass,
   Activity,
@@ -16,8 +15,8 @@ import { HeroAthleticBackdrop } from "./HeroAthleticBackdrop";
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-[#110603] pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pt-14 lg:pb-20 border-b border-black/40">
-      {/* 1. Dynamic Athletic Runner Speed Backdrop (Inspired by Sports Motion Blur) */}
+    <section className="relative overflow-hidden bg-[#0D0402] min-h-[85vh] lg:min-h-[90vh] flex items-center pt-24 sm:pt-28 lg:pt-32 pb-16 sm:pb-20 border-b border-black/50">
+      {/* 1. Cinematic Photographic Athletic Runner with Golden-Orange Light Trails */}
       <HeroAthleticBackdrop />
 
       <Container className="relative z-10 w-full my-auto">
@@ -33,10 +32,10 @@ export function HeroSection() {
               <span>Smart Race Ticketing Platform</span>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-black text-white tracking-tight leading-[1.12]">
+            {/* Main Headline (with generous leading & bottom padding so descenders like 'g' never clip) */}
+            <h1 className="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-black text-white tracking-tight leading-[1.18] sm:leading-[1.18]">
               Temukan Race yang{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-orange-500 inline-block drop-shadow-[0_2px_16px_rgba(234,88,12,0.45)]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-orange-500 inline-block pb-3 pr-2 drop-shadow-[0_2px_16px_rgba(234,88,12,0.45)]">
                 Sesuai Langkahmu.
               </span>
             </h1>
@@ -71,7 +70,7 @@ export function HeroSection() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 
                 {/* Badge 1 */}
-                <div className="bg-black/40 backdrop-blur-md p-3.5 rounded-xl border border-white/10 hover:border-white/25 shadow-lg space-y-1 transition-all">
+                <div className="bg-black/50 backdrop-blur-md p-3.5 rounded-xl border border-white/15 hover:border-white/30 shadow-lg space-y-1 transition-all">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-white">
                     <QrCode className="w-4 h-4 text-orange-400 shrink-0" />
                     <span>E-Ticket QR Resmi</span>
@@ -82,7 +81,7 @@ export function HeroSection() {
                 </div>
 
                 {/* Badge 2 */}
-                <div className="bg-black/40 backdrop-blur-md p-3.5 rounded-xl border border-white/10 hover:border-white/25 shadow-lg space-y-1 transition-all">
+                <div className="bg-black/50 backdrop-blur-md p-3.5 rounded-xl border border-white/15 hover:border-white/30 shadow-lg space-y-1 transition-all">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-white">
                     <Sparkles className="w-4 h-4 text-purple-300 shrink-0" />
                     <span>Smart Distance AI</span>
@@ -93,7 +92,7 @@ export function HeroSection() {
                 </div>
 
                 {/* Badge 3 */}
-                <div className="bg-black/40 backdrop-blur-md p-3.5 rounded-xl border border-white/10 hover:border-white/25 shadow-lg space-y-1 transition-all">
+                <div className="bg-black/50 backdrop-blur-md p-3.5 rounded-xl border border-white/15 hover:border-white/30 shadow-lg space-y-1 transition-all">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-white">
                     <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>Kuota Terverifikasi</span>
@@ -110,7 +109,7 @@ export function HeroSection() {
 
           {/* RIGHT COLUMN: The Authentic Athletic Race BIB Pass */}
           <div className="w-full flex justify-center lg:justify-end mt-4 sm:mt-6 lg:mt-0">
-            <HeroRaceBib notchBgClass="bg-[#110603]" />
+            <HeroRaceBib notchBgClass="bg-[#0D0402]" />
           </div>
 
         </div>

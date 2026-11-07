@@ -4,7 +4,11 @@ import React, { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search, X, ArrowRight } from "lucide-react";
 
-function FloatingNavSearchInner() {
+interface FloatingNavSearchProps {
+  isDark?: boolean;
+}
+
+function FloatingNavSearchInner({ isDark = false }: FloatingNavSearchProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -82,23 +86,39 @@ function FloatingNavSearchInner() {
       {/* Desktop Search Field */}
       <form
         onSubmit={handleSearchSubmit}
-        className="hidden md:flex items-center relative w-36 lg:w-48 xl:w-60 h-8.5 sm:h-9 rounded-full bg-[#F7F3EE] hover:bg-[#EFEAE2] focus-within:bg-white focus-within:ring-2 focus-within:ring-brand/30 border border-transparent focus-within:border-brand/50 transition-all px-2.5 sm:px-3"
+        className={`hidden md:flex items-center relative w-36 lg:w-48 xl:w-60 h-8.5 sm:h-9 rounded-full transition-all px-2.5 sm:px-3 ${
+          isDark
+            ? "bg-white/10 hover:bg-white/15 focus-within:bg-black/70 border border-white/20 focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/30"
+            : "bg-[#F7F3EE] hover:bg-[#EFEAE2] focus-within:bg-white focus-within:ring-2 focus-within:ring-brand/30 border border-transparent focus-within:border-brand/50"
+        }`}
       >
-        <Search className="w-3.5 h-3.5 text-espresso-muted shrink-0" />
+        <Search
+          className={`w-3.5 h-3.5 shrink-0 ${
+            isDark ? "text-stone-300" : "text-espresso-muted"
+          }`}
+        />
         <input
           ref={inputRef}
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Cari event lari..."
-          className="w-full bg-transparent text-xs text-espresso placeholder:text-espresso-muted outline-none px-2"
+          className={`w-full bg-transparent text-xs outline-none px-2 ${
+            isDark
+              ? "text-white placeholder:text-stone-400"
+              : "text-espresso placeholder:text-espresso-muted"
+          }`}
           aria-label="Cari event lari"
         />
         {query && (
           <button
             type="button"
             onClick={handleClear}
-            className="text-espresso-muted hover:text-espresso p-0.5 rounded-full"
+            className={`p-0.5 rounded-full ${
+              isDark
+                ? "text-stone-400 hover:text-white"
+                : "text-espresso-muted hover:text-espresso"
+            }`}
             aria-label="Hapus kata kunci"
           >
             <X className="w-3 h-3" />
@@ -110,7 +130,11 @@ function FloatingNavSearchInner() {
       <button
         type="button"
         onClick={() => setIsMobileModalOpen(true)}
-        className="md:hidden w-8 h-8 rounded-full bg-[#F7F3EE] hover:bg-[#EFEAE2] text-espresso-secondary hover:text-espresso flex items-center justify-center transition-colors active:scale-95"
+        className={`md:hidden w-8 h-8 rounded-full flex items-center justify-center transition-colors active:scale-95 ${
+          isDark
+            ? "bg-white/15 text-white hover:bg-white/25"
+            : "bg-[#F7F3EE] hover:bg-[#EFEAE2] text-espresso-secondary hover:text-espresso"
+        }`}
         aria-label="Buka pencarian event"
       >
         <Search className="w-4 h-4" />
@@ -164,14 +188,14 @@ function FloatingNavSearchInner() {
   );
 }
 
-export function FloatingNavSearch() {
+export function FloatingNavSearch({ isDark = false }: FloatingNavSearchProps) {
   return (
     <Suspense
       fallback={
-        <div className="hidden md:flex w-36 lg:w-48 xl:w-60 h-8.5 sm:h-9 rounded-full bg-[#F7F3EE] animate-pulse" />
+        <div className={`hidden md:flex w-36 lg:w-48 xl:w-60 h-8.5 sm:h-9 rounded-full animate-pulse ${isDark ? "bg-white/10" : "bg-[#F7F3EE]"}`} />
       }
     >
-      <FloatingNavSearchInner />
+      <FloatingNavSearchInner isDark={isDark} />
     </Suspense>
   );
 }

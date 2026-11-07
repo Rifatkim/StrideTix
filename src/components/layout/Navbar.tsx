@@ -35,11 +35,13 @@ export function Navbar() {
   };
 
   const homeHref = "/";
+  const isHome = pathname === "/";
+  const isDarkNav = isHome && !isScrolled;
 
   return (
     <>
-      {/* 1. Page Flow Spacer so layout shift = 0 when navbar is fixed */}
-      <div className="w-full h-16 sm:h-18" aria-hidden="true" />
+      {/* 1. Page Flow Spacer so layout shift = 0 when navbar is fixed (omitted on landing hero for full-bleed presentation) */}
+      <div className={`w-full h-16 sm:h-18 ${isHome ? "hidden" : "block"}`} aria-hidden="true" />
 
       {/* 2. Unified Navbar: Full-width at top, smoothly morphs to floating capsule on scroll */}
       <header
@@ -51,7 +53,9 @@ export function Navbar() {
           className={`pointer-events-auto transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] flex items-center justify-between gap-2 sm:gap-4 mx-auto ${
             isScrolled
               ? "w-[calc(100%-20px)] sm:w-[calc(100%-32px)] max-w-[1440px] h-14 sm:h-15.5 rounded-full bg-white/95 backdrop-blur-md border border-[#E8DDD0] shadow-[0_12px_36px_rgba(36,28,23,0.14),0_2px_8px_rgba(36,28,23,0.06)] px-3.5 sm:px-5 md:px-6"
-              : "w-full max-w-[1680px] h-16 sm:h-18 rounded-none bg-white/95 backdrop-blur-md border-b border-sand-border/80 shadow-xs px-4 sm:px-6 lg:px-8 xl:px-12"
+              : isDarkNav
+                ? "w-full max-w-[1680px] h-16 sm:h-18 rounded-none bg-black/40 backdrop-blur-md border-b border-white/10 shadow-sm px-4 sm:px-6 lg:px-8 xl:px-12"
+                : "w-full max-w-[1680px] h-16 sm:h-18 rounded-none bg-white/95 backdrop-blur-md border-b border-sand-border/80 shadow-xs px-4 sm:px-6 lg:px-8 xl:px-12"
           }`}
         >
           {/* Logo StrideTix */}
@@ -70,9 +74,9 @@ export function Navbar() {
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 leading-none">
                 <span
-                  className={`font-black tracking-tight text-espresso leading-none transition-all ${
-                    isScrolled ? "text-sm sm:text-base" : "text-base sm:text-lg"
-                  }`}
+                  className={`font-black tracking-tight leading-none transition-all ${
+                    isDarkNav ? "text-white" : "text-espresso"
+                  } ${isScrolled ? "text-sm sm:text-base" : "text-base sm:text-lg"}`}
                 >
                   Stride<span className="text-brand">Tix</span>
                 </span>
@@ -93,7 +97,11 @@ export function Navbar() {
                 )}
               </div>
               {!isScrolled && (
-                <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-espresso-muted mt-0.5 hidden sm:inline">
+                <span
+                  className={`text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mt-0.5 hidden sm:inline ${
+                    isDarkNav ? "text-stone-400" : "text-espresso-muted"
+                  }`}
+                >
                   {role === "admin"
                     ? "Platform Governance"
                     : role === "organizer"
@@ -120,11 +128,13 @@ export function Navbar() {
                   aria-current={activeSection === "kalender-lomba" ? "page" : undefined}
                   className={`px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${activeSection === "kalender-lomba"
                       ? "bg-[#FFF7ED] text-brand font-bold shadow-xs border border-brand/20"
-                      : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
+                      : isDarkNav
+                        ? "text-stone-300 hover:text-white hover:bg-white/10 font-semibold"
+                        : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
                     }`}
                 >
                   <Calendar
-                    className={`w-4 h-4 ${activeSection === "kalender-lomba" ? "text-brand" : "text-espresso-muted"
+                    className={`w-4 h-4 ${activeSection === "kalender-lomba" ? "text-brand" : isDarkNav ? "text-stone-400" : "text-espresso-muted"
                       }`}
                   />
                   <span>Kalender Lomba</span>
@@ -141,11 +151,13 @@ export function Navbar() {
                   aria-current={activeSection === "jelajahi-event" ? "page" : undefined}
                   className={`px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${activeSection === "jelajahi-event"
                       ? "bg-[#FFF7ED] text-brand font-bold shadow-xs border border-brand/20"
-                      : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
+                      : isDarkNav
+                        ? "text-stone-300 hover:text-white hover:bg-white/10 font-semibold"
+                        : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
                     }`}
                 >
                   <Compass
-                    className={`w-4 h-4 ${activeSection === "jelajahi-event" ? "text-brand" : "text-espresso-muted"
+                    className={`w-4 h-4 ${activeSection === "jelajahi-event" ? "text-brand" : isDarkNav ? "text-stone-400" : "text-espresso-muted"
                       }`}
                   />
                   <span>Jelajahi Event</span>
@@ -162,7 +174,9 @@ export function Navbar() {
                   aria-current={activeSection === "smart-distance-ai" ? "page" : undefined}
                   className={`px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-1.5 active:scale-95 ${activeSection === "smart-distance-ai"
                       ? "bg-purple-50 text-purple-700 font-bold shadow-xs border border-purple-200"
-                      : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
+                      : isDarkNav
+                        ? "text-stone-300 hover:text-white hover:bg-white/10 font-semibold"
+                        : "text-espresso-secondary hover:text-espresso hover:bg-[#F7F3EE] font-semibold"
                     }`}
                 >
                   <Activity
@@ -355,7 +369,7 @@ export function Navbar() {
 
           {/* Right Header: Search Event + Masuk + Daftar / User Profile */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-            {(!currentUser || role === "runner") && <FloatingNavSearch />}
+            {(!currentUser || role === "runner") && <FloatingNavSearch isDark={isDarkNav} />}
             <UserNavDropdown />
           </div>
         </div>
