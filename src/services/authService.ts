@@ -56,6 +56,9 @@ export async function login(credentials: LoginCredentials): Promise<AuthUser> {
   });
 
   if (error) {
+    if (error.message?.toLowerCase().includes("invalid login credentials")) {
+      throw new Error("Email atau password yang Anda masukkan salah.");
+    }
     throw new Error(error.message || "Gagal masuk. Periksa kembali email dan password Anda.");
   }
 
@@ -105,6 +108,11 @@ export async function register(payload: RegisterPayload): Promise<AuthUser> {
   });
 
   if (error) {
+    if (error.message?.toLowerCase().includes("rate limit")) {
+      throw new Error(
+        "Batas pengiriman email pendaftaran telah tercapai (Supabase rate limit). Silakan nonaktifkan 'Confirm email' di Supabase Dashboard atau gunakan akun yang sudah ada."
+      );
+    }
     throw new Error(error.message || "Gagal mendaftarkan akun. Silakan coba lagi.");
   }
 
