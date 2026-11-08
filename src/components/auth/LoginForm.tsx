@@ -275,7 +275,7 @@ export function LoginForm() {
                     placeholder="nama@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-9 pr-3.5 h-10 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
+                    className="w-full pl-9 pr-3.5 h-10 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
                   />
                 </div>
               </div>
@@ -292,7 +292,7 @@ export function LoginForm() {
                       setInfoMessage(null);
                       setStep("forgot_password");
                     }}
-                    className="text-[11px] font-semibold text-brand hover:underline transition-colors cursor-pointer"
+                    className="text-[11px] font-semibold text-brand hover:underline transition-colors cursor-pointer touch-manipulation"
                   >
                     Lupa Password?
                   </button>
@@ -309,12 +309,12 @@ export function LoginForm() {
                     placeholder="Masukkan password akun"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-9 pr-11 h-10 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
+                    className="w-full pl-9 pr-11 h-10 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-espresso-muted hover:text-espresso transition-colors select-none active:scale-[0.92]"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-espresso-muted hover:text-espresso transition-colors select-none active:scale-[0.92] touch-manipulation"
                     aria-label={showPassword ? "Sembunyikan password" : "Lihat password"}
                   >
                     {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -328,7 +328,7 @@ export function LoginForm() {
                   id="login-submit-btn"
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full h-10 min-h-[40px] px-5 rounded-btn bg-brand hover:bg-brand-800 active:scale-[0.98] transition-transform text-white font-bold text-xs sm:text-sm shadow-warm flex items-center justify-center gap-2 group disabled:opacity-50 select-none cursor-pointer"
+                  className="w-full h-11 min-h-[44px] px-5 rounded-btn bg-brand hover:bg-brand-800 active:scale-[0.98] transition-transform text-white font-bold text-xs sm:text-sm shadow-warm flex items-center justify-center gap-2 group disabled:opacity-50 select-none cursor-pointer touch-manipulation"
                 >
                   {isSubmitting ? (
                     <>

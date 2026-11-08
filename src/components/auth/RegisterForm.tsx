@@ -53,7 +53,7 @@ export function RegisterForm() {
   return (
     <div className="w-full">
       {/* Frame / Card Utama Ringkas agar 100% pas dalam layar tanpa scroll */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-sand-border shadow-warm-modal space-y-3">
+      <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-sand-border/80 shadow-warm-modal space-y-2.5 sm:space-y-3">
         {/* Role Picker Pills */}
         <div className="space-y-1">
           <label className="text-[11px] font-bold text-espresso block">Pilih Jenis Akun</label>
@@ -61,7 +61,7 @@ export function RegisterForm() {
             <button
               type="button"
               onClick={() => setRole("runner")}
-              className={`p-2 rounded-btn border text-left flex flex-col justify-center gap-0.5 select-none active:scale-[0.98] transition-all min-h-[42px] cursor-pointer ${
+              className={`p-2 rounded-btn border text-left flex flex-col justify-center gap-0.5 select-none active:scale-[0.98] transition-all min-h-[42px] cursor-pointer touch-manipulation ${
                 role === "runner"
                   ? "bg-brand text-white border-brand shadow-xs"
                   : "bg-surface-main text-espresso border-sand-border hover:bg-brand-50/50 hover:border-brand/40"
@@ -79,7 +79,7 @@ export function RegisterForm() {
             <button
               type="button"
               onClick={() => setRole("organizer")}
-              className={`p-2 rounded-btn border text-left flex flex-col justify-center gap-0.5 select-none active:scale-[0.98] transition-all min-h-[42px] cursor-pointer ${
+              className={`p-2 rounded-btn border text-left flex flex-col justify-center gap-0.5 select-none active:scale-[0.98] transition-all min-h-[42px] cursor-pointer touch-manipulation ${
                 role === "organizer"
                   ? "bg-brand text-white border-brand shadow-xs"
                   : "bg-surface-main text-espresso border-sand-border hover:bg-brand-50/50 hover:border-brand/40"
@@ -105,7 +105,7 @@ export function RegisterForm() {
         )}
 
         {/* Form Fields */}
-        <form onSubmit={handleSubmit} className="space-y-2.5">
+        <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-2.5">
           <div className="space-y-1">
             <label className="text-[11px] font-bold text-espresso">Nama Lengkap</label>
             <div className="relative">
@@ -118,7 +118,7 @@ export function RegisterForm() {
                 placeholder="Contoh: Budi Pratama"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full h-10 pl-9 pr-3.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
+                className="w-full h-10 pl-9 pr-3.5 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
               />
             </div>
           </div>
@@ -136,7 +136,7 @@ export function RegisterForm() {
                   placeholder="Contoh: Stride Athletics ID"
                   value={organizerName}
                   onChange={(e) => setOrganizerName(e.target.value)}
-                  className="w-full h-10 pl-9 pr-3.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
+                  className="w-full h-10 pl-9 pr-3.5 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
                 />
               </div>
             </div>
@@ -157,7 +157,7 @@ export function RegisterForm() {
                 placeholder="nama@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-10 pl-9 pr-3.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
+                className="w-full h-10 pl-9 pr-3.5 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
               />
             </div>
           </div>
@@ -176,12 +176,12 @@ export function RegisterForm() {
                 placeholder="Minimal 6 karakter"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-10 pl-9 pr-11 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
+                className="w-full h-10 pl-9 pr-11 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-espresso-muted hover:text-espresso transition-colors select-none active:scale-[0.92]"
+                className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-espresso-muted hover:text-espresso transition-colors select-none active:scale-[0.92] touch-manipulation"
                 aria-label={showPassword ? "Sembunyikan password" : "Lihat password"}
               >
                 {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -196,7 +196,7 @@ export function RegisterForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-10 min-h-[40px] px-5 rounded-btn bg-brand hover:bg-brand-800 active:scale-[0.98] text-white font-bold text-xs sm:text-sm shadow-warm transition-transform flex items-center justify-center gap-2 group disabled:opacity-50 select-none cursor-pointer"
+              className="w-full h-11 min-h-[44px] px-5 rounded-btn bg-brand hover:bg-brand-800 active:scale-[0.98] text-white font-bold text-xs sm:text-sm shadow-warm transition-transform flex items-center justify-center gap-2 group disabled:opacity-50 select-none cursor-pointer touch-manipulation"
             >
               {isSubmitting ? (
                 <>

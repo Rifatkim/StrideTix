@@ -61,49 +61,34 @@ export function AuthShowcaseLayout({
       </aside>
 
       {/* =========================================================================
-          MOBILE COMPACT HERO HEADER (lg:hidden)
-          Tampilan mobile ringkas dan efisien tanpa elemen visual berlebih
+          MOBILE NATIVE TOPBAR (lg:hidden)
+          Tampilan mobile bersih, proporsional, safe-area aware, dan bebas duplikasi heading
       ========================================================================= */}
-      <div className="lg:hidden relative bg-[#120B07] text-white overflow-hidden shrink-0">
-        <AuthVideoBackdrop />
+      <header className="lg:hidden w-full px-4 pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-2.5 flex items-center justify-between border-b border-sand-border/50 bg-[#FFFCF8] shrink-0 sticky top-0 z-30">
+        <Link href="/" className="flex items-center gap-2 group min-h-[44px]" aria-label="Beranda StrideTix">
+          <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white shadow-warm">
+            <StrideTixSymbol size={18} color="#FFFFFF" />
+          </div>
+          <span className="font-extrabold text-lg tracking-tight text-espresso">
+            Stride<span className="text-brand">Tix</span>
+          </span>
+        </Link>
 
-        {/* Mobile Header Topbar: Safe area + Brand Logo + Back Button */}
-        <div className="relative z-30 px-4 pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-2.5 flex items-center justify-between border-b border-white/10">
-          <Link href="/" className="flex items-center gap-2 group min-h-[44px]" aria-label="Beranda StrideTix">
-            <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white shadow-warm">
-              <StrideTixSymbol size={18} color="#FFFFFF" />
-            </div>
-            <span className="font-extrabold text-lg tracking-tight text-white">
-              Stride<span className="text-orange-400">Tix</span>
-            </span>
-          </Link>
-
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1 text-[11px] font-bold text-white/90 hover:text-white px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 min-h-[44px] active:scale-[0.97] transition-transform duration-150 ease-out touch-manipulation"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Kembali</span>
-          </Link>
-        </div>
-
-        {/* Mobile Compact Hero Content */}
-        <div className="relative z-30 px-4 pt-3 pb-4 space-y-1.5">
-          <h1 className="text-base sm:text-lg font-black text-white tracking-tight leading-snug">
-            Langkah Pertama Menuju Garis Finis.
-          </h1>
-          <p className="text-xs text-white/80 leading-relaxed font-normal">
-            Platform e-ticketing resmi event lari nasional dengan Smart Distance Recommendation.
-          </p>
-        </div>
-      </div>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-espresso-secondary hover:text-brand px-3 py-1.5 rounded-full bg-white border border-sand-border/80 shadow-2xs min-h-[38px] active:scale-[0.97] transition-all touch-manipulation"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 text-espresso-muted" />
+          <span>Kembali</span>
+        </Link>
+      </header>
 
       {/* =========================================================================
           FORM CONTAINER PANEL
-          Desktop: Pas 1 layar penuh (100% viewport) tanpa scrollbar berlebih,
-                   sehingga formulir Register langsung terlihat utuh 100%.
+          Desktop: 1 layar penuh (100% viewport) tanpa scrollbar berlebih.
+          Mobile: Mengalir rapi dari topbar tanpa banner yang terjepit, pas di layar HP.
       ========================================================================= */}
-      <section className="flex-1 flex flex-col justify-between relative z-20 -mt-3 lg:mt-0 rounded-t-2xl sm:rounded-3xl lg:rounded-none bg-[#FFFCF8] shadow-warm-modal lg:shadow-none border-t border-sand-border/70 lg:border-none min-h-0 lg:h-full lg:max-h-screen lg:overflow-y-auto">
+      <section className="flex-1 flex flex-col justify-between relative z-20 bg-[#FFFCF8] lg:border-none min-h-0 lg:h-full lg:max-h-screen lg:overflow-y-auto">
         {/* Desktop Header Topbar (Hidden di mobile) */}
         <header className="hidden lg:flex w-full px-6 xl:px-10 py-2.5 xl:py-3.5 items-center justify-between border-b border-sand-border/40 shrink-0">
           <div>
@@ -122,7 +107,7 @@ export function AuthShowcaseLayout({
         </header>
 
         {/* Form Center Wrapper */}
-        <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 min-h-0">
+        <main className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-4 sm:py-3 min-h-0">
           <div className="w-full max-w-md sm:max-w-[420px] space-y-2.5 sm:space-y-3">
             {/* Header Text Above Card */}
             <div className="space-y-0.5 text-left">
@@ -140,7 +125,7 @@ export function AuthShowcaseLayout({
         </main>
 
         {/* Footer Reassurance Info */}
-        <footer className="w-full px-6 xl:px-10 py-2 xl:py-2.5 text-center lg:text-left border-t border-sand-border/50 text-[10.5px] text-espresso-muted flex flex-col sm:flex-row items-center justify-between gap-1.5 shrink-0">
+        <footer className="w-full px-4 sm:px-6 xl:px-10 py-2 xl:py-2.5 text-center lg:text-left border-t border-sand-border/50 text-[10.5px] text-espresso-muted flex flex-col sm:flex-row items-center justify-between gap-1.5 shrink-0 pb-[max(0.6rem,env(safe-area-inset-bottom,0px))]">
           <span>&copy; {new Date().getFullYear()} StrideTix. Hak Cipta Dilindungi.</span>
           <span className="flex items-center gap-1.5 justify-center">
             <ShieldCheck className="w-3.5 h-3.5 text-accent-success" />
