@@ -7,9 +7,10 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, otp } = body as { email: string; otp: string };
+    const { email, otp } = body as { email: string; otp?: string };
+    const otpCode = (otp || (body as any)?.token || "").trim();
 
-    if (!email || !otp) {
+    if (!email || !otpCode) {
       return NextResponse.json(
         { error: "Email dan kode OTP wajib diisi." },
         { status: 400 }
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const verification = verifyOtp(normalizedEmail, otp);
+    const verification = verifyOtp(normalizedEmail, otpCode);
 
     if (!verification.valid) {
       return NextResponse.json(

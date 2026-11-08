@@ -116,7 +116,7 @@ export function RunnerProfileTab() {
         {/* 1. Header Profil Terintegrasi (Avatar + Nama + Status) */}
         <RunnerProfileHeader
           name={profile.fullName || currentUser?.name || "Pelari StrideTix"}
-          email={profile.email || currentUser?.email || "runner@stridetix.shop"}
+          email={profile.email || currentUser?.email || "runner@stridetix.com"}
           city={profile.city || currentProfile?.athlete.city || "Indonesia"}
           avatarUrl={photoUrl}
           isConnectedToStrava={isConnectedToStrava}
@@ -178,7 +178,7 @@ export function RunnerProfileTab() {
             <ProfileFieldItem
               label="Alamat Email"
               icon={<Mail className="w-3.5 h-3.5" />}
-              displayValue={profile.email || currentUser?.email || "runner@stridetix.shop"}
+              displayValue={profile.email || currentUser?.email || "runner@stridetix.com"}
               isEditing={activeSection === 1}
               onBoxClick={() => startEditSection(1)}
               renderInput={() => (

@@ -31,7 +31,7 @@ export async function sendEmail({
 }: SendEmailParams): Promise<EmailSendResult> {
   const apiKey = process.env.RESEND_API_KEY;
   const fromEmail =
-    process.env.RESEND_FROM_EMAIL || "StrideTix <tickets@stridetix.shop>";
+    process.env.RESEND_FROM_EMAIL || "StrideTix <onboarding@resend.dev>";
 
   if (!apiKey) {
     console.warn("[EmailService] RESEND_API_KEY is not configured.");
@@ -202,7 +202,7 @@ export async function sendTicketConfirmationEmail({
         </div>
         <div class="footer">
           &copy; 2026 StrideTix Indonesia &bull; Smart Race Ticketing Platform<br>
-          Email dikirim otomatis melalui Resend API &bull; stridetix.shop
+          Email dikirim otomatis melalui Resend API &bull; oscartambunan.my.id
         </div>
       </div>
     </body>

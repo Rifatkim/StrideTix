@@ -66,7 +66,7 @@ export function RunnerProfileHeader({
           </div>
 
           <p className="text-xs text-stone-500 truncate mt-0.5">
-            {email || "runner@stridetix.shop"}
+            {email || "runner@stridetix.com"}
           </p>
 
           <div className="flex items-center gap-2 mt-1 text-[11px] text-stone-500">

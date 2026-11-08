@@ -119,16 +119,16 @@ export function LoginForm() {
         setOtpError(null);
         setCountdown(60);
 
-        // 2. Trigger pengiriman OTP ke Gmail pengguna
+        // 2. Trigger pengiriman OTP ke Gmail pengguna via Resend API
         try {
-          const otpRes = await fetch("/api/auth/send-otp", {
+          const otpRes = await fetch("/api/auth/2fa/send", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: normalizedEmail }),
           });
 
           if (!otpRes.ok) {
-            const otpData = await otpRes.json();
+            const otpData = await otpRes.json().catch(() => ({}));
             setOtpError(otpData.error || "Gagal mengirimkan kode OTP ke email Anda.");
           }
         } catch {
@@ -162,17 +162,17 @@ export function LoginForm() {
     setOtpError(null);
 
     try {
-      const res = await fetch("/api/auth/verify-otp", {
+      const res = await fetch("/api/auth/2fa/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: pendingCredentials.email,
-          token: token.trim(),
+          otp: token.trim(),
         }),
       });
 
-      const data = await res.json();
-      if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
         setOtpError(data.error || "Kode OTP tidak valid atau sudah kedaluwarsa.");
         setIsVerifyingOtp(false);
         return;
@@ -200,7 +200,7 @@ export function LoginForm() {
     setOtpError(null);
 
     try {
-      const res = await fetch("/api/auth/send-otp", {
+      const res = await fetch("/api/auth/2fa/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: targetEmail }),
@@ -209,7 +209,7 @@ export function LoginForm() {
       if (res.ok) {
         setCountdown(60);
       } else {
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         setOtpError(data.error || "Gagal mengirim ulang kode OTP.");
       }
     } catch {
@@ -392,7 +392,7 @@ export function LoginForm() {
         {/* STEP 4: VERIFIKASI 2FA GMAIL (OTP EMAIL RESEND) */}
         {step === "2fa_otp" && (
           <TwoFactorOtpStep
-            email={email}
+            email={pendingCredentials?.email || email}
             countdown={countdown}
             isVerifying={isVerifyingOtp}
             isResending={isResendingOtp}

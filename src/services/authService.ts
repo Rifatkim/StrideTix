@@ -15,6 +15,10 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     } = await supabase.auth.getSession();
 
     if (sessionError || !session?.user) {
+      if (sessionError && sessionError.message?.includes("Refresh Token")) {
+        // Bersihkan session browser lokal yang kadaluwarsa
+        await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+      }
       return null;
     }
 
