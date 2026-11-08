@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { StrideTixSymbol } from "@/components/brand/StrideTixLogo";
 import { AuthVideoBackdrop } from "./AuthVideoBackdrop";
@@ -61,34 +62,65 @@ export function AuthShowcaseLayout({
       </aside>
 
       {/* =========================================================================
-          MOBILE NATIVE TOPBAR (lg:hidden)
-          Tampilan mobile bersih, proporsional, safe-area aware, dan bebas duplikasi heading
+          MOBILE HERO HEADER WITH PHOTO (lg:hidden)
+          GAMBAR HANYA ADA DI HP: Foto marathon sebelumnya, logo StrideTix,
+          tombol Kembali, dan tulisan "Langkah Pertama Menuju Garis Finish".
       ========================================================================= */}
-      <header className="lg:hidden w-full px-4 pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-2.5 flex items-center justify-between border-b border-sand-border/50 bg-[#FFFCF8] shrink-0 sticky top-0 z-30">
-        <Link href="/" className="flex items-center gap-2 group min-h-[44px]" aria-label="Beranda StrideTix">
-          <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white shadow-warm">
-            <StrideTixSymbol size={18} color="#FFFFFF" />
-          </div>
-          <span className="font-extrabold text-lg tracking-tight text-espresso">
-            Stride<span className="text-brand">Tix</span>
-          </span>
-        </Link>
+      <div className="lg:hidden relative bg-[#120B07] text-white overflow-hidden shrink-0">
+        {/* Foto Marathon Sebelumnya di HP */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src={type === "login" ? "/images/hero-landingpage.jpg" : "/images/events/city-marathon.jpg"}
+            alt="StrideTix Running Event"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center brightness-90 contrast-[1.05]"
+          />
+          {/* Dark Overlay Filter agar tulisan tetap kontras dan elegan */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(18, 11, 7, 0.6) 0%, rgba(18, 11, 7, 0.72) 50%, rgba(18, 11, 7, 0.88) 100%)",
+            }}
+          />
+        </div>
 
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-espresso-secondary hover:text-brand px-3 py-1.5 rounded-full bg-white border border-sand-border/80 shadow-2xs min-h-[38px] active:scale-[0.97] transition-all touch-manipulation"
-        >
-          <ArrowLeft className="w-3.5 h-3.5 text-espresso-muted" />
-          <span>Kembali</span>
-        </Link>
-      </header>
+        {/* Topbar: Safe area + Logo StrideTix + Tombol Kembali */}
+        <div className="relative z-10 px-4 pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-2.5 flex items-center justify-between border-b border-white/10">
+          <Link href="/" className="flex items-center gap-2 group min-h-[44px]" aria-label="Beranda StrideTix">
+            <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white shadow-warm">
+              <StrideTixSymbol size={18} color="#FFFFFF" />
+            </div>
+            <span className="font-extrabold text-lg tracking-tight text-white">
+              Stride<span className="text-orange-400">Tix</span>
+            </span>
+          </Link>
+
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-white px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 min-h-[38px] active:scale-[0.97] transition-all touch-manipulation"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Kembali</span>
+          </Link>
+        </div>
+
+        {/* Header Copy: HANYA TULISAN "Langkah Pertama Menuju Garis Finish" */}
+        <div className="relative z-10 px-4 pt-3 pb-5">
+          <h1 className="text-base sm:text-lg font-black text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+            Langkah Pertama Menuju Garis Finish
+          </h1>
+        </div>
+      </div>
 
       {/* =========================================================================
           FORM CONTAINER PANEL
           Desktop: 1 layar penuh (100% viewport) tanpa scrollbar berlebih.
-          Mobile: Mengalir rapi dari topbar tanpa banner yang terjepit, pas di layar HP.
+          Mobile: Mengalir rapi dari header foto, dengan container dan font yang proporsional.
       ========================================================================= */}
-      <section className="flex-1 flex flex-col justify-between relative z-20 bg-[#FFFCF8] lg:border-none min-h-0 lg:h-full lg:max-h-screen lg:overflow-y-auto">
+      <section className="flex-1 flex flex-col justify-between relative z-20 -mt-2.5 lg:mt-0 rounded-t-2xl sm:rounded-3xl lg:rounded-none bg-[#FFFCF8] shadow-warm-modal lg:shadow-none min-h-0 lg:h-full lg:max-h-screen lg:overflow-y-auto">
         {/* Desktop Header Topbar (Hidden di mobile) */}
         <header className="hidden lg:flex w-full px-6 xl:px-10 py-2.5 xl:py-3.5 items-center justify-between border-b border-sand-border/40 shrink-0">
           <div>
