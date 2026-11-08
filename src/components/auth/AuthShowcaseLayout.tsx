@@ -124,9 +124,9 @@ export function AuthShowcaseLayout({
           Desktop: 1 layar penuh (100% viewport) tanpa scrollbar berlebih.
           Mobile: Mengalir rapi dari header foto, dengan container dan font yang proporsional.
       ========================================================================= */}
-      <section className="flex-1 flex flex-col justify-between relative z-20 -mt-4 rounded-t-3xl lg:rounded-none bg-[#FFFCF8] shadow-warm-modal lg:shadow-none min-h-0 lg:h-full lg:max-h-screen lg:overflow-y-auto">
+      <section className="flex-1 flex flex-col justify-between relative z-20 -mt-4 lg:mt-0 rounded-t-3xl lg:rounded-none bg-[#FFFCF8] shadow-warm-modal lg:shadow-none min-h-0 lg:h-full lg:max-h-screen lg:overflow-y-auto">
         {/* Desktop Header Topbar (Hidden di mobile) */}
-        <header className="hidden lg:flex w-full px-6 xl:px-10 py-2.5 xl:py-3.5 items-center justify-between border-b border-sand-border/40 shrink-0">
+        <header className="hidden lg:flex w-full px-6 xl:px-10 py-3 xl:py-4 items-center justify-between border-b border-sand-border/40 shrink-0">
           <div>
             <span className="text-xs font-semibold text-espresso-muted">
               {type === "login" ? "Sudah siap untuk race berikutnya?" : "Hanya butuh 30 detik untuk mendaftar."}
@@ -135,7 +135,7 @@ export function AuthShowcaseLayout({
 
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-espresso-secondary hover:text-brand px-3 py-1.5 rounded-full hover:bg-brand-50 transition-colors border border-sand-border/60"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-espresso-secondary hover:text-brand px-3.5 py-1.5 rounded-full hover:bg-brand-50 transition-colors border border-sand-border/60"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Kembali ke Beranda</span>
@@ -173,7 +173,7 @@ export function AuthShowcaseLayout({
         </main>
 
         {/* Footer Reassurance Info */}
-        <footer className="w-full px-4 sm:px-6 xl:px-10 py-2 xl:py-2.5 text-center lg:text-left border-t border-sand-border/50 text-[10.5px] text-espresso-muted flex flex-col sm:flex-row items-center justify-between gap-1.5 shrink-0 pb-[max(0.6rem,env(safe-area-inset-bottom,0px))]">
+        <footer className="w-full px-4 sm:px-6 xl:px-10 py-2.5 xl:py-3 text-center lg:text-left border-t border-sand-border/50 text-[10.5px] text-espresso-muted flex flex-col sm:flex-row items-center justify-between gap-1.5 shrink-0 pb-[max(0.6rem,env(safe-area-inset-bottom,0px))]">
           <span>&copy; {new Date().getFullYear()} StrideTix. Hak Cipta Dilindungi.</span>
           <span className="flex items-center gap-1.5 justify-center">
             <ShieldCheck className="w-3.5 h-3.5 text-accent-success" />
