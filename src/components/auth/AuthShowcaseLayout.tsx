@@ -66,7 +66,11 @@ export function AuthShowcaseLayout({
           GAMBAR HANYA ADA DI HP: Foto marathon lebih besar, logo StrideTix,
           tombol Kembali, dan tulisan "Langkah Pertama Menuju Garis Finish".
       ========================================================================= */}
-      <div className="lg:hidden relative bg-[#120B07] text-white overflow-hidden shrink-0 h-44 sm:h-52 flex flex-col justify-between">
+      <div
+        className={`lg:hidden relative bg-[#120B07] text-white overflow-hidden shrink-0 flex flex-col justify-between ${
+          type === "login" ? "h-64 sm:h-72" : "h-44 sm:h-52"
+        }`}
+      >
         {/* Foto Marathon Sebelumnya di HP (Lebih besar, jelas, dan hidup) */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -142,14 +146,14 @@ export function AuthShowcaseLayout({
         <main
           className={`flex-1 flex flex-col items-center px-4 sm:px-6 xl:px-8 min-h-0 ${
             type === "login"
-              ? "justify-center py-5 sm:py-7 lg:py-4 my-auto"
+              ? "justify-center py-5 sm:py-6 lg:py-4"
               : "lg:justify-center justify-start pt-5 pb-6 lg:py-3"
           }`}
         >
           <div
             className={`w-full max-w-md sm:max-w-[460px] lg:max-w-[480px] xl:max-w-[510px] ${
               type === "login"
-                ? "space-y-4 sm:space-y-4.5 -translate-y-2 sm:-translate-y-3 lg:translate-y-0"
+                ? "space-y-4 sm:space-y-5"
                 : "space-y-3 sm:space-y-3.5"
             }`}
           >

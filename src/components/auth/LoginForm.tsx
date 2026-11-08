@@ -228,8 +228,8 @@ export function LoginForm() {
 
   return (
     <div className="w-full">
-      {/* Frame Konten Form: Lebih panjang ke bawah di mobile dan isinya proporsional di tengah */}
-      <div className="bg-white rounded-2xl px-5 py-7 sm:px-8 sm:py-9 xl:py-8 border border-sand-border shadow-warm-modal space-y-4 sm:space-y-5 flex flex-col justify-center min-h-[360px] sm:min-h-[390px]">
+      {/* Frame Konten Form */}
+      <div className="bg-white rounded-2xl p-5 sm:p-7 xl:p-8 border border-sand-border shadow-warm-modal space-y-4 sm:space-y-5">
         {step === "credentials" && (
           <>
             {/* Informational banner when redirected from checkout */}
