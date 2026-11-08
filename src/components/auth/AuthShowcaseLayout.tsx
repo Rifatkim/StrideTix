@@ -63,11 +63,11 @@ export function AuthShowcaseLayout({
 
       {/* =========================================================================
           MOBILE HERO HEADER WITH PHOTO (lg:hidden)
-          GAMBAR HANYA ADA DI HP: Foto marathon sebelumnya, logo StrideTix,
+          GAMBAR HANYA ADA DI HP: Foto marathon lebih besar, logo StrideTix,
           tombol Kembali, dan tulisan "Langkah Pertama Menuju Garis Finish".
       ========================================================================= */}
-      <div className="lg:hidden relative bg-[#120B07] text-white overflow-hidden shrink-0">
-        {/* Foto Marathon Sebelumnya di HP */}
+      <div className="lg:hidden relative bg-[#120B07] text-white overflow-hidden shrink-0 h-44 sm:h-52 flex flex-col justify-between">
+        {/* Foto Marathon Sebelumnya di HP (Lebih besar, jelas, dan hidup) */}
         <div className="absolute inset-0 z-0">
           <Image
             src={type === "login" ? "/images/hero-landingpage.jpg" : "/images/events/city-marathon.jpg"}
@@ -75,20 +75,20 @@ export function AuthShowcaseLayout({
             fill
             priority
             sizes="100vw"
-            className="object-cover object-center brightness-90 contrast-[1.05]"
+            className="object-cover object-center brightness-95 contrast-[1.05]"
           />
-          {/* Dark Overlay Filter agar tulisan tetap kontras dan elegan */}
+          {/* Dark Overlay Filter agar tulisan tetap kontras dan foto tetap terlihat jelas */}
           <div
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to bottom, rgba(18, 11, 7, 0.6) 0%, rgba(18, 11, 7, 0.72) 50%, rgba(18, 11, 7, 0.88) 100%)",
+                "linear-gradient(to bottom, rgba(18, 11, 7, 0.42) 0%, rgba(18, 11, 7, 0.55) 45%, rgba(18, 11, 7, 0.88) 100%)",
             }}
           />
         </div>
 
         {/* Topbar: Safe area + Logo StrideTix + Tombol Kembali */}
-        <div className="relative z-10 px-4 pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-2.5 flex items-center justify-between border-b border-white/10">
+        <div className="relative z-10 px-4 pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-2.5 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group min-h-[44px]" aria-label="Beranda StrideTix">
             <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white shadow-warm">
               <StrideTixSymbol size={18} color="#FFFFFF" />
@@ -100,7 +100,7 @@ export function AuthShowcaseLayout({
 
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-white px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 min-h-[38px] active:scale-[0.97] transition-all touch-manipulation"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-white px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/25 min-h-[38px] active:scale-[0.97] transition-all touch-manipulation shadow-xs"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Kembali</span>
@@ -108,8 +108,8 @@ export function AuthShowcaseLayout({
         </div>
 
         {/* Header Copy: HANYA TULISAN "Langkah Pertama Menuju Garis Finish" */}
-        <div className="relative z-10 px-4 pt-3 pb-5">
-          <h1 className="text-base sm:text-lg font-black text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+        <div className="relative z-10 px-4 pb-7">
+          <h1 className="text-lg sm:text-xl font-black text-white tracking-tight leading-snug drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
             Langkah Pertama Menuju Garis Finish
           </h1>
         </div>
@@ -120,7 +120,7 @@ export function AuthShowcaseLayout({
           Desktop: 1 layar penuh (100% viewport) tanpa scrollbar berlebih.
           Mobile: Mengalir rapi dari header foto, dengan container dan font yang proporsional.
       ========================================================================= */}
-      <section className="flex-1 flex flex-col justify-between relative z-20 -mt-2.5 lg:mt-0 rounded-t-2xl sm:rounded-3xl lg:rounded-none bg-[#FFFCF8] shadow-warm-modal lg:shadow-none min-h-0 lg:h-full lg:max-h-screen lg:overflow-y-auto">
+      <section className="flex-1 flex flex-col justify-between relative z-20 -mt-4 rounded-t-3xl lg:rounded-none bg-[#FFFCF8] shadow-warm-modal lg:shadow-none min-h-0 lg:h-full lg:max-h-screen lg:overflow-y-auto">
         {/* Desktop Header Topbar (Hidden di mobile) */}
         <header className="hidden lg:flex w-full px-6 xl:px-10 py-2.5 xl:py-3.5 items-center justify-between border-b border-sand-border/40 shrink-0">
           <div>
@@ -139,7 +139,7 @@ export function AuthShowcaseLayout({
         </header>
 
         {/* Form Center Wrapper */}
-        <main className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 xl:px-8 py-4 sm:py-3 min-h-0">
+        <main className="flex-1 flex flex-col lg:justify-center justify-start items-center px-4 sm:px-6 xl:px-8 pt-5 pb-6 lg:py-3 min-h-0">
           <div className="w-full max-w-md sm:max-w-[460px] lg:max-w-[480px] xl:max-w-[510px] space-y-3 sm:space-y-3.5">
             {/* Header Text Above Card */}
             <div className="space-y-1 text-left">
