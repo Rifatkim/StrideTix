@@ -146,7 +146,7 @@ export function AuthShowcaseLayout({
         <main
           className={`flex-1 flex flex-col items-center px-4 sm:px-6 xl:px-8 min-h-0 ${
             type === "login"
-              ? "justify-center py-5 sm:py-6 lg:py-4"
+              ? "lg:justify-center justify-start pt-4 sm:pt-5 pb-6 lg:py-4"
               : "lg:justify-center justify-start pt-5 pb-6 lg:py-3"
           }`}
         >
