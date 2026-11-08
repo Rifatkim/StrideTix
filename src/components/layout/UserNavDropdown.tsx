@@ -9,6 +9,7 @@ import { UserRole } from "@/types";
 import {
   User,
   Shield,
+  ShieldCheck,
   Building,
   Ticket,
   LogOut,
@@ -171,7 +172,7 @@ export function UserNavDropdown({ compact = false }: UserNavDropdownProps) {
                   className="flex items-center gap-2 px-3 py-2 rounded-btn hover:bg-brand-50 text-espresso font-semibold transition-colors"
                 >
                   <LayoutDashboard className="w-4 h-4 text-brand" />
-                  <span>Dashboard EO</span>
+                  <span>Portal Organizer</span>
                 </Link>
                 <Link
                   href="/organizer/events/new"
@@ -186,8 +187,8 @@ export function UserNavDropdown({ compact = false }: UserNavDropdownProps) {
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 rounded-btn hover:bg-brand-50 text-espresso font-semibold transition-colors"
                 >
-                  <QrCode className="w-4 h-4 text-accent-info" />
-                  <span>Scanner Gate Check-in</span>
+                  <ShieldCheck className="w-4 h-4 text-accent-info" />
+                  <span>Gate Check-in</span>
                 </Link>
               </>
             )}

@@ -14,6 +14,7 @@ import {
   PlusCircle,
   QrCode,
   Shield,
+  ShieldCheck,
   Building2,
   CalendarCheck,
   Receipt,
@@ -128,62 +129,52 @@ function MobileBottomNavInner() {
           </>
         )}
 
-        {/* 2. ORGANIZER ROLE */}
+        {/* 2. ORGANIZER (EO) ROLE - Synced with Laptop Desktop Navbar */}
         {currentUser && role === "organizer" && (
           <>
+            {/* 1. Home Hub -> href="/" */}
             <Link
               href="/"
               className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 ${
-                pathname === "/" || pathname === "/organizer/dashboard"
+                pathname === "/" ? "text-brand font-bold" : "text-espresso-muted hover:text-espresso"
+              }`}
+            >
+              <Building2
+                className={`w-5 h-5 ${pathname === "/" ? "stroke-[2.5]" : "stroke-[1.75]"}`}
+              />
+              <span className="text-[9.5px] sm:text-[10px] mt-0.5 tracking-tight font-medium text-center line-clamp-1">
+                Home Hub
+              </span>
+            </Link>
+
+            {/* 2. Portal Organizer -> href="/organizer/dashboard" */}
+            <Link
+              href="/organizer/dashboard"
+              className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 ${
+                pathname === "/organizer/dashboard" ||
+                (pathname.startsWith("/organizer") &&
+                  pathname !== "/organizer/events/new" &&
+                  pathname !== "/organizer/check-in")
                   ? "text-brand font-bold"
                   : "text-espresso-muted hover:text-espresso"
               }`}
             >
               <LayoutDashboard
                 className={`w-5 h-5 ${
-                  pathname === "/" || pathname === "/organizer/dashboard" ? "stroke-[2.5]" : "stroke-[1.75]"
+                  pathname === "/organizer/dashboard" ||
+                  (pathname.startsWith("/organizer") &&
+                    pathname !== "/organizer/events/new" &&
+                    pathname !== "/organizer/check-in")
+                    ? "stroke-[2.5]"
+                    : "stroke-[1.75]"
                 }`}
               />
-              <span className="text-[10px] mt-0.5 tracking-tight font-medium">Home Hub</span>
+              <span className="text-[9.5px] sm:text-[10px] mt-0.5 tracking-tight font-medium text-center line-clamp-1">
+                Portal Organizer
+              </span>
             </Link>
 
-            <Link
-              href="/organizer/events/evt-jkt-marathon-2026/participants"
-              className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 ${
-                pathname.includes("/participants")
-                  ? "text-brand font-bold"
-                  : "text-espresso-muted hover:text-espresso"
-              }`}
-            >
-              <Users
-                className={`w-5 h-5 ${
-                  pathname.includes("/participants") ? "stroke-[2.5]" : "stroke-[1.75]"
-                }`}
-              />
-              <span className="text-[10px] mt-0.5 tracking-tight font-medium">Peserta</span>
-            </Link>
-
-            {/* Seamless, Elegant Scan Gate Action with balanced baseline */}
-            <Link
-              href="/organizer/check-in"
-              className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 group ${
-                isExactActive("/organizer/check-in")
-                  ? "text-brand font-bold"
-                  : "text-espresso-secondary hover:text-espresso"
-              }`}
-            >
-              <div
-                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
-                  isExactActive("/organizer/check-in")
-                    ? "bg-brand text-white shadow-warm"
-                    : "bg-brand-50 text-brand border border-brand/20 group-hover:bg-brand-100"
-                }`}
-              >
-                <QrCode className="w-4 h-4 stroke-[2.2]" />
-              </div>
-              <span className="text-[10px] mt-0.5 tracking-tight font-bold">Scan Gate</span>
-            </Link>
-
+            {/* 3. Buat Event Lomba -> href="/organizer/events/new" */}
             <Link
               href="/organizer/events/new"
               className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 ${
@@ -197,7 +188,28 @@ function MobileBottomNavInner() {
                   isExactActive("/organizer/events/new") ? "stroke-[2.5]" : "stroke-[1.75]"
                 }`}
               />
-              <span className="text-[10px] mt-0.5 tracking-tight font-medium">+ Event</span>
+              <span className="text-[9.5px] sm:text-[10px] mt-0.5 tracking-tight font-medium text-center line-clamp-1">
+                Buat Event Lomba
+              </span>
+            </Link>
+
+            {/* 4. Gate Check-in -> href="/organizer/check-in" */}
+            <Link
+              href="/organizer/check-in"
+              className={`flex flex-col items-center justify-center flex-1 py-1 transition-transform active:scale-95 ${
+                isExactActive("/organizer/check-in")
+                  ? "text-brand font-bold"
+                  : "text-espresso-muted hover:text-espresso"
+              }`}
+            >
+              <ShieldCheck
+                className={`w-5 h-5 ${
+                  isExactActive("/organizer/check-in") ? "stroke-[2.5]" : "stroke-[1.75]"
+                }`}
+              />
+              <span className="text-[9.5px] sm:text-[10px] mt-0.5 tracking-tight font-medium text-center line-clamp-1">
+                Gate Check-in
+              </span>
             </Link>
           </>
         )}
