@@ -139,7 +139,7 @@ GROQ_MODEL=openai/gpt-oss-120b
 
 # Transactional Email (Resend)
 RESEND_API_KEY=re_your_resend_api_key
-RESEND_FROM_EMAIL=StrideTix <tickets@oscartambunan.my.id>
+RESEND_FROM_EMAIL=StrideTix <tickets@stridetix.shop>
 ```
 
 ### 5. Menjalankan Server Development

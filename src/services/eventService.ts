@@ -168,7 +168,7 @@ export async function createEvent(
     await supabase.from("users").upsert(
       {
         id: organizerId,
-        email: user?.email || "organizer@stridetix.com",
+        email: user?.email || "organizer@stridetix.shop",
         full_name: payload.organizerName || user?.user_metadata?.full_name || "Organizer",
         role: "organizer",
       },
