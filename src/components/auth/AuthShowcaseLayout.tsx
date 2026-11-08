@@ -30,8 +30,8 @@ export function AuthShowcaseLayout({
           Tipografi minimalis: hanya nama StrideTix dan kalimat yang diminta.
       ========================================================================= */}
       <aside className="hidden lg:flex lg:w-[46%] xl:w-[48%] relative flex-col justify-between p-8 xl:p-12 text-white overflow-hidden bg-[#120B07] shrink-0 h-full">
-        {/* 1. Background Video Iframe with Dark Opacity Filter Block (per SS 3) */}
-        <AuthVideoBackdrop initialFootageIndex={type === "login" ? 0 : 1} />
+        {/* 1. Background Native Video with Dark Opacity Filter Block (per SS 3) */}
+        <AuthVideoBackdrop />
 
         {/* 2. Top: StrideTix Brand Lockup ONLY */}
         <div className="relative z-30 flex items-center justify-between">
@@ -65,7 +65,7 @@ export function AuthShowcaseLayout({
           Tampilan mobile ringkas dan efisien tanpa elemen visual berlebih
       ========================================================================= */}
       <div className="lg:hidden relative bg-[#120B07] text-white overflow-hidden shrink-0">
-        <AuthVideoBackdrop initialFootageIndex={type === "login" ? 0 : 1} />
+        <AuthVideoBackdrop />
 
         {/* Mobile Header Topbar: Safe area + Brand Logo + Back Button */}
         <div className="relative z-30 px-4 pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-2.5 flex items-center justify-between border-b border-white/10">
