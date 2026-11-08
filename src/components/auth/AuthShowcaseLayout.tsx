@@ -142,13 +142,15 @@ export function AuthShowcaseLayout({
         <main
           className={`flex-1 flex flex-col items-center px-4 sm:px-6 xl:px-8 min-h-0 ${
             type === "login"
-              ? "justify-center py-6 sm:py-8 lg:py-4 my-auto"
+              ? "justify-center py-4 sm:py-6 lg:py-4 my-auto"
               : "lg:justify-center justify-start pt-5 pb-6 lg:py-3"
           }`}
         >
           <div
             className={`w-full max-w-md sm:max-w-[460px] lg:max-w-[480px] xl:max-w-[510px] ${
-              type === "login" ? "space-y-4 sm:space-y-4.5" : "space-y-3 sm:space-y-3.5"
+              type === "login"
+                ? "space-y-4 sm:space-y-4.5 -translate-y-7 sm:-translate-y-8 lg:translate-y-0"
+                : "space-y-3 sm:space-y-3.5"
             }`}
           >
             {/* Header Text Above Card */}
