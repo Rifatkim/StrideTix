@@ -229,19 +229,19 @@ export function LoginForm() {
   return (
     <div className="w-full">
       {/* Frame Konten Form Ringkas */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-sand-border shadow-warm-modal space-y-3">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 xl:p-7 border border-sand-border shadow-warm-modal space-y-3.5 sm:space-y-4">
         {step === "credentials" && (
           <>
             {/* Informational banner when redirected from checkout */}
             {redirectParam && (
-              <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200/80 text-xs text-amber-900 leading-relaxed animate-in fade-in">
+              <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200/80 text-xs sm:text-sm text-amber-900 leading-relaxed animate-in fade-in">
                 Silakan masuk terlebih dahulu untuk melanjutkan pembelian tiket lomba.
               </div>
             )}
 
             {/* Success Message Banner */}
             {infoMessage && (
-              <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-semibold flex items-center gap-2 shadow-2xs animate-in fade-in">
+              <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs sm:text-sm text-emerald-800 font-semibold flex items-center gap-2 shadow-2xs animate-in fade-in">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>{infoMessage}</span>
               </div>
@@ -249,20 +249,20 @@ export function LoginForm() {
 
             {/* Error Alert */}
             {errorMessage && (
-              <div className="p-2.5 rounded-xl bg-accent-error/10 border border-accent-error/20 flex items-start gap-2 text-xs text-accent-error animate-in fade-in">
+              <div className="p-2.5 rounded-xl bg-accent-error/10 border border-accent-error/20 flex items-start gap-2 text-xs sm:text-sm text-accent-error animate-in fade-in">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{errorMessage}</span>
               </div>
             )}
 
             {/* Standard Login Form */}
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-3.5">
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-espresso">
+                <label className="text-xs sm:text-sm font-bold text-espresso">
                   Alamat Email
                 </label>
                 <div className="relative">
-                  <Mail className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
+                  <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
                   <input
                     id="email-input"
                     type="email"
@@ -275,14 +275,14 @@ export function LoginForm() {
                     placeholder="nama@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-9 pr-3.5 h-10 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
+                    className="w-full pl-10 pr-3.5 h-11 sm:h-12 rounded-input bg-surface-main border border-sand-border text-sm sm:text-base text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-bold text-espresso">
+                  <label className="text-xs sm:text-sm font-bold text-espresso">
                     Password
                   </label>
                   <button
@@ -292,13 +292,13 @@ export function LoginForm() {
                       setInfoMessage(null);
                       setStep("forgot_password");
                     }}
-                    className="text-[11px] font-semibold text-brand hover:underline transition-colors cursor-pointer touch-manipulation"
+                    className="text-xs sm:text-sm font-semibold text-brand hover:underline transition-colors cursor-pointer touch-manipulation"
                   >
                     Lupa Password?
                   </button>
                 </div>
                 <div className="relative">
-                  <Lock className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
+                  <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
                   <input
                     id="password-input"
                     type={showPassword ? "text" : "password"}
@@ -309,36 +309,36 @@ export function LoginForm() {
                     placeholder="Masukkan password akun"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-9 pr-11 h-10 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
+                    className="w-full pl-10 pr-11 h-11 sm:h-12 rounded-input bg-surface-main border border-sand-border text-sm sm:text-base text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-espresso-muted hover:text-espresso transition-colors select-none active:scale-[0.92] touch-manipulation"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-espresso-muted hover:text-espresso transition-colors select-none active:scale-[0.92] touch-manipulation"
                     aria-label={showPassword ? "Sembunyikan password" : "Lihat password"}
                   >
-                    {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
               {/* Tombol Masuk Penuh Selebar Container */}
-              <div className="pt-1">
+              <div className="pt-1 sm:pt-1.5">
                 <button
                   id="login-submit-btn"
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full h-11 min-h-[44px] px-5 rounded-btn bg-brand hover:bg-brand-800 active:scale-[0.98] transition-transform text-white font-bold text-xs sm:text-sm shadow-warm flex items-center justify-center gap-2 group disabled:opacity-50 select-none cursor-pointer touch-manipulation"
+                  className="w-full h-11 sm:h-12 min-h-[44px] px-5 rounded-btn bg-brand hover:bg-brand-800 active:scale-[0.98] transition-transform text-white font-bold text-sm sm:text-base shadow-warm flex items-center justify-center gap-2 group disabled:opacity-50 select-none cursor-pointer touch-manipulation"
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                       <span>Masuk...</span>
                     </>
                   ) : (
                     <>
                       <span>Masuk ke Akun</span>
-                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
                 </button>
@@ -346,7 +346,7 @@ export function LoginForm() {
             </form>
 
             {/* Footer Link: Belum memiliki akun? Daftar di Sini */}
-            <div className="text-center text-xs text-espresso-secondary pt-2 border-t border-sand-border/60">
+            <div className="text-center text-xs sm:text-sm text-espresso-secondary pt-2.5 border-t border-sand-border/60">
               Belum memiliki akun?{" "}
               <Link
                 href={`/register${

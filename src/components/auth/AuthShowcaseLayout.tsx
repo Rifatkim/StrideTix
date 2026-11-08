@@ -107,14 +107,14 @@ export function AuthShowcaseLayout({
         </header>
 
         {/* Form Center Wrapper */}
-        <main className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-4 sm:py-3 min-h-0">
-          <div className="w-full max-w-md sm:max-w-[420px] space-y-2.5 sm:space-y-3">
+        <main className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 xl:px-8 py-4 sm:py-3 min-h-0">
+          <div className="w-full max-w-md sm:max-w-[460px] lg:max-w-[480px] xl:max-w-[510px] space-y-3 sm:space-y-3.5">
             {/* Header Text Above Card */}
-            <div className="space-y-0.5 text-left">
-              <h2 className="text-xl sm:text-2xl font-black text-espresso tracking-tight">
+            <div className="space-y-1 text-left">
+              <h2 className="text-2xl sm:text-3xl lg:text-[28px] xl:text-[32px] font-black text-espresso tracking-tight leading-tight">
                 {title}
               </h2>
-              <p className="text-xs text-espresso-secondary leading-snug">
+              <p className="text-xs sm:text-sm text-espresso-secondary leading-snug">
                 {subtitle}
               </p>
             </div>
