@@ -13,9 +13,6 @@ export default function LoginPage() {
       type="login"
       title="Selamat Datang Kembali"
       subtitle="Masuk untuk mengakses tiket lomba aktif, rekomendasi jarak, dan konsultasi asisten lari Anda."
-      heroImage="/images/hero-landingpage.jpg"
-      heroHeadline="Langkah Pertama Menuju Garis Finis."
-      heroSubheadline="Platform e-ticketing resmi event lari nasional dengan Smart Distance Recommendation. Pilih kategori jarak yang terukur dan hindari risiko cedera."
     >
       <React.Suspense fallback={<div className="text-center text-xs text-espresso-muted py-8">Memuat formulir masuk...</div>}>
         <LoginForm />

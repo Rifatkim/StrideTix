@@ -51,19 +51,19 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="w-full space-y-4">
-      {/* Frame / Card Utama */}
-      <div className="bg-white rounded-modal p-6 sm:p-7 border border-sand-border shadow-warm-modal space-y-4">
+    <div className="w-full">
+      {/* Frame / Card Utama Ringkas agar 100% pas dalam layar tanpa scroll */}
+      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-sand-border shadow-warm-modal space-y-3">
         {/* Role Picker Pills */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-espresso block">Pilih Jenis Akun</label>
-          <div className="grid grid-cols-2 gap-2.5">
+        <div className="space-y-1">
+          <label className="text-[11px] font-bold text-espresso block">Pilih Jenis Akun</label>
+          <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => setRole("runner")}
-              className={`min-h-[52px] p-3 rounded-btn border text-left flex flex-col justify-center gap-1 touch-manipulation select-none active:scale-[0.97] transition-transform duration-150 ease-out ${
+              className={`p-2 rounded-btn border text-left flex flex-col justify-center gap-0.5 select-none active:scale-[0.98] transition-all min-h-[42px] cursor-pointer ${
                 role === "runner"
-                  ? "bg-brand text-white border-brand shadow-sm"
+                  ? "bg-brand text-white border-brand shadow-xs"
                   : "bg-surface-main text-espresso border-sand-border hover:bg-brand-50/50 hover:border-brand/40"
               }`}
             >
@@ -71,7 +71,7 @@ export function RegisterForm() {
                 <User className="w-3.5 h-3.5 shrink-0" />
                 <span>Pelari (Runner)</span>
               </div>
-              <span className={`text-[10px] leading-tight ${role === "runner" ? "text-white/80" : "text-espresso-muted"}`}>
+              <span className={`text-[9.5px] leading-tight ${role === "runner" ? "text-white/80" : "text-espresso-muted"}`}>
                 Daftar & beli tiket resmi
               </span>
             </button>
@@ -79,9 +79,9 @@ export function RegisterForm() {
             <button
               type="button"
               onClick={() => setRole("organizer")}
-              className={`min-h-[52px] p-3 rounded-btn border text-left flex flex-col justify-center gap-1 touch-manipulation select-none active:scale-[0.97] transition-transform duration-150 ease-out ${
+              className={`p-2 rounded-btn border text-left flex flex-col justify-center gap-0.5 select-none active:scale-[0.98] transition-all min-h-[42px] cursor-pointer ${
                 role === "organizer"
-                  ? "bg-brand text-white border-brand shadow-sm"
+                  ? "bg-brand text-white border-brand shadow-xs"
                   : "bg-surface-main text-espresso border-sand-border hover:bg-brand-50/50 hover:border-brand/40"
               }`}
             >
@@ -89,7 +89,7 @@ export function RegisterForm() {
                 <Building className="w-3.5 h-3.5 shrink-0" />
                 <span>Penyelenggara (EO)</span>
               </div>
-              <span className={`text-[10px] leading-tight ${role === "organizer" ? "text-white/80" : "text-espresso-muted"}`}>
+              <span className={`text-[9.5px] leading-tight ${role === "organizer" ? "text-white/80" : "text-espresso-muted"}`}>
                 Kelola event & scan tiket
               </span>
             </button>
@@ -98,18 +98,18 @@ export function RegisterForm() {
 
         {/* Error Alert */}
         {errorMessage && (
-          <div className="p-3 rounded-xl bg-accent-error/10 border border-accent-error/20 flex items-start gap-2 text-xs text-accent-error animate-in fade-in">
+          <div className="p-2.5 rounded-xl bg-accent-error/10 border border-accent-error/20 flex items-start gap-2 text-xs text-accent-error animate-in fade-in">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{errorMessage}</span>
           </div>
         )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3.5">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-espresso">Nama Lengkap</label>
+        {/* Form Fields */}
+        <form onSubmit={handleSubmit} className="space-y-2.5">
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold text-espresso">Nama Lengkap</label>
             <div className="relative">
-              <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
+              <User className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
               <input
                 type="text"
                 required
@@ -118,16 +118,16 @@ export function RegisterForm() {
                 placeholder="Contoh: Budi Pratama"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full h-12 pl-10 pr-4 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors duration-150 ease-out touch-manipulation"
+                className="w-full h-10 pl-9 pr-3.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
               />
             </div>
           </div>
 
           {role === "organizer" && (
-            <div className="space-y-1.5 animate-in fade-in duration-150">
-              <label className="text-xs font-bold text-espresso">Nama Organisasi / Komunitas EO</label>
+            <div className="space-y-1 animate-in fade-in duration-150">
+              <label className="text-[11px] font-bold text-espresso">Nama Organisasi / Komunitas EO</label>
               <div className="relative">
-                <Building className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
+                <Building className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
                 <input
                   type="text"
                   required
@@ -136,16 +136,16 @@ export function RegisterForm() {
                   placeholder="Contoh: Stride Athletics ID"
                   value={organizerName}
                   onChange={(e) => setOrganizerName(e.target.value)}
-                  className="w-full h-12 pl-10 pr-4 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors duration-150 ease-out touch-manipulation"
+                  className="w-full h-10 pl-9 pr-3.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
                 />
               </div>
             </div>
           )}
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-espresso">Alamat Email</label>
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold text-espresso">Alamat Email</label>
             <div className="relative">
-              <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
+              <Mail className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
               <input
                 type="email"
                 required
@@ -157,15 +157,15 @@ export function RegisterForm() {
                 placeholder="nama@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-12 pl-10 pr-4 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors duration-150 ease-out touch-manipulation"
+                className="w-full h-10 pl-9 pr-3.5 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
               />
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-espresso">Password</label>
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold text-espresso">Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
+              <Lock className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-espresso-muted pointer-events-none" />
               <input
                 type={showPassword ? "text" : "password"}
                 required
@@ -176,37 +176,37 @@ export function RegisterForm() {
                 placeholder="Minimal 6 karakter"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-12 pl-10 pr-12 rounded-input bg-surface-main border border-sand-border text-base sm:text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors duration-150 ease-out touch-manipulation"
+                className="w-full h-10 pl-9 pr-11 rounded-input bg-surface-main border border-sand-border text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-espresso-muted hover:text-espresso transition-colors duration-150 ease-out touch-manipulation select-none active:scale-[0.92]"
+                className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-espresso-muted hover:text-espresso transition-colors select-none active:scale-[0.92]"
                 aria-label={showPassword ? "Sembunyikan password" : "Lihat password"}
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
               </button>
             </div>
-            <span className="text-[10px] text-espresso-muted block">
+            <span className="text-[9.5px] text-espresso-muted block">
               Gunakan minimal 6 karakter kombinasi huruf dan angka.
             </span>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-1">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-12 min-h-[48px] px-6 rounded-btn bg-brand hover:bg-brand-800 active:scale-[0.97] text-white font-bold text-sm shadow-warm transition-transform duration-150 ease-out flex items-center justify-center gap-2 group disabled:opacity-50 touch-manipulation select-none cursor-pointer"
+              className="w-full h-10 min-h-[40px] px-5 rounded-btn bg-brand hover:bg-brand-800 active:scale-[0.98] text-white font-bold text-xs sm:text-sm shadow-warm transition-transform flex items-center justify-center gap-2 group disabled:opacity-50 select-none cursor-pointer"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   <span>Mendaftarkan Akun...</span>
                 </>
               ) : (
                 <>
                   <span>Buat Akun Sekarang</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-150 ease-out" />
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
@@ -214,11 +214,11 @@ export function RegisterForm() {
         </form>
 
         {/* Footer Link */}
-        <div className="text-center text-xs text-espresso-secondary pt-3 border-t border-sand-border/60">
+        <div className="text-center text-xs text-espresso-secondary pt-2 border-t border-sand-border/60">
           Sudah memiliki akun?{" "}
           <Link
             href={`/login${redirectParam ? `?redirect=${encodeURIComponent(redirectParam)}` : ""}`}
-            className="font-bold text-brand hover:underline min-h-[44px] inline-flex items-center px-1 touch-manipulation"
+            className="font-bold text-brand hover:underline inline-flex items-center px-1"
           >
             Masuk di Sini
           </Link>
