@@ -228,8 +228,8 @@ export function LoginForm() {
 
   return (
     <div className="w-full">
-      {/* Frame Konten Form Ringkas */}
-      <div className="bg-white rounded-2xl p-4 sm:p-6 xl:p-7 border border-sand-border shadow-warm-modal space-y-3.5 sm:space-y-4">
+      {/* Frame Konten Form: Lebih panjang ke bawah di mobile dan isinya proporsional di tengah */}
+      <div className="bg-white rounded-2xl px-5 py-7 sm:px-8 sm:py-9 xl:py-8 border border-sand-border shadow-warm-modal space-y-4 sm:space-y-5 flex flex-col justify-center min-h-[360px] sm:min-h-[390px]">
         {step === "credentials" && (
           <>
             {/* Informational banner when redirected from checkout */}
@@ -256,8 +256,8 @@ export function LoginForm() {
             )}
 
             {/* Standard Login Form */}
-            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-3.5">
-              <div className="space-y-1">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-4.5">
+              <div className="space-y-1.5">
                 <label className="text-xs sm:text-sm font-bold text-espresso">
                   Alamat Email
                 </label>
@@ -280,7 +280,7 @@ export function LoginForm() {
                 </div>
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs sm:text-sm font-bold text-espresso">
                     Password
@@ -323,7 +323,7 @@ export function LoginForm() {
               </div>
 
               {/* Tombol Masuk Penuh Selebar Container */}
-              <div className="pt-1 sm:pt-1.5">
+              <div className="pt-2 sm:pt-2.5">
                 <button
                   id="login-submit-btn"
                   type="submit"
@@ -346,7 +346,7 @@ export function LoginForm() {
             </form>
 
             {/* Footer Link: Belum memiliki akun? Daftar di Sini */}
-            <div className="text-center text-xs sm:text-sm text-espresso-secondary pt-2.5 border-t border-sand-border/60">
+            <div className="text-center text-xs sm:text-sm text-espresso-secondary pt-3 sm:pt-3.5 border-t border-sand-border/60">
               Belum memiliki akun?{" "}
               <Link
                 href={`/register${
